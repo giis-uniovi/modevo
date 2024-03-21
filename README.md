@@ -1,5 +1,5 @@
-[![Status](https://github.com/giis-uniovi/samples-giis-template/actions/workflows/test.yml/badge.svg)](https://github.com/giis-uniovi/samples-giis-template/actions)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=my%3Asamples-giis-template&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=my%3Asamples-giis-template)
+[![Status](https://github.com/giis-uniovi/modevo/actions/workflows/test.yml/badge.svg)](https://github.com/giis-uniovi/modevo/actions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=my%3Amodevo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=my%3Amodevo)
 
 # samples-giis-template
 
