@@ -7,3 +7,4 @@ TESTS-TestSuites.xml
 .idea
 # to allow each developer customize sonarlint
 org.sonarlint.eclipse.core.prefs
+.settings/
