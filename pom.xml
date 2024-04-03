@@ -7,7 +7,7 @@
 
 	<name>modevo</name>
 	<description>Model-driven approach to maintain data integrity for evolution of column family DBMSs</description>
-	<url>http://github.com/giis-uniovi/samples-giis-template</url>
+	<url>http://github.com/giis-uniovi/modevo</url>
 	<organization>
 		<name>Software Engineering Research Group (GIIS) - Universidad de Oviedo, ES</name>
 		<url>http://giis.uniovi.es/</url>
