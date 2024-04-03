@@ -1,30 +1,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.giis-uniovi</groupId>
-	<artifactId>samples-giis-template</artifactId>
+	<artifactId>modevo</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>samples-giis-template</name>
-	<description>Multimodule maven project template</description>
-	<url>http://github.com/giis-uniovi/samples-giis-template</url>
+	<name>modevo</name>
+	<description>Model-driven approach to maintain data integrity for evolution of column family DBMSs</description>
+	<url>http://github.com/giis-uniovi/modevo</url>
 	<organization>
 		<name>Software Engineering Research Group (GIIS) - Universidad de Oviedo, ES</name>
 		<url>http://giis.uniovi.es/</url>
 	</organization>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<surefire.version>3.2.5</surefire.version>
 	</properties>
 
 	<modules>
-		<module>samples-giis-template-m1</module>
-		<module>samples-giis-template-m2</module>
-		<module>samples-giis-template-bom</module>
+		<module>modevo-transform</module>
+		<module>modevo-script</module>
+		<module>modevo-bom</module>
 	</modules>
 
 	<dependencyManagement>
@@ -184,6 +184,18 @@
 
 	<developers>
 		<developer>
+			<name>Pablo Suarez-Otero</name>
+			<url>http://giis.uniovi.es</url>
+		</developer>
+		<developer>
+			<name>Michael Mior</name>
+			<url>https://cs.rit.edu/~dataunitylab/</url>
+		</developer>
+		<developer>
+			<name>Maria Jose Suarez-Cabal</name>
+			<url>http://giis.uniovi.es</url>
+		</developer>
+		<developer>
 			<name>Javier Tuya</name>
 			<url>http://giis.uniovi.es</url>
 		</developer>
@@ -191,11 +203,11 @@
 	<licenses>
 		<license>
 			<name>Apache-2.0</name>
-			<url>https://github.com/giis-uniovi/samples-giis-template/blob/main/LICENSE</url>
+			<url>https://github.com/giis-uniovi/modevo/blob/main/LICENSE</url>
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/giis-uniovi/samples-giis-template</url>
+		<url>https://github.com/giis-uniovi/modevo/blob/main/LICENSE</url>
 	</scm>
 
 	<!-- To publish packages (mvn deploy) a profile must be specified (github for snapsots and maven central for releases) -->
@@ -206,7 +218,7 @@
 				<snapshotRepository>
 					<id>github</id>
 					<name>GitHub Apache Maven Packages</name>
-					<url>https://maven.pkg.github.com/giis-uniovi/samples-giis-template</url>
+					<url>https://maven.pkg.github.com/giis-uniovi/modevo</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
