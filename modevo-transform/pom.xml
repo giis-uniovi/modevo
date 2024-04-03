@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 	<name>modevo-transform</name>
 	<description>MoDEvo transform module</description>
-	<url>http://github.com/giis-uniovi/samples-giis-template</url>
+	<url>http://github.com/giis-uniovi/modevo</url>
 	<organization>
 		<name>Software Engineering Research Group (GIIS) - Universidad de Oviedo, ES</name>
 		<url>http://giis.uniovi.es/</url>

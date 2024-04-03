@@ -1,3 +1,5 @@
+[![Status](https://github.com/giis-uniovi/modevo/actions/workflows/test.yml/badge.svg)](https://github.com/giis-uniovi/modevo/actions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=my%3Amodevo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=my%3Amodevo)
 # MoDEvo - Model-driven approach to maintain data integrity for evolution of column family DBMSs
 
 This repository contains the modules of the Model-driven engineering approach MoDEvo, which provides the data migrations required to maintain data integrity in a column family DBSM when the database evolves:
