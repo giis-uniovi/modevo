@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="SchemaEvolution" xsi:schemaLocation="SchemaEvolution ../../src/main/java/giis/modevo/transformations/atl/Metamodels/SchemaEvolution.ecore">
+    <AddTable
+      xmi:id="a1"
+      tab="t1" prevTable = "notificationsPrev"/>
+  <Table xmi:id="t1"
+      name="notifications">
+    <cols
+        xmi:id="c1"
+        name="to_guid"
+        tab="t1"
+        nameAttribute="id"
+        key="true"
+        nameEntity="user"/>
+    <cols
+        xmi:id="c2"
+        name="uuid"
+        tab="t1"
+        nameAttribute="uuid"
+        key="true"
+        nameEntity="notifications"/>
+     <cols
+        xmi:id="c3"
+        name="type_ground"
+        tab="t1"
+        nameAttribute="type_ground"
+        nameEntity="notifications"/>
+     <cols
+        xmi:id="c4"
+        name="from_guid"
+        tab="t1"
+        nameAttribute="id"
+        nameEntity="user"/>
+    <cols
+        xmi:id="c5"
+        name="entity_guid"
+        tab="t1"
+        nameAttribute="id"
+        nameEntity="entity"/>
+    <cols
+        xmi:id="c6"
+        name="entity_urn"
+        tab="t1"
+        nameAttribute="urn"
+        nameEntity="entity"/>
+    <cols
+        xmi:id="c7"
+        name="created_timestamp"
+        tab="t1"
+        nameAttribute="created_timestamp"
+        nameEntity="notifications"/>
+    <cols
+        xmi:id="c8"
+        name="read_timestamp"
+        tab="t1"
+        nameAttribute="read_timestamp"
+        nameEntity="notifications"/>
+  </Table>
+</xmi:XMI>

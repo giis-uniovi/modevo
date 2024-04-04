@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="users_pending_activation">
+  <migcol>
+    <ColTo Data="user" DataTable="users_pending_activation"/>
+    <ColFrom Data="user" DataTable="user_team"/>
+  </migcol>
+  <migcol Description="It is not possible to migrate data to the column expires_at as it is storing new data that is not stored in another table"/>
+</MigrationTable>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="SchemaEvolution" xsi:schemaLocation="SchemaEvolution ../../src/main/java/giis/modevo/transformations/atl/Metamodels/SchemaEvolution.ecore">
+  <AddTable
+      xmi:id="a1"
+      tab="t1"/>
+  <Table xmi:id="t1"
+      name="wire_support_tiers">
+    <cols xmi:id="c1"
+        name="entity_guid"
+        key="true"
+        tab="t1"
+        nameAttribute="id"
+        nameEntity="entity"/>
+    <cols xmi:id="c2"
+        name="currency"
+        key="true"
+        tab="t1"
+        nameAttribute="currency"
+        nameEntity="wire"/>
+    <cols xmi:id="c3"
+        name="guid"
+        key="true"
+        tab="t1"
+        nameAttribute="id"
+        nameEntity="wire"/>
+    <cols xmi:id="c5"
+        name="amount"
+        tab="t1"
+        nameAttribute="amount"
+        nameEntity="wire"/>
+    <cols xmi:id="c6"
+        name="name"
+        tab="t1"
+        nameAttribute="name"
+        nameEntity="wire"/>
+<cols xmi:id="c7"
+        name="description"
+        tab="t1"
+        nameAttribute="description"
+        nameEntity="wire"/>
+  </Table>
+</xmi:XMI>
