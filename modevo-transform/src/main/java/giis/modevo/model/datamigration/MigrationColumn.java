@@ -8,6 +8,7 @@ import lombok.Setter;
  * It contains the required information to migrate data for a specific column
  * specified in the children objects ColTo and ColFrom
  */
+@Getter @Setter
 public class MigrationColumn {
 
 	private String name;
@@ -21,57 +22,6 @@ public class MigrationColumn {
 		colTo = new ColTo();
 		colFrom = new ColFrom();
 	}
-
-	
-	public String getName() {
-		return name;
-	}
-
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-
-	public ColTo getColTo() {
-		return colTo;
-	}
-
-
-	public void setColTo(ColTo colTo) {
-		this.colTo = colTo;
-	}
-
-
-	public ColFrom getColFrom() {
-		return colFrom;
-	}
-
-
-	public void setColFrom(ColFrom colFrom) {
-		this.colFrom = colFrom;
-	}
-
-
-	public MigrationTable getTable() {
-		return table;
-	}
-
-
-	public void setTable(MigrationTable table) {
-		this.table = table;
-	}
-
-
-	public String getDescription() {
-		return description;
-	}
-
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
 
 	public MigrationColumn(String name) {
 		super();
