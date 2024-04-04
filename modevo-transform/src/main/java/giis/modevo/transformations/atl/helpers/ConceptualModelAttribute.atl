@@ -1,0 +1,20 @@
+module ConceptualModelAttribute;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Returns true if the attribute is associated to any of the given columns. This helper is used for the SchemaEvolution columns	
+helper context ConceptualModel!Attribute def: InColumnsSchemaEvolution (columns: Sequence (SchemaEvolution!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.entity.name and c.nameAttribute = self.name).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;
+
+---Returns true if the attribute is associated to any of the given columns		
+helper context ConceptualModel!Attribute def: InColumns (columns: Sequence (Schema!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.entity.name and c.nameAttribute = self.name).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;

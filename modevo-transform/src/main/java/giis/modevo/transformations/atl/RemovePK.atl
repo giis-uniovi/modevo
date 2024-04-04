@@ -1,0 +1,53 @@
+module RemovePK;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for copying a table when the PK is removed
+rule removePK {
+	from
+		j: SchemaEvolution!RemovePK 	
+		using{
+			tableTarget: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
+			->any (t | t.name = j.table);
+		}
+	to
+		d: DataMigration!MigrationTable(
+			name<- tableTarget.name,
+			migcol <- tableTarget.Column -> collect (c | thisModule.columnMigRemovePK(c, tableTarget, j.previous))
+		)
+}
+---Details migration for a single column of a copied table
+lazy rule columnMigRemovePK{
+	from
+		column: Schema!Column,
+		tableTarget: Schema!Table,
+		previous: String
+
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			ColTo <-  thisModule.columnToRemovePKTable (tableTarget, column),
+			ColFrom <- thisModule.columnCopyTable (previous, column)
+		)	
+}
+---Defines migration to a table of the given column
+lazy rule columnToRemovePKTable {
+	from
+		tableTarget: Schema!Table,
+		r: Schema!Column
+	to
+		colTo: DataMigration!To (
+			Data<- r.name,
+			DataTable <- tableTarget.name
+		)
+}
+---Defines migration from a table of the given column
+lazy rule columnCopyTable {
+	from
+				previous: String,
+				col: Schema!Column
+	to
+		colFrom: DataMigration!From (
+			Data<- col.name,
+			DataTable <- previous
+		)
+}
+

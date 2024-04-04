@@ -1,0 +1,55 @@
+module CopyTable;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for copying a table
+rule copyTable {
+	from
+		j: SchemaEvolution!CopyTable 	
+		using{
+			tableTarget: SchemaEvolution!Table =  j.copiedTable;
+			tableSource: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
+			->any (t | t.name = j.tableSource);
+		}
+	to
+		d: DataMigration!MigrationTable(
+			name<- tableTarget.name,
+			migcol <- tableTarget.cols -> collect (c | thisModule.columnMigColCopy(c, tableTarget, tableSource))
+		)
+}
+---Details migration for a single column of a copied table
+lazy rule columnMigColCopy{
+	from
+		column: Schema!Column,
+		tableTarget: SchemaEvolution!Table,
+		tableSource: Schema!Table
+
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			ColTo <-  thisModule.columnToCopyTable (tableTarget, column),
+			ColFrom <- thisModule.columnCopyTable (column, tableSource)
+		)	
+}
+
+---Defines migration from a table of the given column
+lazy rule columnCopyTable {
+	from
+		col: SchemaEvolution!Column,
+		tableFit: Schema!Table 
+	to
+		colFrom: DataMigration!From (
+			Data<- thisModule.obtainColumnInTableFromNewColumn(col, tableFit).name,
+			DataTable <- tableFit.name
+		)
+}
+
+---Defines migration to a table of the given column
+lazy rule columnToCopyTable {
+	from
+		tableTarget: SchemaEvolution!Table,
+		r: SchemaEvolution!Column
+	to
+		colTo: DataMigration!To (
+			Data<- r.name,
+			DataTable <- tableTarget.name
+		)
+}

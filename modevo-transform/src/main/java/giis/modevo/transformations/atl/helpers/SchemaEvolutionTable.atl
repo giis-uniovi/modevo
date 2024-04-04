@@ -1,0 +1,17 @@
+module SchemaEvolutionTable;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Obtains the entities that are detail of entity e and are stored in the table that calls the helper. This helper is used for the SchemaEvolution tables
+helper context SchemaEvolution!Table def: descendentsEntityInTableSchemaEvolution (e: ConceptualModel!Entity): Sequence (ConceptualModel!Entity) =
+	e.entitiesRelatedDescendant()->select (entity | self.EntitiesInTableSchemaEvolution().includes(entity));	
+
+
+---Obtains the entities that are in the table. This helper is used for the SchemaEvolution tables
+helper context SchemaEvolution!Table def: EntitiesInTableSchemaEvolution (): Sequence (ConceptualModel!Entity) =
+	ConceptualModel!Entity.allInstancesFrom('CM')-> select ( e | e.entityInColumnsSchemaEvolution ( self.cols) );	
+
+
+---Obtains equivalent Table in the Schema model
+helper context SchemaEvolution!Table def: tableFromLM (): Schema!Table =
+	Schema!Table.allInstancesFrom('LM') -> any (t | t.name = self.name);
+

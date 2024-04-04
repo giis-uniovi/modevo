@@ -1,0 +1,176 @@
+module NewTable;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for all new tables that are not based on a previovus table. It details the data migrations for each column of the new table
+rule newTable {
+	from 
+		nt : SchemaEvolution!AddTable (nt.prevTable.oclIsUndefined ()) --This rule is only triggered when there is no prev table
+		using{
+			tableFrom: Schema!Table = Schema!Table.allInstancesFrom('LM')
+			->select (t | t.containsRequiredColumns(nt.tab));
+			tableFit: Schema!Table = thisModule.bestTable(tableFrom, nt.tab.cols); --tableFit is the main table where data is obtained
+			columnsInFitTable: Sequence (SchemaEvolution!Column) = nt.tab.cols 
+			-> select (sc | (not thisModule.obtainColumnInTableFromNewColumn(sc, tableFit).oclIsUndefined()));
+		}
+	to
+		add: DataMigration!MigrationTable(
+			name <- nt.tab.name,
+			migcol <- columnsInFitTable-> collect (c | thisModule.MigColNewTable(tableFit, c)), --columns to migrate from tableFit
+			migcol <- nt.tab.cols
+			-> select (sc | not (sc.existsInOtherTable())) --triggers message to be shown that the data cannot be obtained from any table
+			-> collect (c | thisModule.MigColNewTableNotExist(c)),
+			migcol <- nt.tab.cols --detects columns from other tables where data can be obtained including the Key attributes
+			-> select (sc | (thisModule.obtainColumnInTableFromNewColumn(sc, tableFit).oclIsUndefined()) and sc.existsInOtherTable()) 
+			-> collect (c | thisModule.MigColNewTableKeyMigration(c, columnsInFitTable))
+		)
+}
+---Rule for all new tables that are based on a previovus table. It details the data migrations for each column of the new table, including new columns that were not in the previous table
+rule newTableFromPrevTable {
+	from 
+		nt : SchemaEvolution!AddTable (not nt.prevTable.oclIsUndefined ()) --This rule is only triggered when there is a previous version of the table
+		using{
+			tableFit: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
+			->any (t | t.name = nt.prevTable);
+			columnsInFitTable: Sequence (SchemaEvolution!Column) = nt.tab.cols --Identifies columns that were not in the previous version
+			-> select (sc | (not thisModule.obtainColumnInTableFromNewColumn(sc, tableFit).oclIsUndefined()));
+		}
+	to
+		add: DataMigration!MigrationTable(
+			name <- nt.tab.name,
+			migcol <- columnsInFitTable-> collect (c | thisModule.MigColNewTable(tableFit, c)), --migrated data from the previous version to the new one
+			migcol <- nt.tab.cols --details migration for new columns that were not in the previous version
+			-> select (sc | not (sc.existsInOtherTable())) 
+			-> collect (c | thisModule.MigColNewTableNotExist(c))
+		)
+}
+
+
+---Rule for obtaining the required information to migrate data to a column that it is not found in the fit table. The columns
+---of the the fit table are used to establish the key columns used to migrate the data.
+lazy rule MigColNewTableKeyMigration{
+	from
+		col: SchemaEvolution!Column ,
+		colsFitTable: Sequence (SchemaEvolution!Column)
+		using {
+			keyColumnToColumn : Sequence (SchemaEvolution!Column) = thisModule.typeKeySchemaEvolution (colsFitTable, thisModule.extractEntityByName (col.nameEntity), col.tab);
+			--first table that contains the data to be migrated is obtained by also requiring that the key column from keyColumnToColumn are obtained. Gets data column. Finished code
+			colFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
+			->select (c | c.nameAttribute = col.nameAttribute and c.nameEntity = col.nameEntity and thisModule.keyInTableSchemaEvolution(c.tableColumn, keyColumnToColumn)).first();
+			--Gets key columns
+			colKeyFromVariable: Sequence (Schema!Column) = colFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTablesSchemaEvolution(keyColumnToColumn));
+		}
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			ColTo <-  thisModule.columnTo (col, keyColumnToColumn),
+			ColFrom <- thisModule.columnFrom (colKeyFromVariable, colFromVariable)
+		)	
+}
+
+
+---It will localize a table with all the required data and migrate it column by column
+lazy rule MigColNewTable {
+	from
+		tableFit: Schema!Table,
+		col: SchemaEvolution!Column 
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			ColTo <-  thisModule.columnToNewTable (col),
+			ColFrom <- thisModule.columnFromNewTable (col, tableFit)
+		)	
+}
+
+---Writes a message about the impossibility to migrate data to a new column
+lazy rule MigColNewTableNotExist {
+	from
+		col: SchemaEvolution!Column 
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			Description <- 'It is not possible to migrate data to the column '.concat (col.name).concat(' as it is storing new data that is not stored in another table')
+		)	
+}
+---Defines migration from a table of the given column
+lazy rule columnFromNewTable {
+	from
+		col: SchemaEvolution!Column,
+		tableFit: Schema!Table 
+	to
+		colFrom: DataMigration!From (
+			Data<- thisModule.obtainColumnInTableFromNewColumn(col, tableFit).name,
+			DataTable <- tableFit.name
+		)
+}
+
+---Defines migration to a table of the given column
+lazy rule columnToNewTable {
+	from
+		r: SchemaEvolution!Column
+	to
+		colTo: DataMigration!To (
+			Data<- r.name,
+			DataTable <- r.tab.name
+		)
+}
+
+---Helpers
+
+---Returns the table that contains most columns that are stored in the candidateTable
+helper def: bestTable (candidateTables: Sequence (Schema!Table), columns: Sequence (SchemaEvolution!Column)): Schema!Table =
+	candidateTables -> sortedBy (t | t.numberColumnsIn (columns)).first();
+
+---Returns the key columns associated to the entity from the set of given columns. This helper is used for the SchemaEvolution columns
+helper def: keyOfEntitySchemaEvolution (columns: Sequence (SchemaEvolution!Column), entity: ConceptualModel!Entity): Sequence (Schema!Column) =
+	let keyAttributes : Sequence (ConceptualModel!Attribute) =
+		thisModule.keyAttributesFunctionOneEntity (entity) in
+		columns->select (c | keyAttributes.includes (c.getAttributeSchemaEvolution()) and c.getAttributeSchemaEvolution().isUnique);
+
+---Returns the columns that are associated to the key of entity. This helper is used for the SchemaEvolution columns
+helper def: typeKeySchemaEvolution (columns: Sequence (SchemaEvolution!Column), entity: ConceptualModel!Entity, table: SchemaEvolution!Table): 	Sequence (Schema!Column) =
+	if (thisModule.isKeyEntityInColumnsSchemaEvolution (columns, entity)) 
+		then  thisModule.keyOfEntitySchemaEvolution (columns, entity)
+	else	thisModule.keyEntitiesSequenceSchemaEvolution (columns, table.descendentsEntityInTableSchemaEvolution(entity))
+		endif;
+
+---Returns the key columns associated to a sequence of entities. This helper is used for the SchemaEvolution columns
+helper def: keyEntitiesSequenceSchemaEvolution (columns: Sequence (SchemaEvolution!Column), entities: Sequence (ConceptualModel!Entity)): Sequence (SchemaEvolution!Column) =
+	let keyAttributes : Sequence (ConceptualModel!Attribute) =
+		thisModule.keyAttributesFunction (entities) in
+		columns->select (c | keyAttributes.includes (c.getAttributeSchemaEvolution()) and c.getAttributeSchemaEvolution().isUnique);	
+
+---Returns true if in given columns there are columns associated to the key attributes of entity. This helper is used for the SchemaEvolution columns
+helper def: isKeyEntityInColumnsSchemaEvolution (columns: Sequence (SchemaEvolution!Column), entity: ConceptualModel!Entity): Boolean =
+	let keyAttributes : Sequence (ConceptualModel!Attribute) =
+		thisModule.keyAttributesFunctionOneEntity (entity) in
+	let keyAttributesEntityTable: Sequence (ConceptualModel!Attribute) =
+		ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | a.InColumnsSchemaEvolution (columns) and entity = a.entity and a.isUnique) in 
+	if (keyAttributesEntityTable.includesAll (keyAttributes))
+		then
+			true
+		else
+			false
+		endif;	
+
+---Returns true if the given columns are stored in the given table. This helper is used for the SchemaEvolution columns
+helper def: keyInTableSchemaEvolution (tab : Schema!Table, keysFrom: Sequence (SchemaEvolution!Column)): Boolean =
+	let numberKeys: Integer = keysFrom.size() in
+	let keysInTable: Sequence (Schema!Column) =
+		tab.Column -> select (c | c.equivalentColumnInSequenceTables (keysFrom) ) in
+	if (keysInTable.size() = numberKeys)
+		then
+			true
+		else
+			false
+	endif;
+
+---Obtains equivalent Column in a table
+helper def: obtainColumnInTableFromNewColumn (newcol: SchemaEvolution!Column, table: Schema!Table): Schema!Column =
+	table.Column -> any (c | c.nameEntity = newcol.nameEntity and c.nameAttribute = newcol.nameAttribute);
+
+---Returns the attributes that are key in a sequence of entities
+helper def: keyAttributesFunction (entities: Sequence (ConceptualModel!Entity)): Sequence (ConceptualModel!Attribute) =
+	ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | entities.includes (a.entity) and a.isUnique);
+
+---Returns the attributes that are key in an entity
+helper def: keyAttributesFunctionOneEntity (entity: ConceptualModel!Entity): Sequence (ConceptualModel!Attribute) =
+	ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | entity = a.entity and a.isUnique);
+
+

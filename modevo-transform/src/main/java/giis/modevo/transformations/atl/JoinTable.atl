@@ -1,0 +1,53 @@
+module JoinTable;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for joining two tables
+rule joinTable {
+	from
+		j: SchemaEvolution!JoinTable 	
+		using{
+			tableTarget: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
+			->any (t | t.name = j.tableTarget);
+			tableSource: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
+			->any (t | t.name = j.tableSource);
+			columnsInBothTablesTarget: Sequence (SchemaEvolution!Column) = tableTarget.Column
+			-> select (sc | (sc.equivalentColumnInSequenceTables(tableSource.Column)));
+			columnsInOnlySourceTable: Sequence (SchemaEvolution!Column) = tableSource.Column
+			-> select (sc | (not sc.equivalentColumnInSequenceTables(tableTarget.Column)));
+		}
+	to
+		d: DataMigration!MigrationTable(
+			name<- j.tableTarget,
+			migcol <- columnsInOnlySourceTable -> collect (c | thisModule.columnMigColJoin(c, columnsInBothTablesTarget, tableTarget))
+		)
+}
+
+---Details migration for a single column that has been added to a new table
+lazy rule columnMigColJoin {
+	from
+		column: Schema!Column,
+		colPotentialKey: Sequence (Schema!Column),
+		tableTarget: Schema!Table
+		
+		using {
+			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (colPotentialKey, thisModule.extractEntityByName (column.nameEntity), tableTarget);
+		}
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			ColTo <-  thisModule.columnToJoinTable (keyColumnToColumn, column),
+			ColFrom <- thisModule.columnFrom (keyColumnToColumn, column)
+		)	
+}
+
+---Details the migration to a target column. This is rule is triggered when there is a new column added to an existing table
+lazy rule columnToJoinTable {
+from	
+		keysColumnFrom: Sequence (Schema!Column),
+		r: Schema!Column
+	to
+		colFrom: DataMigration!To (
+			Data<- r.name,
+			DataTable <- r.tableColumn.name,
+			Key <- thisModule.getNamesColumn(keysColumnFrom)
+		)
+}
