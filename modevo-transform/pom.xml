@@ -94,7 +94,7 @@
                 <executions>
                     <execution>
                         <id>atl-compiler-jar</id>
-                        <phase>process-resources</phase>
+                        <phase>process-resources-test</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -135,7 +135,7 @@
                 <executions>
                     <execution>
                         <id>compile-atl-files</id>
-                        <phase>process-resources</phase>
+                        <phase>process-resources-test</phase>
                         <configuration>
                             <target>
                                 <property name="dependency-classpath" refid="maven.dependency.classpath" />
