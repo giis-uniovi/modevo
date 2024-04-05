@@ -87,6 +87,31 @@
 	</dependencies>
 	<build>
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>make-jar</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+		                <configuration>
+							<finalName>AtlCompilerTask</finalName>
+		                    <includes>
+		                        <include>${basedir}/src/main/java/giis/modevo/transformations/atl/AtlCompilerTask.java</include>
+		                    </includes>
+		                    <archive>
+		                        <manifest>
+		                            <mainClass>giis.modevo.transformations.atl.AtlCompilerTask</mainClass>
+		                        </manifest>
+		                    </archive>
+		                </configuration>
+		          </execution>
+                </executions>         
+            </plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -94,6 +119,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -108,7 +142,7 @@
                                 <echo message="Start ATL compilation" />
                                 <echo message="Maven Dependencies: ${dependency-classpath}" />
                                     <taskdef name="compileATL"
-                                        classpath="${basedir}/src/main/java/giis/modevo/transformations/atl/AtlCompilerTask.java"
+                                        classpath="${basedir}/src/target/AtlCompilerTask.jar"
                                         classname="giis.modevo.transformations.atl.AtlCompilerTask" classpathref="maven.dependency.classpath" />
                                 <compileATL>
                                         <fileset dir="${basedir}/src/main/java/giis/modevo/transformations/atl" includes="**/*.atl" />
@@ -122,15 +156,6 @@
                     </execution>
                 </executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>
-			
 		</plugins>
 	</build>
 </project>
