@@ -93,8 +93,8 @@
                 <version>3.2.0</version>
                 <executions>
                     <execution>
-                        <id>make-jar</id>
-                        <phase>compile</phase>
+                        <id>atl-compiler-jar</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -134,8 +134,8 @@
 				<artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
+                        <id>compile-atl-files</id>
+                        <phase>process-resources</phase>
                         <configuration>
                             <target>
                                 <property name="dependency-classpath" refid="maven.dependency.classpath" />
