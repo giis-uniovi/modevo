@@ -1,0 +1,31 @@
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="Schema" xsi:schemaLocation="Schema ../../src/main/java/giis/modevo/transformations/atl/Metamodels/Schema.ecore">
+  <Table xmi:id="t1"
+      name="notificationsPrev">
+  <Column xmi:id="c1"
+      name="owner_guid"
+      tableColumn="t1"
+      nameAttribute="id"
+      key="true"
+      nameEntity="user"
+      pk="true"/>
+  <Column xmi:id="c2"
+      name="guid"
+      tableColumn="t1"
+      nameAttribute="id"
+      key="true"
+      nameEntity="notifications"
+      pk="true"/>
+  <Column xmi:id="c3"
+      name="data"
+      tableColumn="t1"
+      nameAttribute="data"
+      key="true"
+      nameEntity="notifications"/>
+  <Column xmi:id="c4"
+      name="type"
+      tableColumn="t1"
+      nameAttribute="type"
+      key="true"
+      nameEntity="notifications"/>
+</Table>
+</xmi:XMI>

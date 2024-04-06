@@ -1,0 +1,24 @@
+module JoinColumn;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+rule JoinColumn {
+	from
+		j: SchemaEvolution!JoinColumn
+	to
+		add: DataMigration!MigrationTable(
+			name<- j.table,
+			joincol <- thisModule.JoinColumnMigCol(j)
+		)
+}
+---Lazy rule that creates a Migration Column class particularly specialized for a Join column schema modification
+lazy rule JoinColumnMigCol {
+	from 
+		j: SchemaEvolution!JoinColumn
+	to
+		add: DataMigration!JoinColumn (
+			ColTarget <- j.targetColumn.name,
+			ColSource <- thisModule.getNamesColumn (j.sourceColumns),
+			Criteria <- j.criteria
+		
+		)			
+}

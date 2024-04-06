@@ -1,0 +1,29 @@
+module SplitTable;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for joining two tables
+rule splitTable {
+	from
+		split: SchemaEvolution!SplitTable --This is needed because there are going to be at least two MigrationTable elements from the same rule
+		using{
+			tableSource: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
+			->any (t | split.tableSource = t.name);
+			tablesTarget: Sequence (SchemaEvolution!Table) = split.resultingTables;
+		}
+	to
+		d: DataMigration!ContainerMigrations(
+			migrations <- tablesTarget -> collect (resultingTable | thisModule.migrationTableSplit (resultingTable, tableSource))
+		)
+}
+
+lazy rule migrationTableSplit {
+	from
+		resultingTable: SchemaEvolution!Table,
+		tableSource: Schema!Table
+	to
+		splittedTableMig: DataMigration!MigrationTable ( 
+			name <- resultingTable.name,
+			migcol <- resultingTable.cols -> collect (c | thisModule.MigColNewTable(tableSource, c)) 
+		)
+		
+}

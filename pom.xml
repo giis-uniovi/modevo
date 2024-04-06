@@ -46,6 +46,12 @@
     			<version>2.23.1</version>
     			<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>1.18.32</version>
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -109,6 +115,45 @@
 						</execution>
 					</executions>
 				</plugin>
+				<plugin>
+				<groupId>org.jvnet.maven-antrun-extended-plugin</groupId>
+				<artifactId>maven-antrun-extended-plugin</artifactId>
+				<version>1.43</version>
+				<executions>
+					<!-- Reports de test estilo junit (al final del todo en install, cuando ya se han ejecutado todas las pruebas) -->
+					<execution>
+						<id>junit-reports</id>
+						<phase>test</phase>
+						<configuration>
+							<tasks>
+								<junitreport todir="target/surefire-reports">
+									<fileset dir="target/surefire-reports">
+										<include name="**/*.xml" />
+									</fileset>
+									<report format="frames" todir="target/site/junit-frames" />
+									<report format="noframes"
+										todir="target/site/junit-noframes" />
+								</junitreport>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-junit</artifactId>
+						<version>1.10.14</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-trax</artifactId>
+						<version>1.8.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="SchemaEvolution" xsi:schemaLocation="SchemaEvolution ../../src/main/java/giis/modevo/transformations/atl/Metamodels/SchemaEvolution.ecore">
+  <AddTable
+      xmi:id="a1"
+      tab="t1" prevTable = "scim_user"/>
+  <Table xmi:id="t1"
+      name="scim_user_times">
+    <cols xmi:id="c1"
+        name="uid"
+        tab="t1"
+        nameAttribute="id"
+        nameEntity="scim"/>
+    <cols xmi:id="c2"
+        name="created_at"
+        tab="t1"
+        nameAttribute="created_at"
+		key="true"
+        nameEntity="scim"/>
+    <cols xmi:id="c3"
+        name="last_updated_at"
+        tab="t1"
+        nameAttribute="last_updated_at"
+		key="true"
+        nameEntity="scim"/>
+  </Table>
+</xmi:XMI>

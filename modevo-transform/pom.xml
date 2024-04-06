@@ -14,7 +14,60 @@
 		<name>Software Engineering Research Group (GIIS) - Universidad de Oviedo, ES</name>
 		<url>http://giis.uniovi.es/</url>
 	</organization>
+	
+	<properties>
+		<atl.version>4.9.0</atl.version>
+	</properties>
+	
+	<repositories>
+	    <repository>
+		<id>repo.eclipse.org</id>
+			<name>ATL Repository</name>
+			<url>https://repo.eclipse.org/content/groups/atl/</url>
+	    </repository>
+	</repositories>
+	
 	<dependencies>
+		<dependency>
+		    <groupId>org.eclipse.platform</groupId>
+		    <artifactId>org.eclipse.core.runtime</artifactId>
+		    <version>3.31.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2</groupId>
+			<artifactId>org.eclipse.uml2.uml</artifactId>
+			<version>3.1.0.v201006071150</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.m2m.atl</groupId>
+		    <artifactId>org.eclipse.m2m.atl.common</artifactId>
+		    <version>${atl.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.m2m.atl</groupId>
+		    <artifactId>org.eclipse.m2m.atl.emftvm</artifactId>
+		    <version>${atl.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.m2m.atl</groupId>
+		    <artifactId>org.eclipse.m2m.atl.dsls</artifactId>
+		    <version>${atl.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.m2m.atl</groupId>
+		    <artifactId>org.eclipse.m2m.atl.engine.emfvm</artifactId>
+		    <version>${atl.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.m2m.atl</groupId>
+		    <artifactId>org.eclipse.m2m.atl.engine</artifactId>
+		    <version>${atl.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.ant</groupId>
+		    <artifactId>ant</artifactId>
+		    <version>1.10.14</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -27,9 +80,38 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>atl-compiler-jar</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+		                <configuration>
+							<finalName>AtlCompilerTask</finalName>
+		                    <includes>
+		                        <include>${basedir}/src/main/java/giis/modevo/transformations/atl/AtlCompilerTask.java</include>
+		                    </includes>
+		                    <archive>
+		                        <manifest>
+		                            <mainClass>giis.modevo.transformations.atl.AtlCompilerTask</mainClass>
+		                        </manifest>
+		                    </archive>
+		                </configuration>
+		          </execution>
+                </executions>         
+            </plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -38,10 +120,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -49,6 +128,33 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>compile-atl-files</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <target>
+                                <property name="dependency-classpath" refid="maven.dependency.classpath" />
+                                <echo message="Start ATL compilation" />
+                                <echo message="Maven Dependencies: ${dependency-classpath}" />
+                                    <taskdef name="compileATL"
+                                        classpath="${basedir}/src/target/AtlCompilerTask.jar"
+                                        classname="giis.modevo.transformations.atl.AtlCompilerTask" classpathref="maven.dependency.classpath" />
+                                <compileATL>
+                                        <fileset dir="${basedir}/src/main/java/giis/modevo/transformations/atl" includes="**/*.atl" />
+                                </compileATL>
+                                <echo message="Done!" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
 			</plugin>
 		</plugins>
 	</build>

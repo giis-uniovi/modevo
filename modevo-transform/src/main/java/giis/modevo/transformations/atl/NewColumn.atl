@@ -1,0 +1,120 @@
+module NewColumn;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for new columns in existing tables
+rule newColumn {
+	from
+		r: SchemaEvolution!Add
+	to
+		add: DataMigration!MigrationTable ( --for the moment, it creates a MigrationTable to define the data migration. In the future this will change in order to consider migrations for more than column
+			name <- r.tab.first().name, --there will only be one table for the moment
+			migcol <- r.tab.first().cols -> collect (c | thisModule.MigCol(c)) --call the lazy rule to define the table to create
+		)
+}
+
+---Details migration for a single column that has been added to a new table
+lazy rule MigCol {
+	from
+		r: SchemaEvolution!Column
+		using {
+			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (r.tab.tableFromLM().Column, thisModule.extractEntityByName (r.nameEntity), r.tab.tableFromLM());
+			--first table that contains the data to be migrated is obtained by also requiring that the key column from keyColumnToColumn are obtained. Gets data column. Finished code
+			colFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
+			->select (c | c.nameAttribute = r.nameAttribute and c.nameEntity = r.nameEntity and thisModule.keyInTable(c.tableColumn, keyColumnToColumn)).first();
+			--Gets key columns
+			colKeyFromVariable: Sequence (Schema!Column) = colFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTables(keyColumnToColumn));
+		}
+	to
+		add: DataMigration!MigrationCol ( --for each new column
+			ColTo <-  thisModule.columnTo (r, keyColumnToColumn),
+			ColFrom <- thisModule.columnFrom (colKeyFromVariable, colFromVariable)
+		)	
+}
+
+---Details migration of the source table for a single column
+lazy rule columnFrom {
+	from	
+		keysColumnFrom: Sequence (Schema!Column),
+		r: Schema!Column
+	to
+		colFrom: DataMigration!From (
+			Data<- r.name,
+			DataTable <- r.tableColumn.name,
+			Key <- thisModule.getNamesColumn(keysColumnFrom)
+		)	
+}
+
+---Details the migration to a target column. This is rule is triggered when there is a new column added to an existing table
+lazy rule columnTo {
+	from	
+		r: SchemaEvolution!Column,
+		keysColumnTo: Sequence (Schema!Column)
+		
+	to
+		colTo: DataMigration!To (
+			Data<- r.name,
+			Key <- thisModule.getNamesColumn(keysColumnTo),
+			DataTable <- r.tab.name,
+			NewTableName <- r.tab.NewTableName
+		)
+}
+
+---Helpers
+
+---Returns true if the given columns are stored in the given table
+helper def: keyInTable (tab : Schema!Table, keysFrom: Sequence (Schema!Column)): Boolean =
+	let numberKeys: Integer = keysFrom.size() in
+	let keysInTable: Sequence (Schema!Column) =
+		tab.Column -> select (c | c.equivalentColumnInSequenceTables (keysFrom) ) in
+	if (keysInTable.size() = numberKeys)
+		then
+			true
+		else
+			false
+	endif;
+	
+---Returns the columns that are associated to the key of entity. This is the main helper to determine the key columns.
+helper def: typeKey (columns: Sequence (Schema!Column), entity: ConceptualModel!Entity, table: Schema!Table): 	Sequence (Schema!Column) =
+	if (thisModule.isKeyEntityInColumns (columns, entity)) 
+		then  thisModule.keyOfEntity (columns, entity)
+	else	
+		if (not (table.descendentsEntityInTable(entity).isEmpty()))
+			then thisModule.keyEntitiesSequence (columns, table.descendentsEntityInTable(entity))
+		else
+			thisModule.keyEntitiesSequence (columns, table.NMEntities(entity))
+		endif
+	endif;
+
+---Returns true if in given columns there are columns associated to the key attributes of entity
+helper def: isKeyEntityInColumns (columns: Sequence (Schema!Column), entity: ConceptualModel!Entity): Boolean =
+	let keyAttributes : Sequence (ConceptualModel!Attribute) =
+		thisModule.keyAttributesFunctionOneEntity (entity) in
+	let keyAttributesEntityTable: Sequence (ConceptualModel!Attribute) =
+		ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | a.InColumns (columns) and entity = a.entity and a.isUnique) in 
+	if (keyAttributesEntityTable.includesAll (keyAttributes))
+		then
+			true
+		else
+			false
+		endif;
+
+---Returns the key columns associated to the entity from the set of given columns
+helper def: keyOfEntity (columns: Sequence (Schema!Column), entity: ConceptualModel!Entity): Sequence (Schema!Column) =
+	let keyAttributes : Sequence (ConceptualModel!Attribute) =
+		thisModule.keyAttributesFunctionOneEntity (entity) in
+		columns->select (c | keyAttributes.includes (c.getAttribute()) and c.getAttribute().isUnique);
+
+---Returns the key columns associated to a sequence of entities
+helper def: keyEntitiesSequence (columns: Sequence (Schema!Column), entities: Sequence (ConceptualModel!Entity)): Sequence (Schema!Column) =
+	let keyAttributes : Sequence (ConceptualModel!Attribute) =
+		thisModule.keyAttributesFunction (entities) in
+		columns->select (c | keyAttributes.includes (c.getAttribute()) and c.getAttribute().isUnique);	
+
+---Returns the attributes that are key in a sequence of entities
+helper def: keyAttributesFunction (entities: Sequence (ConceptualModel!Entity)): Sequence (ConceptualModel!Attribute) =
+	ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | entities.includes (a.entity) and a.isUnique);
+
+---Returns the attributes that are key in an entity
+helper def: keyAttributesFunctionOneEntity (entity: ConceptualModel!Entity): Sequence (ConceptualModel!Attribute) =
+	ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | entity = a.entity and a.isUnique);
+

@@ -1,0 +1,24 @@
+module SchemaEvolutionColumn;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Returns true if the given column is stored in the given table
+helper context SchemaEvolution!Column def: existsColumnInTable (columns: Sequence (Schema!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.nameEntity and c.nameAttribute = self.nameAttribute).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;	
+
+---Evaluates whether an equivalent column is stored in any table of the Schema
+helper context SchemaEvolution!Column def: existsInOtherTable(): Boolean =
+	if (Schema!Table.allInstancesFrom('LM')->any (t | self.existsColumnInTable (t.Column)).oclIsUndefined())
+		then
+			false
+		else
+			true
+		endif;
+
+---Obtains the attribute that is associated to the column. This helper is used for the SchemaEvolutioncolumns
+helper context SchemaEvolution!Column def: getAttributeSchemaEvolution(): ConceptualModel!Attribute =
+	ConceptualModel!Attribute.allInstancesFrom('CM')->any (e | e.name = self.nameAttribute);	

@@ -1,0 +1,50 @@
+module Split;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Rule for a split column
+rule splitColumn{
+	from
+		s: SchemaEvolution!SplitColumn
+	to
+		add: DataMigration!MigrationTable(
+			name<- s.table,
+			migcol <- thisModule.SplitColumnMigCol(s)
+		)
+}
+
+---Lazy rule that creates a Migration Column class particularly specialized for a Split column schema change
+lazy rule SplitColumnMigCol {
+	from 
+		s: SchemaEvolution!SplitColumn
+	to
+		add: DataMigration!MigrationCol (
+			ColToSplit <- s.newColumns -> collect (c | thisModule.colToSplit (s, c)),
+			ColFrom <- thisModule.columnFromSplit (s),
+			Description <- 'Migration needs to be performed from the old To Column to the From Column according to the deverloper\'s criteria'
+		
+		)			
+}
+
+---Details the migration required from the original column of a split column operation
+lazy rule columnFromSplit {
+	from	
+		s: SchemaEvolution!SplitColumn
+	to
+		colFrom: DataMigration!From (
+			Data<- s.oldColumn,
+			DataTable <- s.table
+		)	
+}
+
+---Details the migration required to one of the columns created from a splitted column
+lazy rule colToSplit {
+
+	from	
+		s: SchemaEvolution!SplitColumn,	
+		sc: SchemaEvolution!Column
+	to
+		colTo: DataMigration!To (
+			Data<- sc.name,
+			DataTable <- s.table
+		)
+}

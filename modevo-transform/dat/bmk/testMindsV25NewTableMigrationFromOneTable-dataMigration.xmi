@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="wire_support_tiers">
+  <migcol>
+    <ColTo Data="entity_guid" DataTable="wire_support_tiers"/>
+    <ColFrom Data="entity_guid" DataTable="wire"/>
+  </migcol>
+  <migcol>
+    <ColTo Data="guid" DataTable="wire_support_tiers"/>
+    <ColFrom Data="wire_guid" DataTable="wire"/>
+  </migcol>
+  <migcol>
+    <ColTo Data="amount" DataTable="wire_support_tiers"/>
+    <ColFrom Data="amount" DataTable="wire"/>
+  </migcol>
+  <migcol Description="It is not possible to migrate data to the column currency as it is storing new data that is not stored in another table"/>
+  <migcol Description="It is not possible to migrate data to the column name as it is storing new data that is not stored in another table"/>
+  <migcol Description="It is not possible to migrate data to the column description as it is storing new data that is not stored in another table"/>
+</MigrationTable>

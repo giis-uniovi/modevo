@@ -1,0 +1,40 @@
+module SchemaTable;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Evaluates whether the table that calls the method (self) can be used to migrate data to the newTable. It must at least contain the key columns of newTable
+helper context Schema!Table def: containsRequiredColumns (newTable : SchemaEvolution!Table): Boolean =
+	let keysNewTable: Sequence (SchemaEvolution!Column) = thisModule.keyColumnsNewTable(newTable) in
+	let numberKeys: Integer = keysNewTable.size() in
+	let numberKeysInTable: Integer = 
+		self.Column -> select (c | c.equivalentColumnInKeysNewTable (keysNewTable)).size() in
+	if (numberKeys = numberKeysInTable)
+		then 
+			true
+		else
+			false
+	endif;
+	
+---Returns the number of columns from the set passed as a parameter that are in the table that calls the helper
+helper context Schema!Table def: numberColumnsIn (columns : SchemaEvolution!Column): Integer =
+	self.Column -> select (c | c.equivalentColumnInKeysNewTable (columns)).size();
+	
+---Obtaines the entities that are detail of entity e and are stored in the table that calls the helper
+helper context Schema!Table def: descendentsEntityInTable (e: ConceptualModel!Entity): Sequence (ConceptualModel!Entity) =
+	e.entitiesRelatedDescendant()->select (entity | self.EntitiesInTable().includes(entity));
+
+---Obtaines the entities that are detail of entity e and are stored in the table that calls the helper
+helper context Schema!Table def: NMEntities (e: ConceptualModel!Entity): Sequence (ConceptualModel!Entity) =
+	e.entitiesRelatedNM()->select (entity | self.EntitiesInTable().includes(entity));
+
+---Obtains the entities that are in the table
+helper context Schema!Table def: EntitiesInTable (): Sequence (ConceptualModel!Entity) =
+	ConceptualModel!Entity.allInstancesFrom('CM')-> select ( e | e.entityInColumns ( self.Column) );
+
+---Obtains the entities that are in the self table that are also ascendants of e
+helper context Schema!Table def: ascendantsEntityInTable (e: ConceptualModel!Entity): Sequence (ConceptualModel!Entity) =
+	e.entitiesRelatedAscendancy().intersection(self.EntitiesInTable());
+
+---Obtains the key columns of a given table.
+helper def: keyColumnsNewTable (table : SchemaEvolution!Table): Sequence (SchemaEvolution!Column) =
+	table.cols -> select (c | c.key and c.existsInOtherTable());--The second condition is to not count new columns that are also new attributes. In these cases the datamigration model will warn the user about this issue.
+

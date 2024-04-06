@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="entity_view_devpk">
+  <migcol>
+    <ColTo Data="dev_type" Key="device_id" DataTable="entity_view_devpk"/>
+    <ColFrom Data="type" Key="id" DataTable="device"/>
+  </migcol>
+</MigrationTable>

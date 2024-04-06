@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="ConceptualModel" xsi:schemaLocation="ConceptualModel ../../src/main/java/giis/modevo/transformations/atl/Metamodels/ConceptualModel.ecore">
+<Entity xmi:id="e1" name="Author"/>
+<Attribute xmi:id="a1" name = "id"  entity='e1' isUnique="true"/>
+
+
+<Entity xmi:id="e2" name="Book"/>
+<Attribute xmi:id="a2" name = "id"  entity='e2' isUnique="true"/>
+<Attribute xmi:id="a3" name = "title"  entity='e2'/>
+<Attribute xmi:id="a4" name = "publisher"  entity='e2'/>
+
+<Relationship xmi:id="r2" name ="relation1" entity1="e1" entity2="e2" cardinality1="n" cardinality2="m" />
+</xmi:XMI>

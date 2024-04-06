@@ -1,0 +1,45 @@
+module SchemaColumn;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Returns true if the given column is stored in the given table
+helper context Schema!Column def: equivalentColumnInKeysNewTable (columns: Sequence (SchemaEvolution!Column)): Boolean =
+	let cNameEntity: String = self.nameEntity in
+	let cNameAttr:  String = self.nameAttribute in
+	if (columns -> any (c | c.nameEntity = self.nameEntity and c.nameAttribute = self.nameAttribute).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;
+
+---Returns true if the given column is stored in the given table. This helper is used for the SchemaEvolution columns
+helper context Schema!Column def: equivalentColumnInSequenceTablesSchemaEvolution (columns: Sequence (SchemaEvolution!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.nameEntity and c.nameAttribute = self.nameAttribute).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;	
+
+---Obtains the attribute that is associated to the column
+helper context Schema!Column def: getAttribute(): ConceptualModel!Attribute =
+	ConceptualModel!Attribute.allInstancesFrom('CM')->any (e | e.name = self.nameAttribute and self.nameEntity = e.entity.name);	
+
+---Returns true if the given column is stored in the given table
+helper context Schema!Column def: equivalentColumnInSequenceTables (columns: Sequence (Schema!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.nameEntity and c.nameAttribute = self.nameAttribute).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;		
+
+---Returns a string with the names of the columns separated by commas
+helper def : getNamesColumn(columns: Sequence (Schema!Column)) : String =
+	columns -> iterate(column; return : String = '' |
+				return +
+					if return = ''
+						then column.name
+						else ' , ' + column.name
+					endif	
+);	

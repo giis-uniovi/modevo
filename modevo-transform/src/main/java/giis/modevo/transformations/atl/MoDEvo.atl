@@ -1,0 +1,16 @@
+module MoDEvo;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+uses ConceptualModelEntity;
+uses ConceptualModelAttribute;
+uses SchemaEvolutionColumn;
+uses SchemaEvolutionTable;
+uses SchemaColumn;
+uses SchemaTable;
+uses SplitColumn;
+uses NewColumn;
+uses NewTable;
+uses JoinTable;
+uses CopyTable;
+uses SplitTable;
+uses JoinColumn;

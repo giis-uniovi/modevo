@@ -1,0 +1,62 @@
+module ConceptualModelEntity;
+create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
+
+---Returns if any of attributes associated to the columns in 'columns' belongs to the entity. This helper is used for the SchemaEvolution columns
+helper context ConceptualModel!Entity def: entityInColumnsSchemaEvolution (columns: Sequence (SchemaEvolution!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.name).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;
+---Obtains the detail entities of the entity that calls the helper
+helper context ConceptualModel!Entity def: entitiesRelatedDescendant (): Sequence (ConceptualModel!Entity) =
+	ConceptualModel!Entity.allInstancesFrom('CM')-> select ( e | e.isEntityDescendant (self));
+
+---Returns if a entity is detail of e
+helper context ConceptualModel!Entity def: isEntityRelatedNM (e: ConceptualModel!Entity): Boolean =
+	if (ConceptualModel!Relationship.allInstancesFrom('CM')->any (r | (r.entity1 = e and r.entity2 = self and r.cardinality1 = 'm' and r.cardinality2 = 'n') or (r.entity1 = self and r.entity2 = e and r.cardinality1 = 'n' and r.cardinality2 = 'm')).oclIsUndefined())
+	then
+		false
+	else
+		true
+	endif;
+
+---Returns if a entity is detail of e
+helper context ConceptualModel!Entity def: isEntityDescendant (e: ConceptualModel!Entity): Boolean =
+	if (ConceptualModel!Relationship.allInstancesFrom('CM')->any (r | (r.entity1 = e and r.entity2 = self and r.cardinality1 = '1' and r.cardinality2 = 'n') or (r.entity1 = self and r.entity2 = e and r.cardinality1 = 'n' and r.cardinality2 = '1')).oclIsUndefined())
+	then
+		false
+	else
+		true
+	endif;
+
+---Returns if any of attributes associated to the columns in 'columns' is belongs to the entity
+helper context ConceptualModel!Entity def: entityInColumns (columns: Sequence (Schema!Column)): Boolean =
+	if (columns -> any (c | c.nameEntity = self.name).oclIsUndefined())
+		then
+			false
+		else
+			true
+	endif;
+
+---Obtains the detail entities of the entity that calls the helper
+helper context ConceptualModel!Entity def: entitiesRelatedNM (): Sequence (ConceptualModel!Entity) =
+	ConceptualModel!Entity.allInstancesFrom('CM')-> select ( e | e.isEntityRelatedNM (self));
+
+---Returns all the entities from which the given entity is detail
+helper context ConceptualModel!Entity def: entitiesRelatedAscendancy (): Sequence (ConceptualModel!Entity) =
+	ConceptualModel!Entity.allInstancesFrom('CM')-> select ( e | e.isEntityAscendancy (self));
+
+---Returns true if the given entity is detail of e
+helper context ConceptualModel!Entity def: isEntityAscendancy (e: ConceptualModel!Entity): Boolean =
+	if (ConceptualModel!Relationship.allInstancesFrom('CM')->any (r | (r.entity1 = e and r.entity2 = self and r.cardinality1 = 'n' and r.cardinality2 = '1') or (r.entity1 = self and r.entity2 = e and r.cardinality1 = '1' and r.cardinality2 = 'n')).oclIsUndefined())
+	then
+		false
+	else
+		true
+	endif;
+
+---Obtains the entity class with the same name given as a parameter
+helper def : extractEntityByName (nameEntity: String) : ConceptualModel!Entity =
+	ConceptualModel!Entity.allInstancesFrom('CM')->any (e | e.name = nameEntity);
