@@ -33,7 +33,7 @@ public class TestUtils {
 	/**
 	 * Prepares the inputs for the model transformation and checks if the output is the expected one.
 	 */
-	protected ModelObjects executeTransformationsAndCompareOutput(String nameTest) {
+	public ModelObjects executeTransformationsAndCompareOutput(String nameTest) {
 		String nameTestDash = nameTest +"-";//Added dash to separate nameTest and type of file in the name of the file
 		String outputTest = outputPath+nameTestDash+output;
 		Pattern pattern = Pattern.compile("(?<=test).*(?=V[0-9])");
@@ -72,7 +72,7 @@ public class TestUtils {
 	/**
 	 * Compares the content of the files whose paths are specified in the method's parameter. 
 	 */
-	protected void AssertEqualFiles (String outputBMK, String outputTest) {
+	public void AssertEqualFiles (String outputBMK, String outputTest) {
 		Path outputTestPath = Paths.get(outputTest);
 		Path outputBMKPath = Paths.get(outputBMK);
 		try {
