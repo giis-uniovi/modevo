@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration">
-  <MigrationTable name="table1" joincol="/1"/>
-  <JoinColumn ColTarget="completetitle" ColSource="title , subtitle" Criteria="criteria for the join"/>
-</xmi:XMI>

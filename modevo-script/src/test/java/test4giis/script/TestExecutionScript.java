@@ -40,7 +40,7 @@ public class TestExecutionScript {
 	}
 	@Before
 	public void setUpTestCase() {
-		String cql = "dat/inp/db/"+name.getMethodName()+"-initDB.cql";
+		String cql = "dat/inp/"+name.getMethodName()+"-initDB.cql";
 		executeCQLFile(cql);
 	}
 	@Test
