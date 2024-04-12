@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+    <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="Schema" xsi:schemaLocation="Schema ../../src/main/java/giis/modevo/transformations/atl/Metamodels/Schema.ecore">
+  <Table xmi:id="t1"
+      name="scim_external_ids">
+    <Column
+        xmi:id="c1"
+        name="external"
+        tableColumn="t1"
+        nameAttribute="external"
+        key="true"
+        nameEntity="user"
+        pk="true"/>
+    <Column
+        xmi:id="c1"
+        name="user"
+        tableColumn="t1"
+        nameAttribute="id"
+        key="true"
+        nameEntity="user"/>
+  </Table>
+    <Table xmi:id="t2"
+      name="user_team">
+    <Column
+        xmi:id="c1"
+        name="user"
+        tableColumn="t2"
+        nameAttribute="id"
+        key="true"
+        nameEntity="user"
+        pk="true"/>
+    <Column
+        xmi:id="c1"
+        name="team"
+        tableColumn="t2"
+        nameAttribute="id"
+        key="true"
+        nameEntity="team"/>
+  </Table>
+</xmi:XMI>

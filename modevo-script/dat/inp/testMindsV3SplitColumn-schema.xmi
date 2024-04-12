@@ -1,0 +1,17 @@
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="Schema" xsi:schemaLocation="Schema ../../src/main/java/giis/modevo/transformations/atl/Metamodels/Schema.ecore">
+  <Table xmi:id="t1"
+      name="comments">
+  <Column xmi:id="c1"
+      name="id"
+      tableColumn="t1"
+      nameAttribute="id"
+      key="true"
+      nameEntity="comments"
+      pk="true"/>
+  <Column xmi:id="c2"
+      name="parent_guid"
+      tableColumn="t1"
+      nameAttribute="parent_guid"
+      nameEntity="comments"/>
+</Table>
+</xmi:XMI>

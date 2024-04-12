@@ -1,0 +1,11 @@
+TRUNCATE "testThingsBoardV12NewColumnPK".device;
+TRUNCATE "testThingsBoardV12NewColumnPK".entity_view2;
+TRUNCATE "testThingsBoardV12NewColumnPK".entity_view2_old;
+INSERT INTO "testThingsBoardV12NewColumnPK".device (id, tenant_id, customer_id, name, type) VALUES ('1', 'ten1', 'cus1', 'name1', 'type1');
+INSERT INTO "testThingsBoardV12NewColumnPK".device (id, tenant_id, customer_id, name, type) VALUES ('2', 'ten2', 'cus2', 'name2', 'type2');
+INSERT INTO "testThingsBoardV12NewColumnPK".device (id, tenant_id, customer_id, name, type) VALUES ('3', 'ten3', 'cus3', 'name3', 'type3');
+INSERT INTO "testThingsBoardV12NewColumnPK".device (id, tenant_id, customer_id, name, type) VALUES ('4', 'ten4', 'cus4', 'name4', 'type4');
+INSERT INTO "testThingsBoardV12NewColumnPK".entity_view2_old (id, tenant_id, customer_id, name, type) VALUES ('id1', 'ten1', 'cus1', 'name1', 'type1');
+INSERT INTO "testThingsBoardV12NewColumnPK".entity_view2_old (id, tenant_id, customer_id, name, type) VALUES ('id2', 'ten2', 'cus2', 'name2', 'type2');
+INSERT INTO "testThingsBoardV12NewColumnPK".entity_view2_old (id, tenant_id, customer_id, name, type) VALUES ('id3', 'ten3', 'cus3', 'name3', 'type3');
+INSERT INTO "testThingsBoardV12NewColumnPK".entity_view2_old (id, tenant_id, customer_id, name, type) VALUES ('id4', 'ten4', 'cus4', 'name4', 'type4');

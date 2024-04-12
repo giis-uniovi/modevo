@@ -1,0 +1,36 @@
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="Schema" xsi:schemaLocation="Schema ../../src/main/java/giis/modevo/transformations/atl/Metamodels/Schema.ecore">
+  <Table xmi:id="t1"
+      name="table1">
+  <Column xmi:id="c1"
+      name="idAuthor"
+      tableColumn="t1"
+      nameAttribute="id"
+      key="true"
+      nameEntity="Author"
+      pk="true"/>
+  <Column xmi:id="c2"
+      name="idBook"
+      tableColumn="t1"
+      nameAttribute="id"
+      key="true"
+      nameEntity="Book"
+      pk="true"/>
+  <Column xmi:id="c3"
+      name="title"
+      tableColumn="t1"
+      nameAttribute="title"
+      key="true"
+      nameEntity="Book"/>
+</Table>
+  <Table xmi:id="t2"
+      name="table2">
+  <Column xmi:id="c4"
+      name="idAuthor"
+      tableColumn="t1"
+      nameAttribute="id"
+      key="true"
+      nameEntity="Author"
+      pk="true"/>
+</Table>
+
+</xmi:XMI>

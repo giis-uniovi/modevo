@@ -206,7 +206,7 @@ public class MainTransformations {
 	}
 	
 	protected URL getFileURL(String fileName) {
-		String pathATL = "src/main/java/giis/modevo/transformations/atl/";
+		String pathATL = "../modevo-transform/src/main/java/giis/modevo/transformations/atl/";
 		try {
 			return new File(pathATL+fileName).toURI().toURL();
 		} catch (MalformedURLException e) {

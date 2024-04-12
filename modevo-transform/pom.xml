@@ -99,7 +99,8 @@
                             <goal>jar</goal>
                         </goals>
 		                <configuration>
-							<finalName>AtlCompilerTask</finalName>
+							<classifier>Task</classifier>
+							<finalName>AtlCompiler</finalName>
 		                    <includes>
 		                        <include>${basedir}/src/main/java/giis/modevo/transformations/atl/AtlCompilerTask.java</include>
 		                    </includes>
@@ -110,8 +111,29 @@
 		                    </archive>
 		                </configuration>
 		          </execution>
-                </executions>         
+		                   
+		          <execution>
+                        <id>test-util-jar</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+		                <configuration>
+							<classifier>Task</classifier>
+							<finalName>testUtils</finalName>
+		                    <includes>
+		                        <include>${basedir}/src/test/java/test4giis/modevo/TestUtils.java</include>
+		                    </includes>
+		                    <archive>
+		                        <manifest>
+		                            <mainClass>giis.test4giis.modevo.TestUtils</mainClass>
+		                        </manifest>
+		                    </archive>
+		                </configuration>
+		          </execution>
+		              </executions>         
             </plugin>
+		
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>

@@ -18,7 +18,9 @@ import org.junit.rules.TestName;
 import giis.modevo.migration.script.MainScript;
 import giis.modevo.migration.script.execution.CassandraConnection;
 import giis.modevo.model.ModelObjects;
+
 import test4giis.modevo.TestUtils;
+
 
 public class TestExecutionScript {
 	private static final String PROPERTIES = "modevo.properties";

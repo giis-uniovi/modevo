@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="SchemaEvolution" xsi:schemaLocation="SchemaEvolution ../../src/main/java/giis/modevo/transformations/atl/Metamodels/SchemaEvolution.ecore">
+  <AddTable
+      xmi:id="a1"
+      tab="t1"/>
+  <Table xmi:id="t1"
+      name="user_snapshots">
+    <cols xmi:id="c1"
+        name="user_guid"
+        key="true"
+        tab="t1"
+        nameAttribute="id"
+        nameEntity="user"/>
+    <cols xmi:id="c2"
+        name="type"
+        key="true"
+        tab="t1"
+        nameAttribute="type"
+        nameEntity="snapshot"/>
+    <cols xmi:id="c3"
+        name="key"
+        key="true"
+        tab="t1"
+        nameAttribute="key"
+        nameEntity="snapshot"/>
+    <cols xmi:id="c4"
+        name="json_data"
+        tab="t1"
+        nameAttribute="json_data"
+        nameEntity="snapshot"/>
+  </Table>
+</xmi:XMI>
