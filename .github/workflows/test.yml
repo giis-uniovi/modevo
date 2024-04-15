@@ -31,6 +31,7 @@ jobs:
             -v ${GITHUB_WORKSPACE}/setup/cassandra.yaml:/etc/cassandra/cassandra.yaml \
             cassandra:3.11
           sleep 30
+          docker log test-cassandra
           docker exec test-cassandra cqlsh localhost 9042 -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
           docker exec test-cassandra cqlsh localhost 9042 -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to testcassandra;"
       
