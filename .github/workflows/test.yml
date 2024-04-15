@@ -28,7 +28,6 @@ jobs:
       - name: Launch Cassandra
         run: |
           docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11   \
-            -v ${GITHUB_WORKSPACE}/setup/cassandra.yaml:/etc/cassandra/cassandra.yaml \
             cassandra:3.11
           sleep 30
           docker logs test-cassandra
