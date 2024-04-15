@@ -27,8 +27,7 @@ jobs:
       # Starts the DBMS containers when applicable
       - name: Launch Cassandra
         run: |
-          docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11   \
-            cassandra:3.11
+          docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11
           sleep 30
           docker logs test-cassandra
           docker container inspect test-cassandra
