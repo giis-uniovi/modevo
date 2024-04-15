@@ -9,7 +9,7 @@ while [ $attempt -le 60 ]; do
     attempt=$(( $attempt + 1 ))
     echo "Waiting for container ready (attempt: $attempt)..."
     result=$($target)
-    if grep -q "Connection refused" <<< $result ; then
+    if grep -q "Connection error" <<< $result ; then
       echo "Container is not ready yet"
     else
       echo "Container is ready!"
