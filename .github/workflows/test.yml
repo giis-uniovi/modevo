@@ -27,8 +27,7 @@ jobs:
       # Starts the DBMS containers when applicable
       - name: Launch Cassandra
         run: |
-          docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11   \
-            -v ${GITHUB_WORKSPACE}/setup/cassandra.yaml 
+          docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11
           docker cp ${GITHUB_WORKSPACE}/setup/cassandra.yaml  test-cassandra:/etc/cassandra/cassandra.yaml
           docker exec test-cassandra nodetool flush
           docker restart test-cassandra
