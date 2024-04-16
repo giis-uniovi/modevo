@@ -35,8 +35,8 @@ jobs:
           sleep 15
           docker logs test-cassandra
           docker container inspect test-cassandra
-          docker exec test-cassandra cqlsh localhost 9042 -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
-          docker exec test-cassandra cqlsh localhost 9042 -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to testcassandra;"
+          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
+          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to testcassandra;"
       
       - name: Modify modevo.properties
         run: |
