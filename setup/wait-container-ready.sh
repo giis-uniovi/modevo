@@ -8,12 +8,8 @@ attempt=0
 while [ $attempt -le 60 ]; do
     attempt=$(( $attempt + 1 ))
     echo "Waiting for container ready (attempt: $attempt)..."
-    result=$($target)
-    echo "$result"
-    echo $result
-    if echo $result | grep -q "Connection error"; then
-      echo "Container is not ready yet"
-    else
+    result=$(docker logs $container)
+    if grep -q "$target" <<< $result ; then
       echo "Container is ready!"
       exit 0
     fi
