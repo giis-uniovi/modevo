@@ -38,8 +38,8 @@ jobs:
       
       - name: Modify modevo.properties
         run: |
-          sed -i 's/usercassandra/testcassandra/' ${GITHUB_WORKSPACE}/modevo.properties
-          sed -i 's/passwordcassandra/$TEST_CASSANDRA_PWD/' ${GITHUB_WORKSPACE}/modevo.properties
+          sed -i 's/usercassandra/testcassandra/g' ${GITHUB_WORKSPACE}/modevo.properties
+          sed -i 's/passwordcassandra/$TEST_CASSANDRA_PWD/g' ${GITHUB_WORKSPACE}/modevo.properties
 
       - name: Test and aggregate surefire report
         run: mvn test surefire-report:report -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
