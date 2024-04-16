@@ -28,8 +28,11 @@ jobs:
       - name: Launch Cassandra
         run: |
           docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11   \
-            -v ${GITHUB_WORKSPACE}/setup/cassandra.yaml:/etc/cassandra/cassandra.yaml
-          sleep 30
+            -v ${GITHUB_WORKSPACE}/setup/cassandra.yaml 
+          docker cp ${GITHUB_WORKSPACE}/setup/cassandra.yaml  test-cassandra:/etc/cassandra/cassandra.yaml
+          docker exec -it test-cassandra nodetool flush
+          docker restart test-cassandra
+          sleep 15
           docker logs test-cassandra
           docker container inspect test-cassandra
           docker exec test-cassandra cqlsh localhost 9042 -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
