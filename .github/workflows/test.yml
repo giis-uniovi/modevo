@@ -30,7 +30,7 @@ jobs:
           docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11   \
             -v ${GITHUB_WORKSPACE}/setup/cassandra.yaml 
           docker cp ${GITHUB_WORKSPACE}/setup/cassandra.yaml  test-cassandra:/etc/cassandra/cassandra.yaml
-          docker exec -it test-cassandra nodetool flush
+          docker exec test-cassandra nodetool flush
           docker restart test-cassandra
           sleep 15
           docker logs test-cassandra
