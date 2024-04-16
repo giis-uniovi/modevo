@@ -40,7 +40,7 @@ jobs:
         run: |
           sed -i 's/user=*/user=testcassandra/' modevo.properties
           sed -i 's/password=*/password=$TEST_CASSANDRA_PWD/' modevo.properties
-
+          awk -v new_value="user=testcassandra" -F '=' '$1=="user=*" {$2=new_value} 1' OFS='=' modevo.properties > modevo_temp.properties && mv modevo_temp.properties modevo.properties
       - name: Test and aggregate surefire report
         run: mvn test surefire-report:report -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
 
