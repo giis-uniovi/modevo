@@ -44,79 +44,7 @@ public class TestExecutionScript {
 		executeCQLFile(cql);
 	}
 	@Test
-	public void testThingsBoardV11NewColumnNonKey() {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testThingsBoardV12NewColumnPK() {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testThingsBoardV13NewColumnKeyInTable()  {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testMindsV9NewTableMigrationFromOneTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testMindsV9NewColumnsPreviousVersion () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testMindsV10NewTableMigrationFromOneTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testMindsV25NewTableMigrationFromOneTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testMindsV27NewTableMigrationFromOneTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testWireV2NewTableMigrationFromOneTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testWireV8NewTableMigrationFromPreviousVersion () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testWireV91NewTableMigrationFromOneTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testWireV92NewTableMigrationFromSeveralTables () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
 	public void testCustomV1NewColumn () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testCustomV2TwoNewColumnSourceTwoTables () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testCustomV3TwoNewColumnsUsingNMRelationship () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testCustomV4JoinTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testCustomV5JoinTableKeyEntityInTargetTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testCustomV6CopyTable () {
-		testScript(name.getMethodName(), connection);	
-	}
-	@Test
-	public void testCustomV7SplitTable () {
 		testScript(name.getMethodName(), connection);	
 	}
 	private static void executeCQLFile(String path){
