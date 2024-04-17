@@ -34,7 +34,7 @@ public class TestExecutionScript {
 	public static void setUp(){ //cleans the entire DB
 		connection = new CassandraConnection(PROPERTIES);
 		try {
-			Files.createDirectories(Paths.get("/dat/out"));
+			Files.createDirectories(Paths.get("dat/out"));
 		} catch (IOException e) {
 			throw new RuntimeException (e);
 		}
