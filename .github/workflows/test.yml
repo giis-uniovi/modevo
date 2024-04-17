@@ -29,18 +29,20 @@ jobs:
         run: |
           docker run --name test-cassandra -d -p 9042:9042 cassandra:3.11
           sleep 2
-          docker cp ${GITHUB_WORKSPACE}/setup/cassandra.yaml  test-cassandra:/etc/cassandra/cassandra.yaml
+          docker exec test-cassandra sh -c "sed 's/authenticator:.*/authenticator: PasswordAuthenticator/' /etc/cassandra/cassandra.yaml > /etc/cassandra/cassandra_temp.yaml && mv /etc/cassandra/cassandra_temp.yaml /etc/cassandra/cassandra.yaml"
+          docker exec test-cassandra sh -c "sed 's/authorizer:.*/authorizer: CassandraAuthorizer/' /etc/cassandra/cassandra.yaml > /etc/cassandra/cassandra_temp.yaml && mv /etc/cassandra/cassandra_temp.yaml /etc/cassandra/cassandra.yaml"
           docker exec test-cassandra nodetool flush
           docker restart test-cassandra
-          sleep 15
+          sleep 2
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to testcassandra;"
       
       - name: Modify modevo.properties
         run: |
-          sed -i 's/user=*/user=testcassandra/' modevo.properties
-          sed -i 's/password=*/password=$TEST_CASSANDRA_PWD/' modevo.properties
-          awk -v new_value="user=testcassandra" -F '=' '$1=="user=*" {$2=new_value} 1' OFS='=' modevo.properties > modevo_temp.properties && mv modevo_temp.properties modevo.properties
+          cat ${GITHUB_WORKSPACE}/modevo.properties
+          sed -i 's/user=[^[:space:]]*/user=testcassandra/' ${GITHUB_WORKSPACE}/modevo.properties
+          sed -i 's/password=[^[:space:]]*/password=$TEST_CASSANDRA_PWD/' ${GITHUB_WORKSPACE}/modevo.properties
+          cat ${GITHUB_WORKSPACE}/modevo.properties
       - name: Test and aggregate surefire report
         run: mvn test surefire-report:report -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
 
