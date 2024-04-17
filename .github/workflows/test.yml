@@ -33,7 +33,7 @@ jobs:
           docker exec test-cassandra sh -c "sed 's/authorizer:.*/authorizer: CassandraAuthorizer/' /etc/cassandra/cassandra.yaml > /etc/cassandra/cassandra_temp.yaml && mv /etc/cassandra/cassandra_temp.yaml /etc/cassandra/cassandra.yaml"
           docker exec test-cassandra nodetool flush
           docker restart test-cassandra
-          sleep 3
+          sleep 15
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to testcassandra;"
       
