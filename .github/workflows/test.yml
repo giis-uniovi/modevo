@@ -34,15 +34,8 @@ jobs:
           docker exec test-cassandra nodetool flush
           docker restart test-cassandra
           sleep 15
-          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "CREATE ROLE testcassandra WITH PASSWORD = '$TEST_CASSANDRA_PWD' AND LOGIN = true;"
-          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to testcassandra;"
-      
-      - name: Modify modevo.properties
-        run: |
-          echo "ip=localhost" > ${GITHUB_WORKSPACE}/modevo.properties
-          echo "port=9042" >> ${GITHUB_WORKSPACE}/modevo.properties
-          echo "user=testcassandra" >> ${GITHUB_WORKSPACE}/modevo.properties
-          echo "password=$TEST_CASSANDRA_PWD" >> ${GITHUB_WORKSPACE}/modevo.properties
+          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "CREATE ROLE usercassandra WITH PASSWORD = passwordcassandra AND LOGIN = true;"
+          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to usercassandra;"
 
       - name: Test and aggregate surefire report
         run: mvn test surefire-report:report -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
