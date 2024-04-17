@@ -28,7 +28,7 @@ jobs:
       - name: Launch Cassandra
         run: |
           docker run --name test-cassandra -d -p 9042:9042 \
-          -v ${GITHUB_WORKSPACE}/modevo-script/dat/inp/creationSchema.cql:\creationSchema.cql \
+          -v ${GITHUB_WORKSPACE}/modevo-script/dat/inp/creationSchema.cql:/creationSchema.cql \
           cassandra:3.11
           sleep 3
           docker exec test-cassandra sh -c "sed 's/authenticator:.*/authenticator: PasswordAuthenticator/' /etc/cassandra/cassandra.yaml > /etc/cassandra/cassandra_temp.yaml && mv /etc/cassandra/cassandra_temp.yaml /etc/cassandra/cassandra.yaml"
