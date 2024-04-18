@@ -21,6 +21,13 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.github.giis-uniovi</groupId>
+			<artifactId>modevo-transform</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -31,6 +38,15 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.datastax.cassandra</groupId>
+		    <artifactId>cassandra-driver-core</artifactId>
+		    <version>3.11.5</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -54,7 +70,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>			
+			</plugin>	
+					
 		</plugins>
 	</build>
 </project>

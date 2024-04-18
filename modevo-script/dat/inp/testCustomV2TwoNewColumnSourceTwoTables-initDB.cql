@@ -1,0 +1,12 @@
+TRUNCATE "testCustomV2TwoNewColumnSourceTwoTables".table1;
+TRUNCATE "testCustomV2TwoNewColumnSourceTwoTables".table2;
+TRUNCATE "testCustomV2TwoNewColumnSourceTwoTables".table3;
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table1 (idauthor, idbook, title) values ('1', '2', 'lotr');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table1 (idauthor, idbook, title) values ('3', '4', 'asoiaf');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table1 (idauthor, idbook, title) values ('5', '6', 'frieren');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table2 (idbook) values ('2');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table2 (idbook) values ('4');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table2 (idbook) values ('6');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table3 (idauthor, idbook, publisher) values ('1', '2', 'pub1');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table3 (idauthor, idbook, publisher) values ('3', '4', 'pub2');
+Insert into "testCustomV2TwoNewColumnSourceTwoTables".table3 (idauthor, idbook, publisher) values ('5', '6', 'pub3');

@@ -1,0 +1,17 @@
+TRUNCATE "testMindsV27NewTableMigrationFromOneTable".user;
+TRUNCATE "testMindsV27NewTableMigrationFromOneTable".user_hashtags;
+TRUNCATE "testMindsV27NewTableMigrationFromOneTable".wire;
+TRUNCATE "testMindsV27NewTableMigrationFromOneTable".wire_support_tiers;
+TRUNCATE "testMindsV27NewTableMigrationFromOneTable".withholdings;
+Insert into "testMindsV27NewTableMigrationFromOneTable".user (key) values ('1');
+Insert into "testMindsV27NewTableMigrationFromOneTable".user (key) values ('2');
+Insert into "testMindsV27NewTableMigrationFromOneTable".user (key) values ('3');
+Insert into "testMindsV27NewTableMigrationFromOneTable".user_hashtags (user_guid, hashtag) values ('1', 'asoiaf');
+Insert into "testMindsV27NewTableMigrationFromOneTable".user_hashtags (user_guid, hashtag) values ('2', 'asoiaf');
+Insert into "testMindsV27NewTableMigrationFromOneTable".user_hashtags (user_guid, hashtag) values ('3', 'asoiaf');
+Insert into "testMindsV27NewTableMigrationFromOneTable".wire (receiver_guid,amount,entity_guid ,method ,recurring ,sender_guid ,status ,timestamp ,wei ,wei_amount,	wire_guid) values ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1');
+Insert into "testMindsV27NewTableMigrationFromOneTable".wire (receiver_guid,amount,entity_guid ,method ,recurring ,sender_guid ,status ,timestamp ,wei ,wei_amount,	wire_guid) values ('2', '2','2','2','2','2','2','2','2','2','2');
+Insert into "testMindsV27NewTableMigrationFromOneTable".wire (receiver_guid,amount,entity_guid ,method ,recurring ,sender_guid ,status ,timestamp ,wei ,wei_amount,	wire_guid) values ('3','3','3','3','3','3','3','3','3','3','3');
+Insert into "testMindsV27NewTableMigrationFromOneTable".withholdings (user_guid, wallet_address) values ('1', '4');
+Insert into "testMindsV27NewTableMigrationFromOneTable".withholdings (user_guid, wallet_address) values ('2', '5');
+Insert into "testMindsV27NewTableMigrationFromOneTable".withholdings (user_guid, wallet_address) values ('3', '6');

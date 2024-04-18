@@ -15,9 +15,9 @@ import giis.modevo.transformations.MainTransformations;
 
 public class TestUtils {
 	private static final String inputModelsFolderTemp = "target/input-models/";
-	private static final String inputPath = "dat/inp/";
-	private static final String outputPath = "dat/out/";
-	private static final String bmkPath = "dat/bmk/";
+	private static final String inputPath = "../modevo-transform/dat/inp/";
+	private static final String outputPath = "../modevo-transform/dat/out/";
+	private static final String bmkPath = "../modevo-transform/dat/bmk/";
 	private static final String schema = "schema.xmi";
 	private static final String cm = "CM.xmi";
 	private static final String schemaChange = "schemaChange.xmi";
@@ -33,7 +33,7 @@ public class TestUtils {
 	/**
 	 * Prepares the inputs for the model transformation and checks if the output is the expected one.
 	 */
-	protected ModelObjects executeTransformationsAndCompareOutput(String nameTest) {
+	public ModelObjects executeTransformationsAndCompareOutput(String nameTest) {
 		String nameTestDash = nameTest +"-";//Added dash to separate nameTest and type of file in the name of the file
 		String outputTest = outputPath+nameTestDash+output;
 		Pattern pattern = Pattern.compile("(?<=test).*(?=V[0-9])");
@@ -72,7 +72,7 @@ public class TestUtils {
 	/**
 	 * Compares the content of the files whose paths are specified in the method's parameter. 
 	 */
-	protected void AssertEqualFiles (String outputBMK, String outputTest) {
+	public void AssertEqualFiles (String outputBMK, String outputTest) {
 		Path outputTestPath = Paths.get(outputTest);
 		Path outputBMKPath = Paths.get(outputBMK);
 		try {
