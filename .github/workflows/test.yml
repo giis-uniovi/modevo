@@ -40,7 +40,7 @@ jobs:
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -e "GRANT ALL PERMISSIONS on ALL KEYSPACES to usercassandra;"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
       - name: Test and aggregate surefire report
-        run: mvn test surefire-report:report -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
+        run: mvn test -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
 
       - name: Additional aggregated junit report
         uses: javiertuya/junit-report-action@v1
