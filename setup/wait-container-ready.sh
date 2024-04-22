@@ -3,7 +3,7 @@
 #by looking for a string in container log
 container=$1
 countertarget=$2
-target="Startup complete"
+target=$3
 
 attempt=0
 while [ $attempt -le 60 ]; do
