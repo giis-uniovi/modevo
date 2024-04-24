@@ -23,7 +23,7 @@ import test4giis.modevo.TestUtils;
 
 
 public class TestExecutionScript {
-	private static final String PROPERTIES = "modevo.properties";
+	private static final String PROPERTIES = "src/test/resources/dbconnection.properties";
 	private static CassandraConnection connection;
 	private static final String bmkPath = "dat/bmk/";
 	private static final String outputPath = "dat/out/";
