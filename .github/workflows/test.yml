@@ -12,7 +12,46 @@ on:
 env:
   TEST_CASSANDRA_PWD: ${RANDOM}${RANDOM}${RANDOM}
 jobs:
-  test-java:
+
+
+  test-transform:
+    runs-on: ubuntu-latest
+    #if: ${{ false }}  # disable for now
+    #avoids duplicate execution of pr from local repo, but allows pr from forked repos and dependabot
+    if: (github.event_name != 'pull_request' && ! github.event.pull_request.head.repo.fork) || (github.event_name == 'pull_request' && (github.event.pull_request.head.repo.fork || startsWith(github.head_ref, 'dependabot/')))
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+      - name: Test transform module and aggregate surefire report
+        run: mvn test -Daggregate=true -Dtest=* -pl modevo-transform -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
+      - name: Additional aggregated junit report
+        uses: javiertuya/junit-report-action@v1
+        with:
+          surefire-files: "**/target/surefire-reports/TEST-*.xml"
+          report-dir: target/site
+
+      - name: Generate report checks
+        if: always()
+        uses: mikepenz/action-junit-report@v4.2.1
+        with:
+          check_name: "test-result-transform"
+          report_paths: "**/surefire-reports/TEST-*.xml"
+          fail_on_failure: 'true'
+
+      - if: always()
+        name: Publish test report files
+        uses: actions/upload-artifact@v4
+        with:
+          name: "test-report-files-transform"
+          path: |
+            target/site
+            **/target/site/jacoco/jacoco.xml
+            **/target/surefire-reports
+  test-script:
     runs-on: ubuntu-latest
     #if: ${{ false }}  # disable for now
     #avoids duplicate execution of pr from local repo, but allows pr from forked repos and dependabot
@@ -33,7 +72,7 @@ jobs:
           chmod u+x setup/wait-container-ready.sh && ./setup/wait-container-ready.sh test-cassandra 1 "Created default superuser role"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
       - name: Test and aggregate surefire report
-        run: mvn test -Daggregate=true -Dmaven.test.failure.ignore=true -U --no-transfer-progress
+        run: mvn test -Daggregate=true -Dtest=!TestTransform* -pl modevo-script -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
 
       - name: Additional aggregated junit report
         uses: javiertuya/junit-report-action@v1
@@ -45,7 +84,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v4.2.1
         with:
-          check_name: "test-result"
+          check_name: "test-result-script"
           report_paths: "**/surefire-reports/TEST-*.xml"
           fail_on_failure: 'true'
 
@@ -53,26 +92,54 @@ jobs:
         name: Publish test report files
         uses: actions/upload-artifact@v4
         with:
-          name: "test-report-files"
+          name: "test-report-files-script"
           path: |
             target/site
             **/target/site/jacoco/jacoco.xml
             **/target/surefire-reports
 
   sonarqube:
-    needs: [test-java]
+    needs: [test-transform, test-script]
+    
     #if: ${{ false }}  # disable for now
     #This job fails when comming from a dependabot PR (can't read the sonarqube token for security reasons).
     #Links to discussions and workaround at: https://github.com/giis-uniovi/samples-giis-template/issues/4
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
+
     steps:
       - uses: javiertuya/sonarqube-action@v1.3.1
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
-          restore-artifact-name1: "test-report-files"
-
+          restore-artifact-name1: "test-report-files-transform"
+          restore-artifact-name2: "test-report-files-script"
+      - name: Aggregated junit html report
+        if: always()
+        uses: javiertuya/junit-report-action@v1.2.0
+        with:
+          surefire-files: "**/target/surefire-reports/TEST-*.xml"
+          report-dir: target-ALL/site
+          report-title: "Test Report: ALL - Branch: ${{ github.ref_name }} - Run #${{ github.run_number }}"      
+      - name: Index file to html reports
+        run: |
+          echo "<html><head><title>Latest Test Reports</title></head><body>"  > target-ALL/site/index.html
+          echo "<h2>Latest Test Reports - Branch: ${{ github.ref_name }} - Run #${{ github.run_number }}</h2>"  >> target-ALL/site/index.html
+          echo "<p><a href=\"junit-noframes/junit-noframes.html\">Single page reports</a></p>"                  >> target-ALL/site/index.html
+          echo "<p><a href=\"junit-frames/index.html\">Multiple page reports with frames</a></p>"               >> target-ALL/site/index.html
+          echo "</body></html>"                                              >> target-ALL/site/index.html
+      - if: always()
+        name: Publish test report files
+        uses: actions/upload-artifact@v4
+        with:
+          name: "test-report-ALL"
+          path: |
+            target-ALL/site
+            **/target/surefire-reports
+            **/target/*.html
+            **/target/*.log
+            **/reports/*.html
+            **/reports/*.log    
   publish-java-snapshot:
     if: ${{ false }}  # disable for now
     #avoid publishing PRs and dependabot branches

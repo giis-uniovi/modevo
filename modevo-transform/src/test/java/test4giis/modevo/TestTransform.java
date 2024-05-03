@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-public class TestSchemaChanges {
+public class TestTransform {
 	
 	private static final String inputModelsFolderTemp = "target/input-models/";
 	private static final String schema = "schema.xmi";
