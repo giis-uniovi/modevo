@@ -46,7 +46,7 @@ jobs:
         name: Publish test report files
         uses: actions/upload-artifact@v4
         with:
-          name: "test-report-files"
+          name: "test-report-files-transform"
           path: |
             target/site
             **/target/site/jacoco/jacoco.xml
@@ -92,7 +92,7 @@ jobs:
         name: Publish test report files
         uses: actions/upload-artifact@v4
         with:
-          name: "test-report-files"
+          name: "test-report-files-script"
           path: |
             target/site
             **/target/site/jacoco/jacoco.xml
@@ -110,7 +110,8 @@ jobs:
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
-          restore-artifact-name1: "test-report-files"
+          restore-artifact-name1: "test-report-files-transform"
+          restore-artifact-name2: "test-report-files-script"
 
   publish-java-snapshot:
     if: ${{ false }}  # disable for now
