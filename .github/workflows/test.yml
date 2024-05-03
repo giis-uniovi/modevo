@@ -38,7 +38,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v4.2.1
         with:
-          check_name: "test-result"
+          check_name: "test-result-transform"
           report_paths: "**/surefire-reports/TEST-*.xml"
           fail_on_failure: 'true'
 
@@ -84,7 +84,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v4.2.1
         with:
-          check_name: "test-result"
+          check_name: "test-result-script"
           report_paths: "**/surefire-reports/TEST-*.xml"
           fail_on_failure: 'true'
 
