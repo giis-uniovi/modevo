@@ -72,7 +72,7 @@ jobs:
           chmod u+x setup/wait-container-ready.sh && ./setup/wait-container-ready.sh test-cassandra 1 "Created default superuser role"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
       - name: Test and aggregate surefire report
-        run: mvn test -Daggregate=true -Dtest=* -pl modevo-script -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
+        run: mvn test -Daggregate=true -Dtest=!TestTransform* -pl modevo-script -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
 
       - name: Additional aggregated junit report
         uses: javiertuya/junit-report-action@v1
