@@ -108,11 +108,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: javiertuya/sonarqube-action@v1.3.1
-        with: 
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          restore-artifact-name1: "test-report-files-transform"
       - name: Aggregated junit html report
         if: always()
         uses: javiertuya/junit-report-action@v1.2.0
@@ -139,6 +134,12 @@ jobs:
             **/target/*.log
             **/reports/*.html
             **/reports/*.log    
+      - uses: javiertuya/sonarqube-action@v1.3.1
+        with: 
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          restore-artifact-name1: "test-report-files-transform"
+          restore-artifact-name2: "test-report-files-script"
   publish-java-snapshot:
     if: ${{ false }}  # disable for now
     #avoid publishing PRs and dependabot branches
