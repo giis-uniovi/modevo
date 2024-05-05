@@ -58,6 +58,7 @@ public class MainTransformations {
 		} catch (IOException e) {
 			throw new DocumentReadException ("Problem reading MoDEvo.properties file. Read "+e);
 		}
+		log.info("ATL properties file loaded");
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, new UMLResourceFactoryImpl());
 	}
 	
