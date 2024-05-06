@@ -146,8 +146,8 @@ jobs:
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
-          restore-artifact-name1: "test-report-files-transform"
-          restore-artifact-name2: "test-report-files-script"
+          restore-artifact-name1: "test-report-files-script"
+          restore-artifact-name2: "test-report-files-transform"
   publish-java-snapshot:
     if: ${{ false }}  # disable for now
     #avoid publishing PRs and dependabot branches
