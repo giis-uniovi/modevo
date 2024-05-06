@@ -27,7 +27,7 @@ jobs:
           java-version: '17'
           cache: 'maven'
       - name: Test transform module and aggregate surefire report
-        run: mvn test -Daggregate=true -Dtest=* -pl modevo-transform -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
+        run: mvn test -Dtest=* -pl modevo-transform -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
       - name: Additional aggregated junit report
         uses: javiertuya/junit-report-action@v1
         with:
@@ -72,7 +72,7 @@ jobs:
           chmod u+x setup/wait-container-ready.sh && ./setup/wait-container-ready.sh test-cassandra 1 "Created default superuser role"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
       - name: Test and aggregate surefire report
-        run: mvn test -Daggregate=true -Dtest=!TestTransform* -pl modevo-script -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
+        run: mvn test -Dtest=!TestTransform* -pl modevo-script -am -Dmaven.test.failure.ignore=true -U --no-transfer-progress
 
       - name: Additional aggregated junit report
         uses: javiertuya/junit-report-action@v1
@@ -108,12 +108,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: javiertuya/sonarqube-action@v1.3.1
-        with: 
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          restore-artifact-name1: "test-report-files-transform"
-          restore-artifact-name2: "test-report-files-script"
+      - uses: actions/download-artifact@v4.1.5
+        if: always()
+        with:
+          name: "test-report-files-transform"
+      - uses: actions/download-artifact@v4.1.5
+        if: always()
+        with:
+          name: "test-report-files-script"
       - name: Aggregated junit html report
         if: always()
         uses: javiertuya/junit-report-action@v1.2.0
@@ -140,6 +142,12 @@ jobs:
             **/target/*.log
             **/reports/*.html
             **/reports/*.log    
+      - uses: javiertuya/sonarqube-action@v1.3.1
+        with: 
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          restore-artifact-name1: "test-report-files-script"
+          restore-artifact-name2: "test-report-files-transform"
   publish-java-snapshot:
     if: ${{ false }}  # disable for now
     #avoid publishing PRs and dependabot branches

@@ -16,7 +16,8 @@ import giis.modevo.migration.script.Script;
 import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.Select;
 import giis.modevo.model.schema.Column;
-
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 public class ScriptExecution {
 	private static final String FROM = "FROM ";
 
@@ -27,6 +28,7 @@ public class ScriptExecution {
 	 */
 	public void execute(Script script, CassandraConnection c, String nameKeyspace) {
 		if (!script.isExecutable()) {
+			log.info("Script is not executable");
 			return;
 		}
 		List<For> highLevelFors = script.getForsHigherLevel();
