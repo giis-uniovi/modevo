@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CassandraConnection {
 
-	private CqlSessionBuilder builder;
 	private CqlSession session;
 	
 	public CassandraConnection(String propertiesPath) {
@@ -26,7 +25,7 @@ public class CassandraConnection {
 		int port = dc.getPort();
 		String username = dc.getUser();
 		String password = dc.getPassword();
-		builder = CqlSession.builder();
+		CqlSessionBuilder builder = CqlSession.builder();
 		builder.addContactPoint(new InetSocketAddress(ip, port));
 		builder.withLocalDatacenter(dc.getDatacenter());
 		session=builder.withAuthCredentials(username, password).build();
