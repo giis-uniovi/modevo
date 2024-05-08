@@ -6,7 +6,7 @@ countertarget=$2
 target=$3
 
 attempt=0
-while [ $attempt -le 60 ]; do
+while [ $attempt -le 120 ]; do
     attempt=$(( $attempt + 1 ))
     echo "Waiting for container ready (attempt: $attempt)..."
     result=$(docker logs $container)
