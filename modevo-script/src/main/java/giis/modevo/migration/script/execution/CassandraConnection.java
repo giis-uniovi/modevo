@@ -1,15 +1,18 @@
 package giis.modevo.migration.script.execution;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
+import java.net.InetSocketAddress;
+
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CassandraConnection {
 
-	private Cluster cluster;
-	private Session session;
+	private CqlSessionBuilder builder;
+	private CqlSession session;
+	
 	public CassandraConnection(String propertiesPath) {
 		connect(propertiesPath);
 	}
@@ -23,13 +26,15 @@ public class CassandraConnection {
 		int port = dc.getPort();
 		String username = dc.getUser();
 		String password = dc.getPassword();
-		cluster = Cluster.builder().withPort(port).addContactPoint(ip).withCredentials(username, password).build();
-		session=cluster.newSession();
+		builder = CqlSession.builder();
+		builder.addContactPoint(new InetSocketAddress(ip, port));
+		builder.withLocalDatacenter(dc.getDatacenter());
+		session=builder.withAuthCredentials(username, password).build();
 		log.info("Connection with database succesful");
 	}
 
 	public void close() {
-		cluster.close();
+		session.close();
 		log.info("Connection with database closed");
 	}
 	public ResultSet executeStatement(String strLine) {

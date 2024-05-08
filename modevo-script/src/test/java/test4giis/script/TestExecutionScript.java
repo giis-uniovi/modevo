@@ -134,6 +134,7 @@ public class TestExecutionScript {
 	            //Read File Line By Line
 	            while ((strLine = br.readLine()) != null)   {
 		            if (!(strLine.contains("--") || strLine.isBlank())){
+		            	connection.executeStatement(strLine);
 		            	connection.executeStatement (strLine);
 		            }
 	            }
