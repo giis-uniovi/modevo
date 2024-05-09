@@ -68,7 +68,7 @@ jobs:
         run: |
           docker run --name test-cassandra -d -p 9042:9042 \
           -v ${GITHUB_WORKSPACE}/modevo-script/dat/inp/creationSchema.cql:/creationSchema.cql \
-          cassandra:3.11
+          cassandra:4.1.4
           chmod u+x setup/wait-container-ready.sh && ./setup/wait-container-ready.sh test-cassandra 1 "Created default superuser role"
           docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
       - name: Test and aggregate surefire report

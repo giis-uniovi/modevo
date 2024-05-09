@@ -15,6 +15,8 @@ public class ConnectionData {
 	private String password;
 	private String ip;
 	private int port;
+	private String datacenter;
+	private String rack;
 	
 	public ConnectionData(String propertiesPath) {
 		Properties properties = loadProperties(propertiesPath);
@@ -22,6 +24,8 @@ public class ConnectionData {
 		String portExtracted = properties.getProperty("port").trim();
 		user = properties.getProperty("user").trim();
 		password = properties.getProperty("password").trim();
+		datacenter = properties.getProperty("datacenter").trim();
+		rack = properties.getProperty("rack").trim();
 		try {
 			port = Integer.valueOf(portExtracted);
 	    } catch(NumberFormatException e) { //If no port is assigned, the default 9042 is assigned

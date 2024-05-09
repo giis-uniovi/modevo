@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.ColumnDefinitions.Definition;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinition;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
 
 import giis.modevo.migration.script.ColumnValue;
 import giis.modevo.migration.script.For;
@@ -94,13 +94,15 @@ public class ScriptExecution {
 			Iterator<Row> rssecondIt = rssecond.iterator();
 			while (rssecondIt.hasNext()) {
 				Row rws = rssecondIt.next();
-				ColumnDefinitions cd = rws.getColumnDefinitions();
-				for (Definition d : cd.asList()) {
+				ColumnDefinitions cds = rws.getColumnDefinitions();
+				Iterator<ColumnDefinition> it = cds.iterator();
+				while (it.hasNext()) {
+					ColumnDefinition cd = it.next();
 					ColumnValue cv = new ColumnValue ();
-					Column column = selectInside.getColumnSearch(d.getName());
-					column.setName(d.getName());
+					Column column = selectInside.getColumnSearch(cd.getName().asCql(true));
+					column.setName(cd.getName().asCql(true));
 					cv.setColumn(column);
-					cv.setValue(rws.getString(d.getName().trim()));
+					cv.setValue(rws.getString(cd.getName().asCql(true).trim()));
 					cv.setVariableName(column.getVariableName());
 					cvs.add(cv);
 				}
