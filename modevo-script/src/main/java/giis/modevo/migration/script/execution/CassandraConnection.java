@@ -4,10 +4,13 @@ import java.net.InetSocketAddress;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-@Slf4j
+@Slf4j @Getter @Setter
 public class CassandraConnection {
 
 	private CqlSession session;
@@ -38,6 +41,9 @@ public class CassandraConnection {
 	}
 	public ResultSet executeStatement(String strLine) {
     	return this.session.execute(strLine);		
+	}
+	public ResultSet executeStatement(BoundStatement boundStatement) {
+    	return this.session.execute(boundStatement);		
 	}
 
 }

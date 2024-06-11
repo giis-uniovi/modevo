@@ -62,7 +62,8 @@ public class ScriptExecution {
 					}
 					ColumnValue cvValues = findCVNameVariable (cvs, variableName);
 					if (cvValues == null) {
-						throw new ScriptException ("There has been error, the column "+cv.getColumn().getName()+" did not have a value to insert.");
+						insertStatement= insertStatement.replace(variableName, "''");
+						continue;
 					}
 					insertStatement= insertStatement.replace(variableName, "'"+cvValues.getValue()+"'");
 				}
