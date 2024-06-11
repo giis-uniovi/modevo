@@ -50,7 +50,13 @@ helper context ConceptualModel!Entity def: entitiesRelatedAscendancy (): Sequenc
 
 ---Returns true if the given entity is detail of e
 helper context ConceptualModel!Entity def: isEntityAscendancy (e: ConceptualModel!Entity): Boolean =
-	if (ConceptualModel!Relationship.allInstancesFrom('CM')->any (r | (r.entity1 = e and r.entity2 = self and r.cardinality1 = 'n' and r.cardinality2 = '1') or (r.entity1 = self and r.entity2 = e and r.cardinality1 = '1' and r.cardinality2 = 'n')).oclIsUndefined())
+	if (ConceptualModel!Relationship.allInstancesFrom('CM')->any (r | (r.entity1 = e and r.entity2 = self and r.cardinality1 = 'n' and r.cardinality2 = '1') 
+		or (r.entity1 = self and r.entity2 = e and r.cardinality1 = '1' and r.cardinality2 = 'n')
+		or (r.entity1 = e and r.entity3 = self and r.cardinality1 = 'n' and r.cardinality3 = '1')
+		or (r.entity1 = self and r.entity3 = e and r.cardinality1 = '1' and r.cardinality3 = 'n')
+		or (r.entity2 = e and r.entity3 = self and r.cardinality2 = 'n' and r.cardinality3 = '1')
+		or (r.entity2 = self and r.entity3 = e and r.cardinality2 = '1' and r.cardinality3 = 'n')
+	).oclIsUndefined())
 	then
 		false
 	else

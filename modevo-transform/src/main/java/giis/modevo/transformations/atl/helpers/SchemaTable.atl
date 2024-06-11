@@ -32,7 +32,7 @@ helper context Schema!Table def: EntitiesInTable (): Sequence (ConceptualModel!E
 
 ---Obtains the entities that are in the self table that are also ascendants of e
 helper context Schema!Table def: ascendantsEntityInTable (e: ConceptualModel!Entity): Sequence (ConceptualModel!Entity) =
-	e.entitiesRelatedAscendancy().intersection(self.EntitiesInTable());
+	e.entitiesRelatedAscendancy()->select (entity | self.EntitiesInTable().includes(entity));
 
 ---Obtains the key columns of a given table.
 helper def: keyColumnsNewTable (table : SchemaEvolution!Table): Sequence (SchemaEvolution!Column) =

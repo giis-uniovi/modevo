@@ -20,7 +20,6 @@
 
 <Relationship xmi:id="r2" name ="relation1" entity1="e1" entity2="e3" cardinality1="1" cardinality2="n" />
 <Relationship xmi:id="r3" name ="relation2" entity1="e1" entity2="e4" cardinality1="1" cardinality2="n"/>
-<Relationship xmi:id="r4" name ="relation3" entity1="e2" entity2="e3" cardinality1="1" cardinality2="n"/>
-<Relationship xmi:id="r5" name ="relation4" entity1="e2" entity2="e4" cardinality1="1" cardinality2="n"/>
+<Relationship xmi:id="r4" name ="relation3" entity1="e2" entity2="e3" entity3="e4" cardinality1="n" cardinality2="1" cardinality3="1"/>
 
 </xmi:XMI>
