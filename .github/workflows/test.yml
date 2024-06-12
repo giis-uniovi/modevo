@@ -36,7 +36,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v4.2.1
+        uses: mikepenz/action-junit-report@v4.2.2
         with:
           check_name: "test-result-transform"
           report_paths: "**/surefire-reports/TEST-*.xml"
@@ -82,7 +82,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v4.2.1
+        uses: mikepenz/action-junit-report@v4.2.2
         with:
           check_name: "test-result-script"
           report_paths: "**/surefire-reports/TEST-*.xml"
@@ -108,11 +108,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4.1.5
+      - uses: actions/download-artifact@v4.1.7
         if: always()
         with:
           name: "test-report-files-transform"
-      - uses: actions/download-artifact@v4.1.5
+      - uses: actions/download-artifact@v4.1.7
         if: always()
         with:
           name: "test-report-files-script"
