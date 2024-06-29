@@ -36,7 +36,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v4.3.0
+        uses: mikepenz/action-junit-report@v4.3.1
         with:
           check_name: "test-result-transform"
           report_paths: "**/surefire-reports/TEST-*.xml"
@@ -82,7 +82,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v4.3.0
+        uses: mikepenz/action-junit-report@v4.3.1
         with:
           check_name: "test-result-script"
           report_paths: "**/surefire-reports/TEST-*.xml"
@@ -142,7 +142,7 @@ jobs:
             **/target/*.log
             **/reports/*.html
             **/reports/*.log    
-      - uses: javiertuya/sonarqube-action@v1.3.1
+      - uses: javiertuya/sonarqube-action@v1.3.2
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
