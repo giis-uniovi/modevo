@@ -14,20 +14,20 @@ import giis.modevo.model.ModelObjects;
 import giis.modevo.transformations.MainTransformations;
 
 public class TestUtils {
-	private static final String INPUTMODELSFOLDERTEMP = "target/input-models/";
-	private static final String INPUTPATH = "../modevo-transform/dat/inp/";
-	private static final String OUTPUTPATH = "../modevo-transform/dat/out/";
-	private static final String BMKPATH = "../modevo-transform/dat/bmk/";
+	private static final String INPUT_MODELS_FOLDER_TEMP = "target/input-models/";
+	private static final String INPUT_PATH = "../modevo-transform/dat/inp/";
+	private static final String OUTPUT_PATH = "../modevo-transform/dat/out/";
+	private static final String BMK_PATH = "../modevo-transform/dat/bmk/";
 	private static final String SCHEMA = "schema.xmi";
 	private static final String CM = "CM.xmi";
-	private static final String SCHEMACHANGE = "schemaChange.xmi";
+	private static final String SCHEMA_CHANGE = "schemaChange.xmi";
 	private static final String OUTPUT=  "dataMigration.xmi";
 	
 	protected void testModels (String nameTest) {
 		String nameTestDash = nameTest +"-";//Added dash to separate nameTest and type of file in the name of the file
-		String outputTest = OUTPUTPATH+nameTestDash+OUTPUT;
+		String outputTest = OUTPUT_PATH+nameTestDash+OUTPUT;
 		executeTransformationsAndCompareOutput (nameTest);
-		AssertEqualFiles (BMKPATH+nameTestDash+OUTPUT, outputTest);	//Introduces the name of the test to the path	
+		AssertEqualFiles (BMK_PATH+nameTestDash+OUTPUT, outputTest);	//Introduces the name of the test to the path	
 	}
 	
 	/**
@@ -35,14 +35,14 @@ public class TestUtils {
 	 */
 	public ModelObjects executeTransformationsAndCompareOutput(String nameTest) {
 		String nameTestDash = nameTest +"-";//Added dash to separate nameTest and type of file in the name of the file
-		String outputTest = OUTPUTPATH+nameTestDash+OUTPUT;
+		String outputTest = OUTPUT_PATH+nameTestDash+OUTPUT;
 		Pattern pattern = Pattern.compile("(?<=test).*(?=V[0-9])");
 		Matcher matcher = pattern.matcher(nameTest);
 		matcher.find();
 		String caseStudy = matcher.group();
-		copyInputs (INPUTPATH+nameTestDash+SCHEMA, INPUTPATH+caseStudy+CM, INPUTPATH+nameTestDash+SCHEMACHANGE);
+		copyInputs (INPUT_PATH+nameTestDash+SCHEMA, INPUT_PATH+caseStudy+CM, INPUT_PATH+nameTestDash+SCHEMA_CHANGE);
 		MainTransformations main = new MainTransformations();
-		return main.createDataMigrationModelAndScript(INPUTMODELSFOLDERTEMP+SCHEMA, INPUTMODELSFOLDERTEMP+CM, INPUTMODELSFOLDERTEMP+SCHEMACHANGE, outputTest);
+		return main.createDataMigrationModelAndScript(INPUT_MODELS_FOLDER_TEMP+SCHEMA, INPUT_MODELS_FOLDER_TEMP+CM, INPUT_MODELS_FOLDER_TEMP+SCHEMA_CHANGE, outputTest);
 	}
 
 	/**
@@ -54,10 +54,10 @@ public class TestUtils {
 		Path schemaInpPath = Paths.get(schemaInp);
 		Path cmInpPath = Paths.get(cmInp);
 		Path schemaChangeInpPath = Paths.get(schemaEvolutionInp);
-		Path tempFolder = Paths.get(INPUTMODELSFOLDERTEMP);
-		Path schemaTempPath = Paths.get(INPUTMODELSFOLDERTEMP+SCHEMA);
-		Path cmTempPath = Paths.get(INPUTMODELSFOLDERTEMP+CM);
-		Path schemaChangeTempPath = Paths.get(INPUTMODELSFOLDERTEMP+SCHEMACHANGE);
+		Path tempFolder = Paths.get(INPUT_MODELS_FOLDER_TEMP);
+		Path schemaTempPath = Paths.get(INPUT_MODELS_FOLDER_TEMP+SCHEMA);
+		Path cmTempPath = Paths.get(INPUT_MODELS_FOLDER_TEMP+CM);
+		Path schemaChangeTempPath = Paths.get(INPUT_MODELS_FOLDER_TEMP+SCHEMA_CHANGE);
 		try {
 			Files.createDirectories(tempFolder); //Only creates it if it does not exists. Should this be done in a BeforeClass?
 			Files.copy(schemaInpPath, schemaTempPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);

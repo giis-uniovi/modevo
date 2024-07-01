@@ -12,10 +12,10 @@ import org.junit.rules.TestName;
 
 public class TestTransform {
 	
-	private static final String INPUTMODELSFOLDERTEMP = "target/input-models/";
+	private static final String INPUT_MODELS_FOLDER_TEMP = "target/input-models/";
 	private static final String SCHEMA = "schema.xmi";
 	private static final String CM = "CM.xmi";
-	private static final String SCHEMACHANGE = "schemaChange.xmi";
+	private static final String SCHEMA_CHANGE = "schemaChange.xmi";
 	 
 	@Rule public TestName name = new TestName();
 	
@@ -24,10 +24,10 @@ public class TestTransform {
 	 */
 	@Before
 	public void removeTempModelFolder() throws IOException  {
-		Path schemaTempPath = Paths.get(INPUTMODELSFOLDERTEMP+SCHEMA);
-		Path cmTempPath = Paths.get(INPUTMODELSFOLDERTEMP+CM);
-		Path schemaChangeTempPath = Paths.get(INPUTMODELSFOLDERTEMP+SCHEMACHANGE);
-		Path tempFolder = Paths.get(INPUTMODELSFOLDERTEMP);
+		Path schemaTempPath = Paths.get(INPUT_MODELS_FOLDER_TEMP+SCHEMA);
+		Path cmTempPath = Paths.get(INPUT_MODELS_FOLDER_TEMP+CM);
+		Path schemaChangeTempPath = Paths.get(INPUT_MODELS_FOLDER_TEMP+SCHEMA_CHANGE);
+		Path tempFolder = Paths.get(INPUT_MODELS_FOLDER_TEMP);
 		Files.deleteIfExists (schemaTempPath);
 		Files.deleteIfExists (cmTempPath);
 		Files.deleteIfExists (schemaChangeTempPath);
