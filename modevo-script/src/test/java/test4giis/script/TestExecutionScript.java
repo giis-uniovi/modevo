@@ -25,9 +25,9 @@ import test4giis.modevo.TestUtils;
 public class TestExecutionScript {
 	private static final String PROPERTIES = "src/test/resources/dbconnection.properties";
 	private static CassandraConnection connection;
-	private static final String bmkPath = "dat/bmk/";
-	private static final String outputPath = "dat/out/";
-	private static final String outputScript=  "script.cql";
+	private static final String BMK_PATH = "dat/bmk/";
+	private static final String OUTPUT_PATH = "dat/out/";
+	private static final String OUTPUT_SCRIPT=  "script.cql";
 
 	@Rule public TestName name = new TestName();
 	@BeforeClass
@@ -154,11 +154,11 @@ public class TestExecutionScript {
 		String script = new MainScript().createScriptAndText(m, c, nameTest);
 		if (script != null) {//until all scenarios have been covered
 			String fullPathScript = outputScriptFile (script, nameTest);
-			new TestUtils().AssertEqualFiles (bmkPath+nameTestDash+outputScript, fullPathScript);	//Introduces the name of the test to the path	
+			new TestUtils().AssertEqualFiles (BMK_PATH+nameTestDash+OUTPUT_SCRIPT, fullPathScript);	//Introduces the name of the test to the path	
 		}
 	}
 	private String outputScriptFile (String script, String nameTest) {
-		String path = outputPath+nameTest+"-script.cql";
+		String path = OUTPUT_PATH+nameTest+"-script.cql";
 		Path scriptPath = Paths.get(path);
 		try {
 			Files.write(scriptPath, script.getBytes());
