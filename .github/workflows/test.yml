@@ -109,11 +109,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4.1.8
         if: always()
         with:
           name: "test-report-files-transform"
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4.1.8
         if: always()
         with:
           name: "test-report-files-script"
