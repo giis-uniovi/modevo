@@ -21,9 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 public class MySQLAccess {
 	private static final String PROBLEMSQL = "Problem executing SQL statement";
 	private static final String CLOSINGSQL = "Error closing SQL connection";
-	private static final String PROPERTIES = "consiste.properties";
+	private static final String PROPERTIES = "src/test/resources/sqlconnection.properties";
 
-	private Connection connect = null;
+	private Connection connect;
 
 	public Connection getConnect() {
 		return connect;
@@ -46,7 +46,7 @@ public class MySQLAccess {
 					.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 			connect = DriverManager.getConnection(connection.toString());
 		} catch (SQLException e) {
-			throw new ScriptException("Problem connecting with SQL");
+			throw new ScriptException("Problem connecting with SQL"+e);
 		}
 		return connect;
 

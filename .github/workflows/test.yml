@@ -11,6 +11,8 @@ on:
       - 'main'
 env:
   TEST_CASSANDRA_PWD: ${RANDOM}${RANDOM}${RANDOM}
+  TEST_MYSQL_PWD: ${RANDOM}${RANDOM}${RANDOM}
+
 jobs:
 
 
@@ -110,6 +112,23 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+      - name: Initialize MySQL database
+        run: |
+          docker run --name test-mysql -e MYSQL_ROOT_PASSWORD=abc -d -p 3306:3306 mysql:9.0
+          chmod u+x setup/wait-container-ready.sh 
+           ./setup/wait-container-ready.sh test-mysql 2 "ready for connections. Version:"
+          docker exec -i test-mysql sh -c "exec mysql -uroot -pabc" < ./setup/custom.sql
+
+      - name: Initialize Cassandra database
+        run: |
+          docker run --name test-cassandra -d -p 9042:9042 \
+          -v ${GITHUB_WORKSPACE}/modevo-script/dat/inp/creationSchema.cql:/creationSchema.cql \
+          -e JVM_OPTS="-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.initial_token=0" \
+          cassandra:4.1.4
+          chmod u+x setup/wait-container-ready.sh 
+          ./setup/wait-container-ready.sh test-cassandra 1 "Created default superuser role"
+          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
+
       - name: Test and aggregate surefire report
         run: mvn test -Dtest=!TestTransform,!TestExecutionScript -pl modevo-consistency -am -Dmaven.test.failure.ignore=true -Dsurefire.failIfNoSpecifiedTests=false -U --no-transfer-progress
 

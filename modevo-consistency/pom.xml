@@ -37,8 +37,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>io.github.giis-uniovi</groupId>
+			<artifactId>modevo-script</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.rapiddweller</groupId>
+		    <artifactId>benerator-maven-plugin</artifactId>
+		    <version>3.2.0-jdk-11</version>
 		</dependency>
 <dependency>
     <groupId>org.apache.commons</groupId>
@@ -46,5 +58,4 @@
     <version>1.11.0</version>
 </dependency>
 </dependencies>
-
 </project>

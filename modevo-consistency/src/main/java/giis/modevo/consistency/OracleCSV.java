@@ -235,7 +235,7 @@ public class OracleCSV {
 			if (numeric) {
 				Long currentRange = Long.parseLong(numberRange);
 				Long currentValue = Long.parseLong(matrixResultSet[i][numberColumn]);
-				if (currentRange.equals(currentValue)) {
+				if (currentRange.longValue() != currentValue.longValue()) {
 					numberRange = matrixResultSet[i][numberColumn];
 					rangesEqualValues.add(i - 1);
 					rangesEqualValues.add(i);

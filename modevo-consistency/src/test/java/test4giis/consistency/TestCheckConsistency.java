@@ -1,28 +1,15 @@
 package test4giis.consistency;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -38,14 +25,14 @@ import giis.modevo.migration.script.MainScript;
 import giis.modevo.migration.script.execution.CassandraConnection;
 import giis.modevo.model.ModelObjects;
 import test4giis.modevo.TestUtils;
-
-
+import test4giis.script.TestExecutionScript;
 
 public class TestCheckConsistency {
 	private static final String PROPERTIES = "../modevo-script/src/test/resources/dbconnection.properties";
 	private static CassandraConnection connection;
 
 	@Rule public TestName name = new TestName();
+	@BeforeClass
 	public static void setUp(){ //cleans the entire DB
 		connection = new CassandraConnection(PROPERTIES);
 		try {
@@ -55,9 +42,6 @@ public class TestCheckConsistency {
 		}
 	}
 	@Test
-	public void testDummy() {
-		assertTrue (true);
-	}
 	public void testCustomV1NewColumn() {
 		testConsistency(name.getMethodName());
 	}
@@ -85,6 +69,9 @@ public class TestCheckConsistency {
 		}
 	}
    
+	/**
+	 * Method to build a PreparedStatement to insert data to all columns of a Cassandra table
+	 */
 	private PreparedStatement buildInsert (String keyspace, String nameTable, List<String> columns) {
     	StringBuilder insert = new StringBuilder ("INSERT INTO ");
     	String a = "\""+keyspace+"\"."+nameTable;
@@ -108,6 +95,9 @@ public class TestCheckConsistency {
     	System.out.print(insert.toString());
     	return connection.getSession().prepare(insert.toString());
     }
+    /**
+     * Method to start the migration of data from the SQL database to the Cassandra database to populate it before using MoDEvo
+     */
     private void initDB(Map<String, PreparedStatement> preparedStatementsTable) throws Exception{
 		Map<String, String> tableQuery = new HashMap<String, String>();
 		java.sql.Connection connectionSQL = new MySQLAccess().connect("custom");
@@ -123,6 +113,10 @@ public class TestCheckConsistency {
 		connectionSQL.close();
 
 	}
+    /**
+     * Method to call the oracle. Right now it includes hardcodded the query for the only experimental subject tested. 
+     * In a following version this will be generalized and obtained from an external source depending on the experimental subject.
+     */
     private void compareCassandraSQL() throws Exception{
 		Map<String, String> tableQuery = new HashMap<String, String>();
 		MySQLAccess mysql = new MySQLAccess();
@@ -134,10 +128,11 @@ public class TestCheckConsistency {
 		con.close();
 
 	}
+    /**
+     * Call the transform and script module for the migration determined by MoDEvo
+     */
     private void testScript (String nameTest,  CassandraConnection c) {
 		ModelObjects m = new TestUtils().executeTransformationsAndCompareOutput (nameTest);
 		new MainScript().createScriptAndText(m, c, nameTest);
 	}
-
-    
 }
