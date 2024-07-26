@@ -11,6 +11,8 @@ on:
       - 'main'
 env:
   TEST_CASSANDRA_PWD: ${RANDOM}${RANDOM}${RANDOM}
+  TEST_MYSQL_PWD: ${RANDOM}${RANDOM}${RANDOM}
+
 jobs:
 
 
@@ -98,7 +100,7 @@ jobs:
             target/site
             **/target/site/jacoco/jacoco.xml
             **/target/surefire-reports
-  test-consistency:
+  verify-consistency:
     runs-on: ubuntu-latest
     #if: ${{ false }}  # disable for now
     #avoids duplicate execution of pr from local repo, but allows pr from forked repos and dependabot
@@ -110,6 +112,23 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+      - name: Initialize MySQL database
+        run: |
+          docker run --name test-mysql -e MYSQL_ROOT_PASSWORD=rootpassword -d -p 3306:3306 mysql:9.0
+          chmod u+x setup/wait-container-ready.sh 
+           ./setup/wait-container-ready.sh test-mysql 2 "ready for connections. Version:"
+          docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/custom.sql
+
+      - name: Initialize Cassandra database
+        run: |
+          docker run --name test-cassandra -d -p 9042:9042 \
+          -v ${GITHUB_WORKSPACE}/modevo-script/dat/inp/creationSchema.cql:/creationSchema.cql \
+          -e JVM_OPTS="-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.initial_token=0" \
+          cassandra:4.1.4
+          chmod u+x setup/wait-container-ready.sh 
+          ./setup/wait-container-ready.sh test-cassandra 1 "Created default superuser role"
+          docker exec test-cassandra cqlsh localhost 9042 -u cassandra -p cassandra -f creationSchema.cql
+
       - name: Test and aggregate surefire report
         run: mvn test -Dtest=!TestTransform,!TestExecutionScript -pl modevo-consistency -am -Dmaven.test.failure.ignore=true -Dsurefire.failIfNoSpecifiedTests=false -U --no-transfer-progress
 
@@ -123,7 +142,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v4.3.1
         with:
-          check_name: "test-result-consistency"
+          check_name: "verify-result-consistency"
           report_paths: "**/surefire-reports/TEST-*.xml"
           fail_on_failure: 'true'
 
@@ -131,14 +150,14 @@ jobs:
         name: Publish test report files
         uses: actions/upload-artifact@v4
         with:
-          name: "test-report-files-consistency"
+          name: "verify-report-files-consistency"
           path: |
             target/site
             **/target/site/jacoco/jacoco.xml
             **/target/surefire-reports
 
   sonarqube:
-    needs: [test-transform, test-script, test-consistency]
+    needs: [test-transform, test-script, verify-consistency]
     
     #if: ${{ false }}  # disable for now
     #This job fails when comming from a dependabot PR (can't read the sonarqube token for security reasons).
@@ -158,7 +177,7 @@ jobs:
       - uses: actions/download-artifact@v4.1.7
         if: always()
         with:
-          name: "test-report-files-consistency"
+          name: "verify-report-files-consistency"
       - name: Aggregated junit html report
         if: always()
         uses: javiertuya/junit-report-action@v1.2.0
@@ -191,7 +210,7 @@ jobs:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           restore-artifact-name1: "test-report-files-script"
           restore-artifact-name2: "test-report-files-transform"
-          restore-artifact-name3: "test-report-files-consistency"
+          restore-artifact-name3: "verify-report-files-consistency"
           
   publish-java-snapshot:
     if: ${{ false }}  # disable for now

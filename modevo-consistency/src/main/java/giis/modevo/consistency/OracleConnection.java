@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.util.Properties;
 
 import giis.modevo.migration.script.ScriptException;
+import giis.modevo.migration.script.execution.ConnectionData;
 import giis.modevo.model.DocumentException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,12 +19,12 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
-public class MySQLAccess {
-	private static final String PROBLEMSQL = "Problem executing SQL statement";
-	private static final String CLOSINGSQL = "Error closing SQL connection";
-	private static final String PROPERTIES = "consiste.properties";
-
-	private Connection connect = null;
+public class OracleConnection {
+	private static final String PROBLEM_SQL = "Problem executing SQL statement";
+	private static final String CLOSING_SQL = "Error closing SQL connection";
+	private static final String PROPERTIES = "src/test/resources/sqlconnection.properties";
+	private static final String PROBLEM_FILE = "Problem processing SQL file";
+	private Connection connect;
 
 	public Connection getConnect() {
 		return connect;
@@ -34,7 +35,7 @@ public class MySQLAccess {
 	}
 
 	public Connection connect(String nameDB) {
-		Properties properties = loadProperties();
+		Properties properties = new ConnectionData().loadProperties(PROPERTIES);
 		String ip = properties.getProperty("ipsql").trim();
 		String port = properties.getProperty("portsql").trim();
 		String username = properties.getProperty("usersql").trim();
@@ -46,10 +47,9 @@ public class MySQLAccess {
 					.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 			connect = DriverManager.getConnection(connection.toString());
 		} catch (SQLException e) {
-			throw new ScriptException("Problem connecting with SQL");
+			throw new ScriptException(PROBLEM_SQL + e);
 		}
 		return connect;
-
 	}
 
 	public void executeFileSQL(String path) {
@@ -66,13 +66,12 @@ public class MySQLAccess {
 			}
 			statement.executeBatch();
 			closeConnection();
-
 		} catch (SQLException e) {
 			closeConnection();
-			throw new ScriptException(PROBLEMSQL);
+			throw new ScriptException(PROBLEM_SQL);
 		} catch (IOException e) {
 			closeConnection();
-			throw new DocumentException("Problem with file");
+			throw new DocumentException(PROBLEM_FILE);
 		}
 	}
 
@@ -80,21 +79,8 @@ public class MySQLAccess {
 		try {
 			connect.close();
 		} catch (SQLException e) {
-			throw new ScriptException(CLOSINGSQL);
+			throw new ScriptException(CLOSING_SQL);
 		}
 	}
-
-	private Properties loadProperties() {
-		Properties properties = new Properties();
-		FileInputStream in;
-		try {
-			in = new FileInputStream(PROPERTIES);
-			properties.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.info("Error opening properties file");
-			throw new DocumentException("Error opening properties file");
-		}
-		return properties;
-	}
+	
 }

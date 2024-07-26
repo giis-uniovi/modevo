@@ -1,0 +1,16 @@
+<setup>
+<import platforms="db" domains="person,organization"/>
+<database id="db" url="jdbc:mysql://localhost:3306/custom" driver="com.mysql.jdbc.Driver" user="usersql" password="passwordsql"/>
+<iterate source="db" type="book" consumer="ConsoleExporter"/>
+    <generate type="author" count="1000" threads="1" consumer="db"/>
+    <generate type="book" count="1000" threads="1" consumer="db">
+	  <variable name="person" generator="new PersonGenerator{minAgeYears='21', maxAgeYears='67',femaleQuota='0.5'}" />
+      <variable name="company" generator="CompanyNameGenerator" />
+      <attribute name="title" type="string"/>
+	  <attribute name="publisher" type="string"/>
+	</generate>
+	<generate type="authorbook" count="1000" threads="1" consumer="db">
+      <reference name="idbook" targetType="author" source="db" distribution="random"/>
+      <reference name="idauthor" targetType="book" source="db" distribution="random"/>
+	</generate>
+</setup>
