@@ -45,10 +45,16 @@ public class TestCheckConsistency {
 	}
 	@Test
 	public void testCustomV1NewColumn() {
-		testConsistency(name.getMethodName());
+		Map<String, String> tableQueryCompare = new HashMap<String, String>();
+		Map<String, String> tableQueryInit = new HashMap<String, String>();
+		tableQueryCompare.put("table2", "SELECT distinct book.id as idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook order by book.id DESC;");
+		tableQueryCompare.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
+		tableQueryInit.put("table2", "SELECT book.id as idbook FROM book ORDER BY idbook DESC;");
+		tableQueryInit.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
+		testConsistency(name.getMethodName(), tableQueryCompare, "custom", tableQueryInit);
 		
 	}
-	private void testConsistency (String nameTest) {
+	private void testConsistency (String nameTest, Map<String, String> tableQueryCompare, String keyspace, Map<String, String> tableQueryInit) {
 		OracleCSV oc = new OracleCSV();
 		Map<String, List<String>> tableColumns = oc.namesTablesColumnsKeyspace(nameTest, connection);
 		Map <String, PreparedStatement> preparedStatementsTable = new HashMap <>();
@@ -60,13 +66,13 @@ public class TestCheckConsistency {
 			preparedStatementsTable.put(nameTable, ps);
 		}
 		try {
-			initDB (preparedStatementsTable);
+			initDB (preparedStatementsTable, keyspace, tableQueryInit);
 		} catch (Exception e) {
 			throw new RuntimeException (e);
 		}
 		testScript (name.getMethodName(), connection);
 		try {
-			compareCassandraSQL();
+			compareCassandraSQL(tableQueryCompare, keyspace);
 		} catch (Exception e) {
 			throw new RuntimeException (e);
 		}
@@ -100,18 +106,17 @@ public class TestCheckConsistency {
     }
     /**
      * Method to start the migration of data from the SQL database to the Cassandra database to populate it before using MoDEvo
+     * @param keyspace 
+     * @param tableQuery 
      */
-    private void initDB(Map<String, PreparedStatement> preparedStatementsTable) throws Exception{
-		Map<String, String> tableQuery = new HashMap<String, String>();
-		java.sql.Connection connectionSQL = new MySQLAccess().connect("custom");
+    private void initDB(Map<String, PreparedStatement> preparedStatementsTable, String keyspace, Map<String, String> tableQuery) throws Exception{
+		java.sql.Connection connectionSQL = new MySQLAccess().connect(keyspace);
 		Oracle oc = new Oracle();
-		tableQuery.put("table2", "SELECT book.id as idbook FROM book ORDER BY idbook DESC;");
-		tableQuery.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
 		Set<String> nameTables =  preparedStatementsTable.keySet();
 		Iterator<String> iteratorNameTables = nameTables.iterator();
 		while (iteratorNameTables.hasNext()) {
 			String nameTable = iteratorNameTables.next();
-			oc.sqlQueryMigrate("custom",nameTable, tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
+			oc.sqlQueryMigrate(keyspace, nameTable, tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
 		}
 		connectionSQL.close();
 
@@ -119,14 +124,13 @@ public class TestCheckConsistency {
     /**
      * Method to call the oracle. Right now it includes hardcodded the query for the only experimental subject tested. 
      * In a following version this will be generalized and obtained from an external source depending on the experimental subject.
+     * @param tableQuery 
+     * @param keyspace 
      */
-    private void compareCassandraSQL() throws Exception{
-		Map<String, String> tableQuery = new HashMap<String, String>();
+    private void compareCassandraSQL(Map<String, String> tableQuery, String keyspace) throws Exception{
 		MySQLAccess mysql = new MySQLAccess();
-		Connection con = mysql.connect("custom");
+		Connection con = mysql.connect(keyspace);
 		Oracle oc = new Oracle();
-		tableQuery.put("table2", "SELECT distinct book.id as idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook order by book.id DESC;");
-		tableQuery.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
 		boolean result = oc.oracleCompare(tableQuery, name.getMethodName(), PROPERTIES, con);
 		con.close();
 		assertTrue (result);
