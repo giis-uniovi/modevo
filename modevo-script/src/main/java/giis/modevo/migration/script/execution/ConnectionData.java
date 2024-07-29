@@ -17,7 +17,8 @@ public class ConnectionData {
 	private int port;
 	private String datacenter;
 	private String rack;
-	
+	public ConnectionData() {
+	}
 	public ConnectionData(String propertiesPath) {
 		Properties properties = loadProperties(propertiesPath);
 		ip=properties.getProperty("ip").trim();
@@ -33,7 +34,7 @@ public class ConnectionData {
 			log.info("Using default port %d", port);
 	    }
 	}
-	private Properties loadProperties(String propertiesPath) {
+	public Properties loadProperties(String propertiesPath) {
 		Properties properties = new Properties();
 		FileInputStream in;
 		try {

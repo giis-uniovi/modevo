@@ -1,5 +1,7 @@
 package test4giis.consistency;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,6 +46,7 @@ public class TestCheckConsistency {
 	@Test
 	public void testCustomV1NewColumn() {
 		testConsistency(name.getMethodName());
+		
 	}
 	private void testConsistency (String nameTest) {
 		OracleCSV oc = new OracleCSV();
@@ -123,10 +126,10 @@ public class TestCheckConsistency {
 		Connection con = mysql.connect("custom");
 		Oracle oc = new Oracle();
 		tableQuery.put("table2", "SELECT distinct book.id as idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook order by book.id DESC;");
-		tableQuery.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
-		oc.oracleCompare(tableQuery, name.getMethodName(), PROPERTIES, con);
+		tableQuery.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
+		boolean result = oc.oracleCompare(tableQuery, name.getMethodName(), PROPERTIES, con);
 		con.close();
-
+		assertTrue (result);
 	}
     /**
      * Call the transform and script module for the migration determined by MoDEvo

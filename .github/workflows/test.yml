@@ -114,10 +114,10 @@ jobs:
           cache: 'maven'
       - name: Initialize MySQL database
         run: |
-          docker run --name test-mysql -e MYSQL_ROOT_PASSWORD=abc -d -p 3306:3306 mysql:9.0
+          docker run --name test-mysql -e MYSQL_ROOT_PASSWORD=rootpassword -d -p 3306:3306 mysql:9.0
           chmod u+x setup/wait-container-ready.sh 
            ./setup/wait-container-ready.sh test-mysql 2 "ready for connections. Version:"
-          docker exec -i test-mysql sh -c "exec mysql -uroot -pabc" < ./setup/custom.sql
+          docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/custom.sql
 
       - name: Initialize Cassandra database
         run: |

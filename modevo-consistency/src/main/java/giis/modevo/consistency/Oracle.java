@@ -25,9 +25,10 @@ import giis.modevo.migration.script.execution.CassandraConnection;
 public class Oracle {
 	
 	/**
-	 * Main oracle method to determine if the cassandra database maintains data integrity
+	 * Main oracle method to determine if the Cassandra database maintains data integrity
+	 * @return True if the databases are storing same data, false otherwise
 	 */
-	public void oracleCompare(Map<String, String> tableQuery, String keyspaceCassandra, String properties,
+	public boolean oracleCompare(Map<String, String> tableQuery, String keyspaceCassandra, String properties,
 			Connection con) {
 		OracleCSV csv = new OracleCSV();
 		Iterator<String> keyIterator = tableQuery.keySet().iterator();
@@ -41,12 +42,13 @@ public class Oracle {
 			String pathCassandra = directory + table + "CQL.csv";
 			boolean equal = csv.compareCSV(pathSQL, pathCassandra, table);
 			if (!equal) {
+				System.out.print (table);
 				try {
 					con.close();
 				} catch (SQLException e1) {
 					throw new ScriptException(e1);
-
 				}
+				return false;
 			}
 		}
 		try {
@@ -54,6 +56,7 @@ public class Oracle {
 		} catch (SQLException e1) {
 			throw new ScriptException(e1);
 		}
+		return true;
 	}
 	
 	/**
@@ -161,6 +164,9 @@ public class Oracle {
 		return boundStmtBuilder;
 	}
 
+	/**
+	 * Fills parameters nameColumns and nameColumnsTypes with the names of the columns of a table and its data type in the db
+	 */
 	private void nameColumnsAndTypes(Iterator<ColumnDefinition> iter, ResultSet rs,
 			Map<String, String> nameColumnsTypes, List<String> nameColumns, ResultSetMetaData rsmd)
 			throws SQLException {

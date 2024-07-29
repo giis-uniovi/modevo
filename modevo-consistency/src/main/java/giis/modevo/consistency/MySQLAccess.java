@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.util.Properties;
 
 import giis.modevo.migration.script.ScriptException;
+import giis.modevo.migration.script.execution.ConnectionData;
 import giis.modevo.model.DocumentException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +35,7 @@ public class MySQLAccess {
 	}
 
 	public Connection connect(String nameDB) {
-		Properties properties = loadProperties();
+		Properties properties = new ConnectionData().loadProperties(PROPERTIES);
 		String ip = properties.getProperty("ipsql").trim();
 		String port = properties.getProperty("portsql").trim();
 		String username = properties.getProperty("usersql").trim();
@@ -46,10 +47,9 @@ public class MySQLAccess {
 					.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 			connect = DriverManager.getConnection(connection.toString());
 		} catch (SQLException e) {
-			throw new ScriptException("Problem connecting with SQL"+e);
+			throw new ScriptException("Problem connecting with SQL" + e);
 		}
 		return connect;
-
 	}
 
 	public void executeFileSQL(String path) {
@@ -66,7 +66,6 @@ public class MySQLAccess {
 			}
 			statement.executeBatch();
 			closeConnection();
-
 		} catch (SQLException e) {
 			closeConnection();
 			throw new ScriptException(PROBLEMSQL);
@@ -83,18 +82,5 @@ public class MySQLAccess {
 			throw new ScriptException(CLOSINGSQL);
 		}
 	}
-
-	private Properties loadProperties() {
-		Properties properties = new Properties();
-		FileInputStream in;
-		try {
-			in = new FileInputStream(PROPERTIES);
-			properties.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.info("Error opening properties file");
-			throw new DocumentException("Error opening properties file");
-		}
-		return properties;
-	}
+	
 }
