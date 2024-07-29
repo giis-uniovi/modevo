@@ -42,7 +42,6 @@ public class Oracle {
 			String pathCassandra = directory + table + "CQL.csv";
 			boolean equal = csv.compareCSV(pathSQL, pathCassandra, table);
 			if (!equal) {
-				System.out.print (table);
 				try {
 					con.close();
 				} catch (SQLException e1) {

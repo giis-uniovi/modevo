@@ -14,7 +14,7 @@
 		<name>Software Engineering Research Group (GIIS) - Universidad de Oviedo, ES</name>
 		<url>http://giis.uniovi.es/</url>
 	</organization>
-  <dependencies>
+  	<dependencies>
 		<dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
@@ -52,10 +52,10 @@
 		    <artifactId>benerator-maven-plugin</artifactId>
 		    <version>3.2.0-jdk-11</version>
 		</dependency>
-<dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-csv</artifactId>
-    <version>1.11.0</version>
-</dependency>
-</dependencies>
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-csv</artifactId>
+		    <version>1.11.0</version>
+		</dependency>
+	</dependencies>
 </project>
