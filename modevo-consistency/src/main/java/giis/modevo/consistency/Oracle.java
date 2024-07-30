@@ -34,7 +34,7 @@ public class Oracle {
 		OracleCsv csv = new OracleCsv();
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);
-			csv.convertToCsv(rs, tableName, keyspaceCassandra, pathSQL);
+			csv.convertToCsv(rs, tableName, pathSQL);
 		} catch (SQLException e) {
 			throw new ScriptException("Error executing SQL statement: " + e.getMessage());
 		}
@@ -43,7 +43,7 @@ public class Oracle {
 	/**
 	 * Method used to populate a Cassandra database with the data of its projection in the SQL database
 	 */
-	public void sqlQueryMigrate(String keyspace, String tableName, String query, Connection con,
+	public void sqlQueryMigrate(String tableName, String query, Connection con,
 			CassandraConnection connection, PreparedStatement ps) {
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);

@@ -126,7 +126,7 @@ public class TestCheckConsistency {
 		Iterator<String> iteratorNameTables = nameTables.iterator();
 		while (iteratorNameTables.hasNext()) {
 			String nameTable = iteratorNameTables.next();
-			oc.sqlQueryMigrate(keyspace, nameTable, tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
+			oc.sqlQueryMigrate(nameTable, tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
 		}
 		connectionSQL.close();
 
