@@ -1,20 +1,15 @@
 package giis.modevo.consistency;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
@@ -25,43 +20,38 @@ import com.datastax.oss.driver.api.core.cql.Row;
 import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.CassandraConnection;
 import giis.modevo.model.DocumentException;
-import giis.visualassert.VisualAssert;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class OracleCsv {
-	private static final String CSV_OPEN = "Error proccesing the CSV  file ";
 
 	/**
 	 * Creates a CSV file that contains the data that is stored in the table passed as first argument
-	 * @param pathCassandra 
 	 */
-	public void csvCassandra(String nameTable, String keyspace, String properties, String pathCassandra) {
+	public void csvCassandra(String tableName, String keyspace, String properties, String cassandraPath) {
 		CassandraConnection connection;
 		connection = new CassandraConnection(properties);
 		// ResultSet for cassandra, different than SQL ones
-		ResultSet rs = connection.executeStatement("SELECT * FROM \"" + keyspace + "\"." + nameTable + ";");
-		File file=new File(pathCassandra);
+		ResultSet rs = connection.executeStatement("SELECT * FROM \"" + keyspace + "\"." + tableName + ";");
+		File file=new File(cassandraPath);
 		File fileParent = new File(file.getParent());
 		if (!fileParent.exists()) {
 			fileParent.mkdirs();
 		}
-		List<String> rowsCassandra = new ArrayList<>();
+		List<String> cassandraRows = new ArrayList<>();
 		// Meta data of the columns of the table
 		ColumnDefinitions meta = rs.getColumnDefinitions();
 		int numberOfColumns = meta.size();
-		int numberRows = rs.getAvailableWithoutFetching();
-		String[][] results = new String[numberRows][numberOfColumns];
+		int numberOfRows = rs.getAvailableWithoutFetching();
+		String[][] results = new String[numberOfRows][numberOfColumns];
 		boolean[] numeric = new boolean[numberOfColumns];
-		int counterRows = 0;
+		int rowCounter = 0;
 		for (Row row : rs) {
-			String rowString = rowProcessing(row, results, numeric, counterRows, numberOfColumns);
-			rowsCassandra.add(rowString);
-			counterRows++;
+			String rowString = rowProcessing(row, results, numeric, rowCounter, numberOfColumns);
+			cassandraRows.add(rowString);
+			rowCounter++;
 		}
-		matrixSort(results, 0, rowsCassandra, 0, counterRows - 1, numeric); // orders results returned by cassandra
+		sortMatrix(results, 0, cassandraRows, 0, rowCounter - 1, numeric); // orders results returned by cassandra
 		try (FileWriter csvWriter = new FileWriter(file, false);) {
-			for (String row : rowsCassandra) {
+			for (String row : cassandraRows) {
 				csvWriter.write(row);
 			}
 		} catch (FileNotFoundException e) {
@@ -75,30 +65,30 @@ public class OracleCsv {
 	}
 
 	/**
-	 * Auxilary method of csvCassandra that processes each row and returns 
+	 * Auxiliary method of csvCassandra that processes each row and returns 
 	 * its content in a string formatted as a CSV.
 	 */
-	private String rowProcessing(Row row, String[][] results, boolean[] numeric, int counterRows, int numberOfColumns) {
-		StringBuilder rowString = new StringBuilder("\"");
-		for (int i = 0; i < numberOfColumns; i++) {
+	private String rowProcessing(Row row, String[][] results, boolean[] numeric, int rowNumber, int columnNumber) {
+		StringBuilder stringRow = new StringBuilder("\"");
+		for (int i = 0; i < columnNumber; i++) {
 			String result = row.getString(i);
 			if (i==0) {
-				rowString.append(row.getString(0).replaceAll("\"", "\\\"") + "\"");
+				stringRow.append(row.getString(0).replaceAll("\"", "\\\"") + "\"");
 			}
 			else {
-				rowString.append(",\"" + row.getString(i).replaceAll("\"", "\\\"") + "\"");
+				stringRow.append(",\"" + row.getString(i).replaceAll("\"", "\\\"") + "\"");
 			}
-			checkNumeric(numeric, i, result); //Although as string in the db, we check if the row is storing a numeric value
-			results[counterRows][i] = result;
+			numericCheck(numeric, i, result); //Although as string in the db, we check if the row is storing a numeric value
+			results[rowNumber][i] = result;
 		}
-		rowString.append("\n");
-		return rowString.toString();
+		stringRow.append("\n");
+		return stringRow.toString();
 	}
 
 	/**
 	 * Sets value in array in position i as numeric or not numeric
 	 */
-	private void checkNumeric(boolean[] numeric, int i, String result) {
+	private void numericCheck(boolean[] numeric, int i, String result) {
 		if (isNumeric(result)) {
 			numeric[i] = true;
 		} else {
@@ -109,33 +99,30 @@ public class OracleCsv {
 	/**
 	 * Sorts the results of a matrix.
 	 */
-	private String[][] matrixSort(String[][] matrixResultSet, int numberColumn, List<String> rowsCassandra,
+	private String[][] sortMatrix(String[][] matrixResultSet, int columnNumber, List<String> cassandraRows,
 			int beggining, int end, boolean[] numericArray) {
-
-		// Return empty matrix if it is empty
+		// Returns empty matrix if it is empty
 		if (matrixResultSet.length == 0) {
 			return new String[0][0];
 		}
 		// Check if column is numeric or not
-		boolean numeric = numericArray[numberColumn];
+		boolean numeric = numericArray[columnNumber];
 		//If it is the first column of the table, it sorts the rows with a descending value
-		if (numberColumn == 0) {
-			sortColumn(0, matrixResultSet.length - 1, numberColumn, matrixResultSet, rowsCassandra, numeric);
-			matrixResultSet = matrixSort(matrixResultSet, numberColumn + 1, rowsCassandra, 0,
+		if (columnNumber == 0) {
+			sortColumn(0, matrixResultSet.length - 1, columnNumber, matrixResultSet, cassandraRows, numeric);
+			matrixResultSet = sortMatrix(matrixResultSet, columnNumber + 1, cassandraRows, 0,
 					matrixResultSet.length - 1, numericArray);
 			return matrixResultSet;
 		} 
-		/*
-		 * For the rest of columns it sorts them when the values of the first column are the same. This also applies 
-		 * for the following of columns
-		 */	
+		 //For the rest of columns it sorts them when the values of the first column are the same. This also applies 
+		 //for the following of columns
 		else {
-			List<Integer> border = rangesEqual(beggining, end, numberColumn - 1, matrixResultSet,
-					numericArray[numberColumn - 1]);
+			List<Integer> border = equalRanges(beggining, end, columnNumber - 1, matrixResultSet,
+					numericArray[columnNumber - 1]);
 			for (int i = 0; i < border.size(); i = i + 2) {
 				if (border.get(i).intValue() != border.get(i + 1).intValue()) { //If the values are not the same, it sorts them
-					sortColumn(border.get(i), border.get(i + 1), numberColumn, matrixResultSet, rowsCassandra, numeric);
-					matrixResultSet = matrixSort(matrixResultSet, numberColumn + 1, rowsCassandra, border.get(i),
+					sortColumn(border.get(i), border.get(i + 1), columnNumber, matrixResultSet, cassandraRows, numeric);
+					matrixResultSet = sortMatrix(matrixResultSet, columnNumber + 1, cassandraRows, border.get(i),
 							border.get(i + 1), numericArray);
 				}
 			}
@@ -144,14 +131,14 @@ public class OracleCsv {
 	}
 
 	/**
-	 * Auxilary method of orderAlgorithm to sort a column in descending order
+	 * Auxiliary method of orderAlgorithm to sort a column in descending order
 	 */
-	private String[][] sortColumn (int beggining, int end, int numberColumn, String[][] matrixResultSet,
+	private String[][] sortColumn (int beginning, int end, int numberColumn, String[][] matrixResultSet,
 			List<String> rowsCassandra, boolean numeric) {
-		if (beggining == end) {
+		if (beginning == end) {
 			return matrixResultSet;
 		}
-		for (int i = beggining; i < matrixResultSet.length && i <= end; i++) {
+		for (int i = beginning; i < matrixResultSet.length && i <= end; i++) {
 			for (int j = i + 1; j < matrixResultSet.length && j <= end; j++) {
 				sortIteration(numeric, matrixResultSet, rowsCassandra, i, j, numberColumn); //Sorts two rows
 			}
@@ -160,21 +147,21 @@ public class OracleCsv {
 	}
 
 	/**
-	 * Auxilary method of orderAlgorithm that sorts two rows
+	 * Auxiliary method of orderAlgorithm that sorts two rows in descending order
 	 */
 	private void sortIteration (boolean numeric, String[][] matrixResultSet, List<String> rowsCassandra, int row1, int row2,
 			int numberColumn) {
 		String current = matrixResultSet[row1][numberColumn];
-		String parallel = matrixResultSet[row2][numberColumn];
+		String next = matrixResultSet[row2][numberColumn];
 		boolean sort = false;
 		if (numeric) {
-			Long numberCurrent = Long.valueOf(current);
-			Long numberParallel = Long.valueOf(parallel);
-			if (numberCurrent < numberParallel) {
+			Long currentNumber = Long.valueOf(current);
+			Long nextNumber = Long.valueOf(next);
+			if (currentNumber < nextNumber) {
 				sort = true;
 			}
 		} else {
-			if (current.compareTo(parallel) < 0) {
+			if (current.compareTo(next) < 0) {
 				sort = true;
 			}
 		}
@@ -191,72 +178,46 @@ public class OracleCsv {
 	/**
 	 * Returns the ranges of values which are the same
 	 */
-	public List<Integer> rangesEqual(int beggining, int end, int numberColumn, String[][] matrixResultSet,
+	public List<Integer> equalRanges(int start, int end, int columnNumber, String[][] matrixResultSet,
 			boolean numeric) {
-		List<Integer> rangesEqualValues = new ArrayList<>();
-		String numberRange = matrixResultSet[beggining][numberColumn];
-		rangesEqualValues.add(beggining);
-		if (beggining == end) {
-			rangesEqualValues.add(end);
-			return rangesEqualValues;
+		List<Integer> equalRangeValues = new ArrayList<>();
+		String numberRange = matrixResultSet[start][columnNumber];
+		equalRangeValues.add(start);
+		if (start == end) {
+			equalRangeValues.add(end);
+			return equalRangeValues;
 		}
-		for (int i = beggining + 1; i <= end; i++) {
+		for (int i = start + 1; i <= end; i++) {
 			if (numeric) {
 				Long currentRange = Long.parseLong(numberRange);
-				Long currentValue = Long.parseLong(matrixResultSet[i][numberColumn]);
+				Long currentValue = Long.parseLong(matrixResultSet[i][columnNumber]);
 				if (currentRange.longValue() != currentValue.longValue()) {
-					numberRange = matrixResultSet[i][numberColumn];
-					rangesEqualValues.add(i - 1);
-					rangesEqualValues.add(i);
+					numberRange = matrixResultSet[i][columnNumber];
+					equalRangeValues.add(i - 1);
+					equalRangeValues.add(i);
 				}
 			} else {
-				String currentValue = matrixResultSet[i][numberColumn];
+				String currentValue = matrixResultSet[i][columnNumber];
 				if (numberRange.compareTo(currentValue) != 0) {
-					numberRange = matrixResultSet[i][numberColumn];
-					rangesEqualValues.add(i - 1);
-					rangesEqualValues.add(i);
+					numberRange = matrixResultSet[i][columnNumber];
+					equalRangeValues.add(i - 1);
+					equalRangeValues.add(i);
 				}
 			}
 
 		}
-		rangesEqualValues.add(end);
-		return rangesEqualValues;
-	}
-
-	/**
-	 * Compares two CSV files and returns true if they store the same data, false
-	 * otherwise
-	 */
-	public boolean compareCSV(String pathSQL, String pathCQL, String nameTable) {
-		String introduction = "Table " + nameTable + ": ";
-		try (BufferedReader sql = new BufferedReader(new FileReader(pathSQL));
-			BufferedReader cassandra = new BufferedReader(new FileReader(pathCQL));) {
-			String lineSQL;
-			String lineCassandra;
-			while ((lineSQL = sql.readLine()) != null) {
-				lineCassandra = cassandra.readLine();
-				VisualAssert va = new VisualAssert();
-				va.assertEquals(lineCassandra, lineSQL);
-			}
-			lineCassandra = cassandra.readLine();
-			if (lineCassandra != null) {
-				log.info(introduction + "Cassandra contains more lines than SQL.");
-				return false;
-			}
-		} catch (IOException e) {
-			throw new DocumentException(CSV_OPEN + e.getMessage());
-		}
-		return true;
+		equalRangeValues.add(end);
+		return equalRangeValues;
 	}
 
 	/**
 	 * Converts to a csv the result set of a SQL query
 	 */
-	public void convertToCsv(java.sql.ResultSet rs, String nameTable, String keyspace, String path) {
+	public void convertToCsv(java.sql.ResultSet rs, String path) {
 		File file = new File(path);
-		File fileParent = new File(file.getParent());
-		if (!fileParent.exists()) {
-			fileParent.mkdirs();
+		File parentFile = new File(file.getParent());
+		if (!parentFile.exists()) {
+			parentFile.mkdirs();
 		}
 		List<String> extractionRS = new ArrayList<>();
 		ResultSetMetaData meta;
@@ -285,15 +246,12 @@ public class OracleCsv {
 		} catch (SQLException e) {
 			throw new ScriptException("Error proccesing SQL statement " + e.getMessage());
 		}
-		FileWriter csvWriter;
-		try {
-			csvWriter = new FileWriter(file, false);
+		try (FileWriter csvWriter= new FileWriter(file, false)){
 			for (String statement : extractionRS) {
 				csvWriter.write(statement);
 			}
-			csvWriter.close();
 		} catch (IOException e) {
-			throw new DocumentException(CSV_OPEN + e.getMessage());
+			throw new DocumentException(e.getMessage());
 		}
 	}
 
@@ -303,28 +261,29 @@ public class OracleCsv {
 	public Map<String, List<String>> namesTablesColumnsKeyspace(String keyspace, CassandraConnection connection) {
 		Map<String, List<String>> tableColumns = new HashMap<>();
 		String cqlNamesTables = "SELECT table_name FROM system_schema.tables WHERE keyspace_name = ?;";
-		PreparedStatement tablesNames = connection.getSession().prepare(cqlNamesTables);
-		BoundStatement bs = tablesNames.bind(keyspace);
+		PreparedStatement tableNames = connection.getSession().prepare(cqlNamesTables);
+		BoundStatement bs = tableNames.bind(keyspace);
 		ResultSet results = connection.executeStatement(bs);
-		Set<String> namesTablesSet = new HashSet<>();
-		while (results.iterator().hasNext()) {
-			String nameTable = results.iterator().next().getString("table_name");
-			namesTablesSet.add(nameTable);
+		List<String> tableNameList = new ArrayList<>();
+		Row cassandraRow = results.one();
+		while (cassandraRow != null) {
+			String tableName = cassandraRow.getString("table_name");
+			tableNameList.add(tableName);
+			cassandraRow = results.one();
 		}
-		Iterator<String> iterateSetNamesTables = namesTablesSet.iterator();
-		String cqlNameColumns = "SELECT column_name FROM system_schema.columns WHERE keyspace_name = ? and table_name = ?;";
-		PreparedStatement columnNames = connection.getSession().prepare(cqlNameColumns);
-		while (iterateSetNamesTables.hasNext()) {
-			String nameTable = iterateSetNamesTables.next();
-			List<String> nameColumns = new ArrayList<>();
-			BoundStatement bsColumns = columnNames.bind(keyspace, nameTable);
-			ResultSet resultNameColumns = connection.executeStatement(bsColumns);
-			Iterator<Row> rowsNameColumns = resultNameColumns.iterator();
-			while (rowsNameColumns.hasNext()) {
-				String nameColumn = rowsNameColumns.next().getString("column_name");
-				nameColumns.add(nameColumn);
+		String cqlColumnNames = "SELECT column_name FROM system_schema.columns WHERE keyspace_name = ? and table_name = ?;";
+		PreparedStatement columnNamesPreparedStatement = connection.getSession().prepare(cqlColumnNames);
+		for (String tableName: tableNameList) {
+			List<String> columnNamesList = new ArrayList<>();
+			BoundStatement bsColumns = columnNamesPreparedStatement.bind(keyspace, tableName);
+			ResultSet resultColumnNames = connection.executeStatement(bsColumns);
+			Row rowColumnNames = resultColumnNames.one(); 
+			while (rowColumnNames != null) {
+				String columnName = rowColumnNames.getString("column_name");
+				columnNamesList.add(columnName);
+				rowColumnNames = resultColumnNames.one();
 			}
-			tableColumns.put(nameTable, nameColumns);
+			tableColumns.put(tableName, columnNamesList);
 		}
 		return tableColumns;
 	}
