@@ -19,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
-public class MySQLAccess {
-	private static final String PROBLEMSQL = "Problem executing SQL statement";
-	private static final String CLOSINGSQL = "Error closing SQL connection";
+public class OracleConnection {
+	private static final String PROBLEM_SQL = "Problem executing SQL statement";
+	private static final String CLOSING_SQL = "Error closing SQL connection";
 	private static final String PROPERTIES = "src/test/resources/sqlconnection.properties";
-
+	private static final String PROBLEM_FILE = "Problem processing SQL file";
 	private Connection connect;
 
 	public Connection getConnect() {
@@ -47,7 +47,7 @@ public class MySQLAccess {
 					.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 			connect = DriverManager.getConnection(connection.toString());
 		} catch (SQLException e) {
-			throw new ScriptException("Problem connecting with SQL" + e);
+			throw new ScriptException(PROBLEM_SQL + e);
 		}
 		return connect;
 	}
@@ -68,10 +68,10 @@ public class MySQLAccess {
 			closeConnection();
 		} catch (SQLException e) {
 			closeConnection();
-			throw new ScriptException(PROBLEMSQL);
+			throw new ScriptException(PROBLEM_SQL);
 		} catch (IOException e) {
 			closeConnection();
-			throw new DocumentException("Problem with file");
+			throw new DocumentException(PROBLEM_FILE);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class MySQLAccess {
 		try {
 			connect.close();
 		} catch (SQLException e) {
-			throw new ScriptException(CLOSINGSQL);
+			throw new ScriptException(CLOSING_SQL);
 		}
 	}
 	

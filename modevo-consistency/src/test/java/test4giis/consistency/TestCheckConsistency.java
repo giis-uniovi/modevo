@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,10 +22,11 @@ import org.junit.rules.TestName;
 
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 
-import giis.modevo.consistency.OracleCSV;
-import giis.modevo.consistency.MySQLAccess;
+import giis.modevo.consistency.OracleCsv;
+import giis.modevo.consistency.OracleConnection;
 import giis.modevo.consistency.Oracle;
 import giis.modevo.migration.script.MainScript;
+import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.CassandraConnection;
 import giis.modevo.model.ModelObjects;
 import test4giis.modevo.TestUtils;
@@ -43,19 +46,26 @@ public class TestCheckConsistency {
 			throw new RuntimeException (e);
 		}
 	}
+	/**
+	 * First the Cassandra database is populated with data from the SQL database to guarantee that it has data integrity before the migration.
+	 * These data is retrieved through the queries that are in projectionAfterEvo map.
+	 * After evolving the Cassandra databases and migrating data with MoDEvo, it compares the data stored in both databases.
+	 * For each Cassandra table a projection of the table from the SQL table is obtained by executing the query defined in  projectionAfterEvo.
+	 * 
+	 */
 	@Test
 	public void testCustomV1NewColumn() {
-		Map<String, String> tableQueryCompare = new HashMap<String, String>();
-		Map<String, String> tableQueryInit = new HashMap<String, String>();
-		tableQueryCompare.put("table2", "SELECT distinct book.id as idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook order by book.id DESC;");
-		tableQueryCompare.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
-		tableQueryInit.put("table2", "SELECT book.id as idbook FROM book ORDER BY idbook DESC;");
-		tableQueryInit.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
-		testConsistency(name.getMethodName(), tableQueryCompare, "custom", tableQueryInit);
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionAfterEvo.put("table2", "SELECT distinct book.id as idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook order by book.id DESC;");
+		projectionAfterEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
+		projectionBeforeEvo.put("table2", "SELECT book.id as idbook FROM book ORDER BY idbook DESC;");
+		projectionBeforeEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
 		
 	}
 	private void testConsistency (String nameTest, Map<String, String> tableQueryCompare, String keyspace, Map<String, String> tableQueryInit) {
-		OracleCSV oc = new OracleCSV();
+		OracleCsv oc = new OracleCsv();
 		Map<String, List<String>> tableColumns = oc.namesTablesColumnsKeyspace(nameTest, connection);
 		Map <String, PreparedStatement> preparedStatementsTable = new HashMap <>();
 		Set<String> namesTables = tableColumns.keySet();
@@ -110,7 +120,7 @@ public class TestCheckConsistency {
      * @param tableQuery 
      */
     private void initDB(Map<String, PreparedStatement> preparedStatementsTable, String keyspace, Map<String, String> tableQuery) throws Exception{
-		java.sql.Connection connectionSQL = new MySQLAccess().connect(keyspace);
+		java.sql.Connection connectionSQL = new OracleConnection().connect(keyspace);
 		Oracle oc = new Oracle();
 		Set<String> nameTables =  preparedStatementsTable.keySet();
 		Iterator<String> iteratorNameTables = nameTables.iterator();
@@ -122,18 +132,33 @@ public class TestCheckConsistency {
 
 	}
     /**
-     * Method to call the oracle. Right now it includes hardcodded the query for the only experimental subject tested. 
-     * In a following version this will be generalized and obtained from an external source depending on the experimental subject.
+     * Method to compare the data stored in the Cassandra database and the SQL database by comparing
+     * each table of the Cassandra database with its projection from the SQL database.
      * @param tableQuery 
      * @param keyspace 
      */
     private void compareCassandraSQL(Map<String, String> tableQuery, String keyspace) throws Exception{
-		MySQLAccess mysql = new MySQLAccess();
+		OracleConnection mysql = new OracleConnection();
 		Connection con = mysql.connect(keyspace);
-		Oracle oc = new Oracle();
-		boolean result = oc.oracleCompare(tableQuery, name.getMethodName(), PROPERTIES, con);
+		String path = "dat/out/" + keyspace + "/";
+		OracleCsv csv = new OracleCsv();
+		Iterator<Entry<String, String>> iteratorTableQuery = tableQuery.entrySet().iterator();
+		while (iteratorTableQuery.hasNext()) {
+			Entry<String, String> tableQueryIteration = iteratorTableQuery.next();
+			String table= tableQueryIteration.getKey();
+			String query = tableQueryIteration.getValue();
+			String pathSQL = path + table + "SQL.csv";
+			String pathCassandra = path + table + "CQL.csv";
+			new Oracle().sqlQuery(table, query, con, name.getMethodName(), pathSQL);
+			csv.csvCassandra(table, name.getMethodName(), PROPERTIES, pathCassandra);
+			csv.compareCSV(pathSQL, pathCassandra, table);
+		}
+		try {
+			con.close();
+		} catch (SQLException e1) {
+			throw new ScriptException(e1);
+		}
 		con.close();
-		assertTrue (result);
 	}
     /**
      * Call the transform and script module for the migration determined by MoDEvo

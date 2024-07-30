@@ -126,20 +126,20 @@ public class TestExecutionScript {
 	}
 	public static void executeCQLFile(String path){
 	     try{
-	            // Open the file that is the first 
-	            // command line parameter
-	            FileInputStream fstream = new FileInputStream(path);
-	            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-	            String strLine;
-	            //Read File Line By Line
-	            while ((strLine = br.readLine()) != null)   {
-		            if (!(strLine.contains("--") || strLine.isBlank())){
-		            	connection.executeStatement(strLine);
-		            	connection.executeStatement (strLine);
-		            }
+            // Open the file that is the first 
+            // command line parameter
+            FileInputStream fstream = new FileInputStream(path);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+            String strLine;
+            //Read File Line By Line
+            while ((strLine = br.readLine()) != null)   {
+	            if (!(strLine.contains("--") || strLine.isBlank())){
+	            	connection.executeStatement(strLine);
+	            	connection.executeStatement (strLine);
 	            }
-	            //Close the input stream
-	            fstream.close();
+            }
+            //Close the input stream
+            fstream.close();
 	     }catch (Exception e){//Catch exception if any
 	            connection.close();
 	  			throw new RuntimeException ("Error executing CQL statement: "+e.getMessage());

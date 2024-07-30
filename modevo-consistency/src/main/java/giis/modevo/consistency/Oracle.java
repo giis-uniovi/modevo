@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.datastax.oss.driver.api.core.cql.BoundStatementBuilder;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinition;
@@ -17,6 +18,7 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 
 import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.CassandraConnection;
+import giis.visualassert.VisualAssert;
 
 /**
  * Main class of the oracle that contains the methods that execute the database statements to obtain the projections from the 
@@ -25,79 +27,41 @@ import giis.modevo.migration.script.execution.CassandraConnection;
 public class Oracle {
 	
 	/**
-	 * Main oracle method to determine if the Cassandra database maintains data integrity
-	 * @return True if the databases are storing same data, false otherwise
-	 */
-	public boolean oracleCompare(Map<String, String> tableQuery, String keyspaceCassandra, String properties,
-			Connection con) {
-		OracleCSV csv = new OracleCSV();
-		Iterator<String> keyIterator = tableQuery.keySet().iterator();
-		while (keyIterator.hasNext()) {
-			String table = keyIterator.next();
-			String query = tableQuery.get(table);
-			sqlQuery(table, query, con, keyspaceCassandra);
-			csv.csvCassandra(table, keyspaceCassandra, properties);
-			String directory = "dat/out/" + keyspaceCassandra + "/";
-			String pathSQL = directory + table + "SQL.csv";
-			String pathCassandra = directory + table + "CQL.csv";
-			boolean equal = csv.compareCSV(pathSQL, pathCassandra, table);
-			if (!equal) {
-				try {
-					con.close();
-				} catch (SQLException e1) {
-					throw new ScriptException(e1);
-				}
-				return false;
-			}
-		}
-		try {
-			con.close();
-		} catch (SQLException e1) {
-			throw new ScriptException(e1);
-		}
-		return true;
-	}
-	
-	/**
 	 * Executes a SQL query that is the projection of a Cassandra table
+	 * @param pathSQL 
 	 */
-	public String sqlQuery(String nameTable, String query, Connection con, String keyspaceCassandra) {
-		OracleCSV csv = new OracleCSV();
-		String nameFile = null;
+	public void sqlQuery(String tableName, String query, Connection con, String keyspaceCassandra, String pathSQL) {
+		OracleCsv csv = new OracleCsv();
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);
-			nameFile = csv.convertToCsv(rs, nameTable, keyspaceCassandra);
+			csv.convertToCsv(rs, tableName, keyspaceCassandra, pathSQL);
 		} catch (SQLException e) {
 			throw new ScriptException("Error executing SQL statement: " + e.getMessage());
-
 		}
-		return nameFile;
 	}
 
 	/**
 	 * Method used to populate a Cassandra database with the data of its projection in the SQL database
 	 */
-	public String sqlQueryMigrate(String keyspace, String nameTable, String query, Connection con,
+	public void sqlQueryMigrate(String keyspace, String tableName, String query, Connection con,
 			CassandraConnection connection, PreparedStatement ps) {
-		OracleCSV csv = new OracleCSV();
-		String nameFile = null;
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);
 			ResultSetMetaData rsmd = rs.getMetaData();
-			rsmd.getColumnCount();
 			List<String> nameColumns = new ArrayList<>();
 			Iterator<ColumnDefinition> iter = ps.getVariableDefinitions().iterator();
 			Map<String, String> nameColumnsTypes = new HashMap<>();
-			nameColumnsAndTypes(iter, rs, nameColumnsTypes, nameColumns, rsmd);
+			while (iter.hasNext()) {
+				ColumnDefinition cd = iter.next();
+				nameColumnAndType(cd, nameColumnsTypes, nameColumns, rsmd);
+			}
 			while (rs.next()) {
 				BoundStatementBuilder boundStmtBuilder = processResultSetRow(nameColumns, nameColumnsTypes, rs, ps);
 				connection.executeStatement(boundStmtBuilder.build());
 			}
-			nameFile = csv.convertToCsv(rs, nameTable, keyspace);
 		} catch (SQLException e) {
 			throw new ScriptException("Error executing SQL statement: " + e.getMessage());
 		}
-		return nameFile;
 	}
 
 	/**
@@ -164,21 +128,17 @@ public class Oracle {
 	}
 
 	/**
-	 * Fills parameters nameColumns and nameColumnsTypes with the names of the columns of a table and its data type in the db
+	 * Fills parameters nameColumns and nameColumnsTypes with the names of the columns of a table and its datatype
 	 */
-	private void nameColumnsAndTypes(Iterator<ColumnDefinition> iter, ResultSet rs,
-			Map<String, String> nameColumnsTypes, List<String> nameColumns, ResultSetMetaData rsmd)
+	private void nameColumnAndType(ColumnDefinition cd, Map<String, String> nameColumnsTypes, List<String> nameColumns, ResultSetMetaData rsmd)
 			throws SQLException {
-		while (iter.hasNext()) {
-			ColumnDefinition next = iter.next();
-			String nameColumn = next.getName().asCql(true);
-			for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-				if (nameColumn.contains(rsmd.getColumnName(i))) {
-					nameColumnsTypes.put(nameColumn, rs.getMetaData().getColumnTypeName(i));
-				}
+		String nameColumn = cd.getName().asCql(true);
+		for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+			if (nameColumn.contains(rsmd.getColumnName(i))) {
+				nameColumnsTypes.put(nameColumn, rsmd.getColumnTypeName(i));
 			}
-			nameColumns.add(nameColumn);
 		}
+		nameColumns.add(nameColumn);
 	}
 
 }
