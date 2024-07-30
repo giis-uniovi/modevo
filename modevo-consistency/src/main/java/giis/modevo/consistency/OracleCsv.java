@@ -252,7 +252,7 @@ public class OracleCsv {
 	/**
 	 * Converts to a csv the result set of a SQL query
 	 */
-	public void convertToCsv(java.sql.ResultSet rs, String nameTable, String path) {
+	public void convertToCsv(java.sql.ResultSet rs, String path) {
 		File file = new File(path);
 		File fileParent = new File(file.getParent());
 		if (!fileParent.exists()) {

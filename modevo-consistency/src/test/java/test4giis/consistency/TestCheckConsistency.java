@@ -126,7 +126,7 @@ public class TestCheckConsistency {
 		Iterator<String> iteratorNameTables = nameTables.iterator();
 		while (iteratorNameTables.hasNext()) {
 			String nameTable = iteratorNameTables.next();
-			oc.sqlQueryMigrate(nameTable, tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
+			oc.sqlQueryMigrate(tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
 		}
 		connectionSQL.close();
 
@@ -149,7 +149,7 @@ public class TestCheckConsistency {
 			String query = tableQueryIteration.getValue();
 			String pathSQL = path + table + "SQL.csv";
 			String pathCassandra = path + table + "CQL.csv";
-			new Oracle().sqlQuery(table, query, con, name.getMethodName(), pathSQL);
+			new Oracle().sqlQuery(query, con, pathSQL);
 			csv.csvCassandra(table, name.getMethodName(), PROPERTIES, pathCassandra);
 			csv.compareCSV(pathSQL, pathCassandra, table);
 		}

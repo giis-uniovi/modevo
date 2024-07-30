@@ -30,11 +30,11 @@ public class Oracle {
 	 * Executes a SQL query that is the projection of a Cassandra table
 	 * @param pathSQL 
 	 */
-	public void sqlQuery(String tableName, String query, Connection con, String keyspaceCassandra, String pathSQL) {
+	public void sqlQuery(String query, Connection con, String pathSQL) {
 		OracleCsv csv = new OracleCsv();
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);
-			csv.convertToCsv(rs, tableName, pathSQL);
+			csv.convertToCsv(rs, pathSQL);
 		} catch (SQLException e) {
 			throw new ScriptException("Error executing SQL statement: " + e.getMessage());
 		}
@@ -43,8 +43,7 @@ public class Oracle {
 	/**
 	 * Method used to populate a Cassandra database with the data of its projection in the SQL database
 	 */
-	public void sqlQueryMigrate(String tableName, String query, Connection con,
-			CassandraConnection connection, PreparedStatement ps) {
+	public void sqlQueryMigrate(String query, Connection con, CassandraConnection connection, PreparedStatement ps) {
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);
 			ResultSetMetaData rsmd = rs.getMetaData();
