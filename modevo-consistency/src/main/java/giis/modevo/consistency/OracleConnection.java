@@ -1,7 +1,6 @@
 package giis.modevo.consistency;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -13,17 +12,14 @@ import java.util.Properties;
 import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.ConnectionData;
 import giis.modevo.model.DocumentException;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  */
-@Slf4j
+
 public class OracleConnection {
-	private static final String PROBLEM_SQL = "Problem executing SQL statement";
-	private static final String CLOSING_SQL = "Error closing SQL connection";
+
 	private static final String PROPERTIES = "src/test/resources/sqlconnection.properties";
-	private static final String PROBLEM_FILE = "Problem processing SQL file";
 	private Connection connect;
 
 	public Connection getConnect() {
@@ -34,7 +30,7 @@ public class OracleConnection {
 		this.connect = connect;
 	}
 
-	public Connection connect(String nameDB) {
+	public Connection connect(String dbName) {
 		Properties properties = new ConnectionData().loadProperties(PROPERTIES);
 		String ip = properties.getProperty("ipsql").trim();
 		String port = properties.getProperty("portsql").trim();
@@ -42,12 +38,12 @@ public class OracleConnection {
 		String password = properties.getProperty("passwordsql").trim();
 		try {
 			StringBuilder connection = new StringBuilder("jdbc:mysql://").append(ip).append(":").append(port)
-					.append("/").append(nameDB).append("?").append("user=").append(username).append("&password=")
+					.append("/").append(dbName).append("?").append("user=").append(username).append("&password=")
 					.append(password)
 					.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 			connect = DriverManager.getConnection(connection.toString());
 		} catch (SQLException e) {
-			throw new ScriptException(PROBLEM_SQL + e);
+			throw new ScriptException(e);
 		}
 		return connect;
 	}
@@ -68,10 +64,10 @@ public class OracleConnection {
 			closeConnection();
 		} catch (SQLException e) {
 			closeConnection();
-			throw new ScriptException(PROBLEM_SQL);
+			throw new ScriptException(e);
 		} catch (IOException e) {
 			closeConnection();
-			throw new DocumentException(PROBLEM_FILE);
+			throw new DocumentException(e);
 		}
 	}
 
@@ -79,7 +75,7 @@ public class OracleConnection {
 		try {
 			connect.close();
 		} catch (SQLException e) {
-			throw new ScriptException(CLOSING_SQL);
+			throw new ScriptException(e);
 		}
 	}
 	

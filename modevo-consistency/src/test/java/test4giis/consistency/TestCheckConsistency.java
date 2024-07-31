@@ -1,7 +1,5 @@
 package test4giis.consistency;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +34,7 @@ public class TestCheckConsistency {
 	private static CassandraConnection connection;
 
 	@Rule public TestName name = new TestName();
+	
 	@BeforeClass
 	public static void setUp(){ //cleans the entire DB
 		connection = new CassandraConnection(PROPERTIES);
@@ -46,6 +44,7 @@ public class TestCheckConsistency {
 			throw new RuntimeException (e);
 		}
 	}
+	
 	/**
 	 * First the Cassandra database is populated with data from the SQL database to guarantee that it has data integrity before the migration.
 	 * These data is retrieved through the queries that are in projectionAfterEvo map.
@@ -62,45 +61,52 @@ public class TestCheckConsistency {
 		projectionBeforeEvo.put("table2", "SELECT book.id as idbook FROM book ORDER BY idbook DESC;");
 		projectionBeforeEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
-		
 	}
-	private void testConsistency (String nameTest, Map<String, String> tableQueryCompare, String keyspace, Map<String, String> tableQueryInit) {
-		OracleCsv oc = new OracleCsv();
-		Map<String, List<String>> tableColumns = oc.namesTablesColumnsKeyspace(nameTest, connection);
-		Map <String, PreparedStatement> preparedStatementsTable = new HashMap <>();
-		Set<String> namesTables = tableColumns.keySet();
-		Iterator<String> iteratorNameTables = namesTables.iterator();
-		while (iteratorNameTables.hasNext()) {
-			String nameTable = iteratorNameTables.next();
-			PreparedStatement ps = buildInsert (nameTest, nameTable, tableColumns.get(nameTable));
-			preparedStatementsTable.put(nameTable, ps);
-		}
-		try {
-			initDB (preparedStatementsTable, keyspace, tableQueryInit);
-		} catch (Exception e) {
-			throw new RuntimeException (e);
-		}
+	
+	/**
+	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
+	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 
+	 * Second, it calls the other modules of MoDEvo to determine the migrations and execute them.
+	 * Third, it checks that data integrity is maintained by using the oracle that compares the data stored in the SQL database and the Cassandra database
+	 */
+	private void testConsistency (String testName, Map<String, String> tableQueryCompare, String keyspace, Map<String, String> tableQueryInit) {
+		setUpCassandraDatabase(testName, keyspace, tableQueryInit);
 		testScript (name.getMethodName(), connection);
-		try {
-			compareCassandraSQL(tableQueryCompare, keyspace);
-		} catch (Exception e) {
-			throw new RuntimeException (e);
-		}
+		compareCassandraSQL(tableQueryCompare, keyspace);
 	}
    
 	/**
+	 * Sets up the Cassandra by populating it with all the data required from the SQL database using the queries specified in tableProjection
+	 */
+	private void setUpCassandraDatabase(String testName, String keyspace, Map<String, String> tableProjection) {
+		OracleCsv oc = new OracleCsv();
+		Map<String, List<String>> tableColumnsMap = oc.namesTablesColumnsKeyspace(testName, connection); //Map of the names of tables and its columns
+		Map <String, PreparedStatement> preparedStatementsTable = new HashMap <>();
+		Set <Entry <String, List <String>>> entries= tableColumnsMap.entrySet();
+		Iterator<Entry<String, List<String>>> iteratorTableNames = entries.iterator();
+		while (iteratorTableNames.hasNext()) { //Iterates over all tables of the database to populate them
+			Entry<String, List<String>> tableColumns = iteratorTableNames.next();
+			String tableName = tableColumns.getKey();
+			List<String> columnNames = tableColumns.getValue();
+			PreparedStatement ps = buildInsert (testName, tableName, columnNames); //Generic preparedStatement for the table
+			preparedStatementsTable.put(tableName, ps);
+		}
+		migrateSqlToCassandra (preparedStatementsTable, keyspace, tableProjection); //Migrates data from the SQL database to each Cassandra table
+	}
+	
+	/**
 	 * Method to build a PreparedStatement to insert data to all columns of a Cassandra table
 	 */
-	private PreparedStatement buildInsert (String keyspace, String nameTable, List<String> columns) {
+	private PreparedStatement buildInsert (String keyspace, String tableName, List<String> columns) {
     	StringBuilder insert = new StringBuilder ("INSERT INTO ");
-    	String a = "\""+keyspace+"\"."+nameTable;
+    	String a = "\""+keyspace+"\"."+tableName;
     	System.out.print(a);
     	insert.append(a).append(" (");
-    	int numberColumns = columns.size();
+    	int columnNumber = columns.size();
     	StringBuilder placeholders = new StringBuilder();
-    	for (int i=0; i<numberColumns;i++) {
+    	for (int i=0; i<columnNumber;i++) {
     		insert.append(columns.get(i));
-    		if (i+1 == numberColumns) {
+    		if (i+1 == columnNumber) {
     			insert.append(")");
     			placeholders.append("?)");
     		}
@@ -114,30 +120,37 @@ public class TestCheckConsistency {
     	System.out.print(insert.toString());
     	return connection.getSession().prepare(insert.toString());
     }
+	
     /**
      * Method to start the migration of data from the SQL database to the Cassandra database to populate it before using MoDEvo
-     * @param keyspace 
-     * @param tableQuery 
      */
-    private void initDB(Map<String, PreparedStatement> preparedStatementsTable, String keyspace, Map<String, String> tableQuery) throws Exception{
+    private void migrateSqlToCassandra(Map<String, PreparedStatement> preparedStatementsTable, String keyspace, Map<String, String> tableQuery){
 		java.sql.Connection connectionSQL = new OracleConnection().connect(keyspace);
-		Oracle oc = new Oracle();
-		Set<String> nameTables =  preparedStatementsTable.keySet();
-		Iterator<String> iteratorNameTables = nameTables.iterator();
-		while (iteratorNameTables.hasNext()) {
-			String nameTable = iteratorNameTables.next();
-			oc.sqlQueryMigrate(tableQuery.get(nameTable), connectionSQL, connection, preparedStatementsTable.get(nameTable));
+		Set<String> tablesNames =  preparedStatementsTable.keySet();
+		Iterator<String> iteratorTablesNames = tablesNames.iterator();
+		while (iteratorTablesNames.hasNext()) {
+			String tableName = iteratorTablesNames.next();
+			new Oracle().sqlQueryMigrate(tableQuery.get(tableName), connectionSQL, connection, preparedStatementsTable.get(tableName));
 		}
-		connectionSQL.close();
-
+		try {
+			connectionSQL.close();
+		} catch (SQLException e) {
+			throw new ScriptException(e);
+		}
 	}
+    /**
+     * Call the transform and script module for the migration determined by MoDEvo
+     */
+    private void testScript (String testName,  CassandraConnection c) {
+		ModelObjects m = new TestUtils().executeTransformationsAndCompareOutput (testName);
+		new MainScript().createScriptAndText(m, c, testName);
+	}
+    
     /**
      * Method to compare the data stored in the Cassandra database and the SQL database by comparing
      * each table of the Cassandra database with its projection from the SQL database.
-     * @param tableQuery 
-     * @param keyspace 
      */
-    private void compareCassandraSQL(Map<String, String> tableQuery, String keyspace) throws Exception{
+    private void compareCassandraSQL(Map<String, String> tableQuery, String keyspace) {
 		OracleConnection mysql = new OracleConnection();
 		Connection con = mysql.connect(keyspace);
 		String path = "dat/out/" + keyspace + "/";
@@ -147,24 +160,16 @@ public class TestCheckConsistency {
 			Entry<String, String> tableQueryIteration = iteratorTableQuery.next();
 			String table= tableQueryIteration.getKey();
 			String query = tableQueryIteration.getValue();
-			String pathSQL = path + table + "SQL.csv";
-			String pathCassandra = path + table + "CQL.csv";
-			new Oracle().sqlQuery(query, con, pathSQL);
-			csv.csvCassandra(table, name.getMethodName(), PROPERTIES, pathCassandra);
-			csv.compareCSV(pathSQL, pathCassandra, table);
+			String sqlPath = path + table + "SQL.csv";
+			String cassandraPath = path + table + "CQL.csv";
+			new Oracle().sqlQuery(query, con, sqlPath);
+			csv.csvCassandra(table, name.getMethodName(), PROPERTIES, cassandraPath);
+			csv.compareCSV(sqlPath, cassandraPath, table);
 		}
 		try {
 			con.close();
 		} catch (SQLException e1) {
 			throw new ScriptException(e1);
 		}
-		con.close();
-	}
-    /**
-     * Call the transform and script module for the migration determined by MoDEvo
-     */
-    private void testScript (String nameTest,  CassandraConnection c) {
-		ModelObjects m = new TestUtils().executeTransformationsAndCompareOutput (nameTest);
-		new MainScript().createScriptAndText(m, c, nameTest);
 	}
 }

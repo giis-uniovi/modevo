@@ -52,7 +52,7 @@ public class Oracle {
 			Map<String, String> nameColumnsTypes = new HashMap<>();
 			while (iter.hasNext()) {
 				ColumnDefinition cd = iter.next();
-				nameColumnAndType(cd, nameColumnsTypes, nameColumns, rsmd);
+				columnAndTypeNames(cd, nameColumnsTypes, nameColumns, rsmd);
 			}
 			while (rs.next()) {
 				BoundStatementBuilder boundStmtBuilder = processResultSetRow(nameColumns, nameColumnsTypes, rs, ps);
@@ -67,25 +67,25 @@ public class Oracle {
 	 * Replaces the value in a query with the data from a resultset
 	 * @throws SQLException
 	 */
-	private BoundStatementBuilder processResultSetRow(List<String> nameColumns, Map<String, String> nameColumnsTypes,
+	private BoundStatementBuilder processResultSetRow(List<String> columnNames, Map<String, String> columnTypes,
 			ResultSet rs, PreparedStatement ps) throws SQLException {
 		Map<String, Integer> valuesInt = new HashMap<>();
 		Map<String, String> valuesString = new HashMap<>();
-		for (String nameColumn : nameColumns) {
-			if (nameColumnsTypes.containsKey(nameColumn)) {
-				if (nameColumnsTypes.get(nameColumn).equalsIgnoreCase("INT")) {
-					int j = rs.getInt(nameColumn);
-					valuesInt.put(nameColumn, j);
+		for (String columnName : columnNames) {
+			if (columnTypes.containsKey(columnName)) {
+				if (columnTypes.get(columnName).equalsIgnoreCase("INT")) {
+					int j = rs.getInt(columnName);
+					valuesInt.put(columnName, j);
 				} else {
-					String obtainedString = rs.getString(nameColumn);
-					valuesString.put(nameColumn, obtainedString);
+					String obtainedString = rs.getString(columnName);
+					valuesString.put(columnName, obtainedString);
 				}
 			}
 		}
 		List<Object> toBind = new ArrayList<>();
 		List<Class<?>> classes = new ArrayList<>();
-		for (String nameColumn : nameColumns) {
-			if (nameColumnsTypes.containsKey(nameColumn)) {
+		for (String nameColumn : columnNames) {
+			if (columnTypes.containsKey(nameColumn)) {
 				Integer valueInt = valuesInt.get(nameColumn);
 				if (valueInt == null) {
 					String valueString = valuesString.get(nameColumn);
@@ -129,15 +129,15 @@ public class Oracle {
 	/**
 	 * Fills parameters nameColumns and nameColumnsTypes with the names of the columns of a table and its datatype
 	 */
-	private void nameColumnAndType(ColumnDefinition cd, Map<String, String> nameColumnsTypes, List<String> nameColumns, ResultSetMetaData rsmd)
+	private void columnAndTypeNames(ColumnDefinition cd, Map<String, String> columnsTypes, List<String> columnNames, ResultSetMetaData rsmd)
 			throws SQLException {
-		String nameColumn = cd.getName().asCql(true);
+		String columnName = cd.getName().asCql(true);
 		for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-			if (nameColumn.contains(rsmd.getColumnName(i))) {
-				nameColumnsTypes.put(nameColumn, rsmd.getColumnTypeName(i));
+			if (columnName.contains(rsmd.getColumnName(i))) {
+				columnsTypes.put(columnName, rsmd.getColumnTypeName(i));
 			}
 		}
-		nameColumns.add(nameColumn);
+		columnNames.add(columnName);
 	}
 
 }
