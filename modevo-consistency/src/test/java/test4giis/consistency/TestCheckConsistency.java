@@ -25,9 +25,10 @@ import giis.modevo.consistency.Oracle;
 import giis.modevo.migration.script.MainScript;
 import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.CassandraConnection;
+import giis.modevo.model.DocumentException;
 import giis.modevo.model.ModelObjects;
+import giis.visualassert.VisualAssert;
 import test4giis.modevo.TestUtils;
-import test4giis.script.TestExecutionScript;
 
 public class TestCheckConsistency {
 	private static final String PROPERTIES = "../modevo-script/src/test/resources/dbconnection.properties";
@@ -95,12 +96,11 @@ public class TestCheckConsistency {
 	}
 	
 	/**
-	 * Method to build a PreparedStatement to insert data to all columns of a Cassandra table
+	 * Builds a PreparedStatement to insert data to all columns of a Cassandra table
 	 */
 	private PreparedStatement buildInsert (String keyspace, String tableName, List<String> columns) {
     	StringBuilder insert = new StringBuilder ("INSERT INTO ");
     	String a = "\""+keyspace+"\"."+tableName;
-    	System.out.print(a);
     	insert.append(a).append(" (");
     	int columnNumber = columns.size();
     	StringBuilder placeholders = new StringBuilder();
@@ -113,24 +113,25 @@ public class TestCheckConsistency {
     		else {
     			insert.append(", ");
     			placeholders.append("?, ");
-
     		}
     	}
     	insert.append(" VALUES (").append(placeholders).append(";");
-    	System.out.print(insert.toString());
     	return connection.getSession().prepare(insert.toString());
     }
 	
     /**
-     * Method to start the migration of data from the SQL database to the Cassandra database to populate it before using MoDEvo
+     * Starts the migration of data from the SQL database to the Cassandra database to populate it before using MoDEvo
      */
-    private void migrateSqlToCassandra(Map<String, PreparedStatement> preparedStatementsTable, String keyspace, Map<String, String> tableQuery){
+    private void migrateSqlToCassandra(Map<String, PreparedStatement> tablePreparedStatement, String keyspace, Map<String, String> tableQuery){
 		java.sql.Connection connectionSQL = new OracleConnection().connect(keyspace);
-		Set<String> tablesNames =  preparedStatementsTable.keySet();
-		Iterator<String> iteratorTablesNames = tablesNames.iterator();
-		while (iteratorTablesNames.hasNext()) {
-			String tableName = iteratorTablesNames.next();
-			new Oracle().sqlQueryMigrate(tableQuery.get(tableName), connectionSQL, connection, preparedStatementsTable.get(tableName));
+		Set<Entry<String, PreparedStatement>> entryTablePreparedStatement =tablePreparedStatement.entrySet();
+		Iterator<Entry<String, PreparedStatement>> iteratorTablesPreparedStatement = entryTablePreparedStatement.iterator();
+		while (iteratorTablesPreparedStatement.hasNext()) {
+			Entry<String, PreparedStatement> preparedStatementTable = iteratorTablesPreparedStatement.next();
+			String tableName = preparedStatementTable.getKey();
+			PreparedStatement preparedStatement = preparedStatementTable.getValue();
+			String query = tableQuery.get(tableName);
+			new Oracle().sqlQueryMigrate(query, connectionSQL, connection, preparedStatement);
 		}
 		try {
 			connectionSQL.close();
@@ -139,7 +140,7 @@ public class TestCheckConsistency {
 		}
 	}
     /**
-     * Call the transform and script module for the migration determined by MoDEvo
+     * Calls the transform and script module for the migration determined by MoDEvo
      */
     private void testScript (String testName,  CassandraConnection c) {
 		ModelObjects m = new TestUtils().executeTransformationsAndCompareOutput (testName);
@@ -147,7 +148,7 @@ public class TestCheckConsistency {
 	}
     
     /**
-     * Method to compare the data stored in the Cassandra database and the SQL database by comparing
+     * Compares the data stored in the Cassandra database and the SQL database by comparing
      * each table of the Cassandra database with its projection from the SQL database.
      */
     private void compareCassandraSQL(Map<String, String> tableQuery, String keyspace) {
@@ -162,9 +163,17 @@ public class TestCheckConsistency {
 			String query = tableQueryIteration.getValue();
 			String sqlPath = path + table + "SQL.csv";
 			String cassandraPath = path + table + "CQL.csv";
-			new Oracle().sqlQuery(query, con, sqlPath);
+			new Oracle().sqlQuery(query, con, sqlPath); //Creates a CSV with the projection data
 			csv.csvCassandra(table, name.getMethodName(), PROPERTIES, cassandraPath);
-			csv.compareCSV(sqlPath, cassandraPath, table);
+			try {
+				//Retrieves the data from the csv files to the variables sql and cassandra
+				String sql = Files.readString(Paths.get(sqlPath)); 
+				String cassandra = Files.readString(Paths.get(cassandraPath));
+				VisualAssert va = new VisualAssert();
+				va.assertEquals(sql, cassandra); //compares the data stored in both files
+			} catch (IOException e) {
+				throw new DocumentException(e);
+			}
 		}
 		try {
 			con.close();

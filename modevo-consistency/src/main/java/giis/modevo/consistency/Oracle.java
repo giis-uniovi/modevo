@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.datastax.oss.driver.api.core.cql.BoundStatementBuilder;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinition;
@@ -18,7 +17,6 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 
 import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.CassandraConnection;
-import giis.visualassert.VisualAssert;
 
 /**
  * Main class of the oracle that contains the methods that execute the database statements to obtain the projections from the 
@@ -27,8 +25,7 @@ import giis.visualassert.VisualAssert;
 public class Oracle {
 	
 	/**
-	 * Executes a SQL query that is the projection of a Cassandra table
-	 * @param pathSQL 
+	 * Executes a SQL query that is the projection of a Cassandra table and creates a CSV with the retrieved data
 	 */
 	public void sqlQuery(String query, Connection con, String pathSQL) {
 		OracleCsv csv = new OracleCsv();
@@ -47,15 +44,15 @@ public class Oracle {
 		try (Statement stmt = con.createStatement()) {
 			ResultSet rs = stmt.executeQuery(query);
 			ResultSetMetaData rsmd = rs.getMetaData();
-			List<String> nameColumns = new ArrayList<>();
+			List<String> columnNames = new ArrayList<>();
 			Iterator<ColumnDefinition> iter = ps.getVariableDefinitions().iterator();
-			Map<String, String> nameColumnsTypes = new HashMap<>();
+			Map<String, String> columnNameTypeMap = new HashMap<>();
 			while (iter.hasNext()) {
 				ColumnDefinition cd = iter.next();
-				columnAndTypeNames(cd, nameColumnsTypes, nameColumns, rsmd);
+				columnAndTypeNames(cd, columnNameTypeMap, columnNames, rsmd);
 			}
 			while (rs.next()) {
-				BoundStatementBuilder boundStmtBuilder = processResultSetRow(nameColumns, nameColumnsTypes, rs, ps);
+				BoundStatementBuilder boundStmtBuilder = processResultSetRow(columnNames, columnNameTypeMap, rs, ps);
 				connection.executeStatement(boundStmtBuilder.build());
 			}
 		} catch (SQLException e) {
@@ -65,35 +62,34 @@ public class Oracle {
 
 	/**
 	 * Replaces the value in a query with the data from a resultset
-	 * @throws SQLException
 	 */
 	private BoundStatementBuilder processResultSetRow(List<String> columnNames, Map<String, String> columnTypes,
 			ResultSet rs, PreparedStatement ps) throws SQLException {
-		Map<String, Integer> valuesInt = new HashMap<>();
-		Map<String, String> valuesString = new HashMap<>();
+		Map<String, Integer> intValues = new HashMap<>();
+		Map<String, String> stringValues = new HashMap<>();
 		for (String columnName : columnNames) {
 			if (columnTypes.containsKey(columnName)) {
 				if (columnTypes.get(columnName).equalsIgnoreCase("INT")) {
 					int j = rs.getInt(columnName);
-					valuesInt.put(columnName, j);
+					intValues.put(columnName, j);
 				} else {
 					String obtainedString = rs.getString(columnName);
-					valuesString.put(columnName, obtainedString);
+					stringValues.put(columnName, obtainedString);
 				}
 			}
 		}
 		List<Object> toBind = new ArrayList<>();
 		List<Class<?>> classes = new ArrayList<>();
-		for (String nameColumn : columnNames) {
-			if (columnTypes.containsKey(nameColumn)) {
-				Integer valueInt = valuesInt.get(nameColumn);
-				if (valueInt == null) {
-					String valueString = valuesString.get(nameColumn);
-					Class<?> clase = valueString.getClass();
+		for (String columnName : columnNames) {
+			if (columnTypes.containsKey(columnName)) {
+				Integer intValue = intValues.get(columnName);
+				if (intValue == null) {
+					String stringValue = stringValues.get(columnName);
+					Class<?> clase = stringValue.getClass();
 					classes.add(clase);
-					toBind.add(valueString);
+					toBind.add(stringValue);
 				} else {
-					toBind.add(valueInt.toString());
+					toBind.add(intValue.toString());
 				}
 			}
 		}
@@ -110,16 +106,16 @@ public class Oracle {
 	 */
 	private BoundStatementBuilder determineDataType(Object value, BoundStatementBuilder boundStmtBuilder,
 			int position) {
-		if (value instanceof String valueString) {
-			boundStmtBuilder = boundStmtBuilder.setString(position, valueString);
-		} else if (value instanceof Integer valueInt) {
-			boundStmtBuilder = boundStmtBuilder.setInt(position, valueInt);
-		} else if (value instanceof Double valueDouble) {
-			boundStmtBuilder = boundStmtBuilder.setDouble(position, valueDouble);
-		} else if (value instanceof Long valueLong) {
-			boundStmtBuilder = boundStmtBuilder.setLong(position, valueLong);
-		} else if (value instanceof Boolean valueBool) {
-			boundStmtBuilder = boundStmtBuilder.setBoolean(position, valueBool);
+		if (value instanceof String stringValue) {
+			boundStmtBuilder = boundStmtBuilder.setString(position, stringValue);
+		} else if (value instanceof Integer intValue) {
+			boundStmtBuilder = boundStmtBuilder.setInt(position, intValue);
+		} else if (value instanceof Double doubleValue) {
+			boundStmtBuilder = boundStmtBuilder.setDouble(position, doubleValue);
+		} else if (value instanceof Long longValue) {
+			boundStmtBuilder = boundStmtBuilder.setLong(position, longValue);
+		} else if (value instanceof Boolean boolValue) {
+			boundStmtBuilder = boundStmtBuilder.setBoolean(position, boolValue);
 		} else {
 			throw new IllegalArgumentException("Unsupported type: " + value.getClass());
 		}
@@ -127,7 +123,7 @@ public class Oracle {
 	}
 
 	/**
-	 * Fills parameters nameColumns and nameColumnsTypes with the names of the columns of a table and its datatype
+	 * Fills parameters columnNames and columnsTypes with the names of the columns of a table and its datatype
 	 */
 	private void columnAndTypeNames(ColumnDefinition cd, Map<String, String> columnsTypes, List<String> columnNames, ResultSetMetaData rsmd)
 			throws SQLException {

@@ -13,10 +13,6 @@ import giis.modevo.migration.script.ScriptException;
 import giis.modevo.migration.script.execution.ConnectionData;
 import giis.modevo.model.DocumentException;
 
-/**
- * 
- */
-
 public class OracleConnection {
 
 	private static final String PROPERTIES = "src/test/resources/sqlconnection.properties";
@@ -48,7 +44,7 @@ public class OracleConnection {
 		return connect;
 	}
 
-	public void executeFileSQL(String path) {
+	public void executeFileSql(String path) {
 		String scriptFilePath = path;
 		try (BufferedReader reader = new BufferedReader(new FileReader(scriptFilePath));
 				Statement statement = connect.createStatement();) {
