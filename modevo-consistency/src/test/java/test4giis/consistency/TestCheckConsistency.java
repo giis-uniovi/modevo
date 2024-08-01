@@ -73,7 +73,7 @@ public class TestCheckConsistency {
 	private void testConsistency (String testName, Map<String, String> tableQueryCompare, String keyspace, Map<String, String> tableQueryInit) {
 		setUpCassandraDatabase(testName, keyspace, tableQueryInit);
 		testScript (name.getMethodName(), connection);
-		compareCassandraSQL(tableQueryCompare, keyspace);
+		compareCassandraSql(tableQueryCompare, keyspace);
 	}
    
 	/**
@@ -123,7 +123,7 @@ public class TestCheckConsistency {
      * Starts the migration of data from the SQL database to the Cassandra database to populate it before using MoDEvo
      */
     private void migrateSqlToCassandra(Map<String, PreparedStatement> tablePreparedStatement, String keyspace, Map<String, String> tableQuery){
-		java.sql.Connection connectionSQL = new OracleConnection().connect(keyspace);
+		java.sql.Connection connectionSql = new OracleConnection().connect(keyspace);
 		Set<Entry<String, PreparedStatement>> entryTablePreparedStatement =tablePreparedStatement.entrySet();
 		Iterator<Entry<String, PreparedStatement>> iteratorTablesPreparedStatement = entryTablePreparedStatement.iterator();
 		while (iteratorTablesPreparedStatement.hasNext()) {
@@ -131,10 +131,10 @@ public class TestCheckConsistency {
 			String tableName = preparedStatementTable.getKey();
 			PreparedStatement preparedStatement = preparedStatementTable.getValue();
 			String query = tableQuery.get(tableName);
-			new Oracle().sqlQueryMigrate(query, connectionSQL, connection, preparedStatement);
+			new Oracle().sqlQueryMigrate(query, connectionSql, connection, preparedStatement);
 		}
 		try {
-			connectionSQL.close();
+			connectionSql.close();
 		} catch (SQLException e) {
 			throw new ScriptException(e);
 		}
@@ -151,7 +151,7 @@ public class TestCheckConsistency {
      * Compares the data stored in the Cassandra database and the SQL database by comparing
      * each table of the Cassandra database with its projection from the SQL database.
      */
-    private void compareCassandraSQL(Map<String, String> tableQuery, String keyspace) {
+    private void compareCassandraSql(Map<String, String> tableQuery, String keyspace) {
 		OracleConnection mysql = new OracleConnection();
 		Connection con = mysql.connect(keyspace);
 		String path = "dat/out/" + keyspace + "/";
