@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,10 +44,8 @@ public class Oracle {
 			ResultSet rs = stmt.executeQuery(query);
 			ResultSetMetaData rsmd = rs.getMetaData();
 			List<String> columnNames = new ArrayList<>();
-			Iterator<ColumnDefinition> iter = ps.getVariableDefinitions().iterator();
 			Map<String, String> columnNameTypeMap = new HashMap<>();
-			while (iter.hasNext()) {
-				ColumnDefinition cd = iter.next();
+			for (ColumnDefinition cd : ps.getVariableDefinitions()) {
 				columnAndTypeNames(cd, columnNameTypeMap, columnNames, rsmd);
 			}
 			while (rs.next()) {
@@ -102,7 +99,7 @@ public class Oracle {
 	}
 
 	/**
-	 * Auxilary method of processResultSetRow to replace a single value depending on its type. 
+	 * Auxiliary method of processResultSetRow to replace a single value depending on its type. 
 	 */
 	private BoundStatementBuilder determineDataType(Object value, BoundStatementBuilder boundStmtBuilder,
 			int position) {

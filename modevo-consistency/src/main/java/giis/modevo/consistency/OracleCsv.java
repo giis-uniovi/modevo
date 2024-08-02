@@ -8,7 +8,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +65,7 @@ public class OracleCsv {
 	}
 
 	/**
-	 * Auxilary method of csvCassandra that processes each row and returns 
+	 * Auxiliary method of csvCassandra that processes each row and returns 
 	 * its content in a string formatted as a CSV.
 	 */
 	private String rowProcessing(Row row, String[][] results, boolean[] numeric, int rowNumber, int columnNumber) {
@@ -102,8 +101,7 @@ public class OracleCsv {
 	 */
 	private String[][] sortMatrix(String[][] matrixResultSet, int columnNumber, List<String> cassandraRows,
 			int beggining, int end, boolean[] numericArray) {
-
-		// Return empty matrix if it is empty
+		// Returns empty matrix if it is empty
 		if (matrixResultSet.length == 0) {
 			return new String[0][0];
 		}
@@ -116,10 +114,8 @@ public class OracleCsv {
 					matrixResultSet.length - 1, numericArray);
 			return matrixResultSet;
 		} 
-
 		 //For the rest of columns it sorts them when the values of the first column are the same. This also applies 
 		 //for the following of columns
-		 
 		else {
 			List<Integer> border = equalRanges(beggining, end, columnNumber - 1, matrixResultSet,
 					numericArray[columnNumber - 1]);
@@ -135,7 +131,7 @@ public class OracleCsv {
 	}
 
 	/**
-	 * Auxilary method of orderAlgorithm to sort a column in descending order
+	 * Auxiliary method of orderAlgorithm to sort a column in descending order
 	 */
 	private String[][] sortColumn (int beginning, int end, int numberColumn, String[][] matrixResultSet,
 			List<String> rowsCassandra, boolean numeric) {
@@ -151,7 +147,7 @@ public class OracleCsv {
 	}
 
 	/**
-	 * Auxilary method of orderAlgorithm that sorts two rows in descending order
+	 * Auxiliary method of orderAlgorithm that sorts two rows in descending order
 	 */
 	private void sortIteration (boolean numeric, String[][] matrixResultSet, List<String> rowsCassandra, int row1, int row2,
 			int numberColumn) {
@@ -250,13 +246,10 @@ public class OracleCsv {
 		} catch (SQLException e) {
 			throw new ScriptException("Error proccesing SQL statement " + e.getMessage());
 		}
-		FileWriter csvWriter;
-		try {
-			csvWriter = new FileWriter(file, false);
+		try (FileWriter csvWriter= new FileWriter(file, false)){
 			for (String statement : extractionRS) {
 				csvWriter.write(statement);
 			}
-			csvWriter.close();
 		} catch (IOException e) {
 			throw new DocumentException(e.getMessage());
 		}
@@ -272,9 +265,11 @@ public class OracleCsv {
 		BoundStatement bs = tableNames.bind(keyspace);
 		ResultSet results = connection.executeStatement(bs);
 		List<String> tableNameList = new ArrayList<>();
-		while (results.iterator().hasNext()) {
-			String tableName = results.iterator().next().getString("table_name");
+		Row cassandraRow = results.one();
+		while (cassandraRow != null) {
+			String tableName = cassandraRow.getString("table_name");
 			tableNameList.add(tableName);
+			cassandraRow = results.one();
 		}
 		String cqlColumnNames = "SELECT column_name FROM system_schema.columns WHERE keyspace_name = ? and table_name = ?;";
 		PreparedStatement columnNamesPreparedStatement = connection.getSession().prepare(cqlColumnNames);
@@ -282,10 +277,11 @@ public class OracleCsv {
 			List<String> columnNamesList = new ArrayList<>();
 			BoundStatement bsColumns = columnNamesPreparedStatement.bind(keyspace, tableName);
 			ResultSet resultColumnNames = connection.executeStatement(bsColumns);
-			Iterator<Row> rowColumnNames = resultColumnNames.iterator();
-			while (rowColumnNames.hasNext()) {
-				String columnName = rowColumnNames.next().getString("column_name");
+			Row rowColumnNames = resultColumnNames.one(); 
+			while (rowColumnNames != null) {
+				String columnName = rowColumnNames.getString("column_name");
 				columnNamesList.add(columnName);
+				rowColumnNames = resultColumnNames.one();
 			}
 			tableColumns.put(tableName, columnNamesList);
 		}

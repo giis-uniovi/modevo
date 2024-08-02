@@ -32,11 +32,11 @@ public class OracleConnection {
 		String port = properties.getProperty("portsql").trim();
 		String username = properties.getProperty("usersql").trim();
 		String password = properties.getProperty("passwordsql").trim();
+		StringBuilder connection = new StringBuilder("jdbc:mysql://").append(ip).append(":").append(port)
+				.append("/").append(dbName).append("?").append("user=").append(username).append("&password=")
+				.append(password)
+				.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 		try {
-			StringBuilder connection = new StringBuilder("jdbc:mysql://").append(ip).append(":").append(port)
-					.append("/").append(dbName).append("?").append("user=").append(username).append("&password=")
-					.append(password)
-					.append("&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 			connect = DriverManager.getConnection(connection.toString());
 		} catch (SQLException e) {
 			throw new ScriptException(e);
@@ -48,22 +48,17 @@ public class OracleConnection {
 		String scriptFilePath = path;
 		try (BufferedReader reader = new BufferedReader(new FileReader(scriptFilePath));
 				Statement statement = connect.createStatement();) {
-			// create statement object
-			// initialize file reader
 			String line = null;
-			// read script line by line
 			while ((line = reader.readLine()) != null) {
-				// execute query
 				statement.addBatch(line);
 			}
 			statement.executeBatch();
-			closeConnection();
 		} catch (SQLException e) {
-			closeConnection();
 			throw new ScriptException(e);
 		} catch (IOException e) {
-			closeConnection();
 			throw new DocumentException(e);
+		} finally {
+			closeConnection();
 		}
 	}
 
