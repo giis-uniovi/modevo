@@ -9,7 +9,7 @@ attempt=0
 while [ $attempt -le 120 ]; do
     attempt=$(( $attempt + 1 ))
     echo "Waiting for container ready (attempt: $attempt)..."
-    result=$(docker logs $container)
+    result=$(docker logs $container 2>&1)
     count=$(grep -o "$target" <<< "$result" | wc -l)
     if [ $count -eq $countertarget ]; then
         echo "Container is ready!"

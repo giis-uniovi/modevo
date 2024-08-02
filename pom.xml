@@ -25,6 +25,7 @@
 		<module>modevo-transform</module>
 		<module>modevo-script</module>
 		<module>modevo-bom</module>
+		<module>modevo-consistency</module>
 	</modules>
 
 	<dependencyManagement>
