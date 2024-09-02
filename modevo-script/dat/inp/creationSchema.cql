@@ -31,7 +31,7 @@ CREATE TABLE "testCustomV2TwoNewColumnSourceTwoTables".table3 (
 	idbook text,
 	idauthor text,
 	publisher text,
-	PRIMARY KEY (idbook)
+	PRIMARY KEY (idbook, idauthor)
 );
 
 CREATE TABLE "testCustomV2TwoNewColumnSourceTwoTables".table2 (
@@ -55,11 +55,15 @@ AND replication = {
 	'class' : 'SimpleStrategy',
 	'replication_factor' : 1
 };
-
-CREATE TABLE "testCustomV3TwoNewColumnsUsingNMRelationship".table2 (
+CREATE TABLE "testCustomV3TwoNewColumnsUsingNMRelationship".table2new (
 	idauthor text,
 	idbook text,
 	title text,
+	PRIMARY KEY (idauthor, idbook)
+);
+
+CREATE TABLE "testCustomV3TwoNewColumnsUsingNMRelationship".table2 (
+	idauthor text,
 	PRIMARY KEY (idauthor)
 );
 

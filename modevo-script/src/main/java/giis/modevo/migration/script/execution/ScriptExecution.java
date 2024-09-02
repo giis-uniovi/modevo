@@ -58,33 +58,41 @@ public class ScriptExecution {
 				String insertStatement = i.getInsertStatement();
 				String nameTableInsert = i.getNameTable();
 				String statementInsertWithKeyspace = insertStatement.replace("INSERT INTO "+nameTableInsert, "INSERT INTO "+"\""+nameKeyspace+"\"."+nameTableInsert);
-
-				List<String> insertsInside = new ArrayList<String>();
+				List<String> insertsInside = new ArrayList<>();
 				for (ColumnValue cv : cvs) {
 					statementInsertWithKeyspace=replaceVariableName (statementInsertWithKeyspace, cv, cvs);
 				}
-				for (List<ColumnValue> listColumnValues : cvsFromWhere) {	
-					String insertStatementInside = statementInsertWithKeyspace;
-					boolean replaced = false;
-					for (ColumnValue cvInside : listColumnValues) {
-						if (insertStatementInside.contains(cvInside.getVariableName())) {
-							insertStatementInside=replaceVariableName (insertStatementInside, cvInside, listColumnValues);
-							replaced = true;
-						}
-					}
-					if (replaced)
-						insertsInside.add(insertStatementInside);
+				for (List<ColumnValue> listColumnValues : cvsFromWhere) {
+					List<String> replacedVariableNamesList = replaceVariableNamesListValues (listColumnValues, statementInsertWithKeyspace);
+					insertsInside.addAll(replacedVariableNamesList);
 				}
 				if (cvsFromWhere.isEmpty()) {
 					String statementWithEmptyValues = statementInsertWithKeyspace.replaceAll("\\$\\d+", "''");
-					insertsInside.add(statementWithEmptyValues);
-					
+					insertsInside.add(statementWithEmptyValues);	
 				}
 				for (String statementToExecute : insertsInside) {
 					c.executeStatement(statementToExecute);
 				}
 			}
 		}	
+	}
+	/**
+	 * Creates a list of statements with its values replaced by the values included in the list.
+	 */
+	private List<String> replaceVariableNamesListValues(List<ColumnValue> listColumnValues,
+			String statementWithVariables) {
+		List<String> listStatements = new ArrayList<>();
+		String statementReplacedValues = statementWithVariables;
+		boolean replaced = false;
+		for (ColumnValue cvInside : listColumnValues) {
+			if (statementReplacedValues.contains(cvInside.getVariableName())) {
+				statementReplacedValues=replaceVariableName (statementReplacedValues, cvInside, listColumnValues);
+				replaced = true;
+			}
+		}
+		if (replaced)
+			listStatements.add(statementReplacedValues);
+		return listStatements;
 	}
 	private String replaceVariableName(String insertStatement, ColumnValue cv, List<ColumnValue> cvs) {
 		String variableName = cv.getVariableName();
@@ -101,7 +109,7 @@ public class ScriptExecution {
 	 * Execution of the Select statements inside a For loop
 	 */
 	private List<List<ColumnValue>> executeSelects(List<ColumnValue> cvs, List<Select> selectsInside, CassandraConnection c, String nameKeyspace) {
-		List<List<ColumnValue>> columnValuesFromWhere = new ArrayList<List<ColumnValue>>();
+		List<List<ColumnValue>> columnValuesFromWhere = new ArrayList<>();
 		for (Select selectInside : selectsInside) {
 			String statementSelect = selectInside.getSelectStatement();
 			selectInside.getWhereValue();
@@ -119,7 +127,7 @@ public class ScriptExecution {
 			ResultSet rssecond = c.executeStatement(statementSelectWithKeyspace);
 			Iterator<Row> rssecondIt = rssecond.iterator();
 			while (rssecondIt.hasNext()) {
-				List<ColumnValue> cvsIteration = new ArrayList<ColumnValue>();
+				List<ColumnValue> cvsIteration = new ArrayList<>();
 				Row rws = rssecondIt.next();
 				ColumnDefinitions cds = rws.getColumnDefinitions();
 				Iterator<ColumnDefinition> it = cds.iterator();
