@@ -81,11 +81,15 @@ AND replication = {
 	'class' : 'SimpleStrategy',
 	'replication_factor' : 1
 };
-
-CREATE TABLE "testCustomV4JoinTable".table2 (
+CREATE TABLE "testCustomV4JoinTable".table2new (
 	idauthor text,
 	idbook text,
 	title text,
+	PRIMARY KEY (idauthor, idbook)
+);
+
+CREATE TABLE "testCustomV4JoinTable".table2 (
+	idauthor text,
 	PRIMARY KEY (idauthor)
 ) ;
 
