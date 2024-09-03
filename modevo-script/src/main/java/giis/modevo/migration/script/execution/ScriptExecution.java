@@ -83,14 +83,12 @@ public class ScriptExecution {
 			String statementWithVariables) {
 		List<String> listStatements = new ArrayList<>();
 		String statementReplacedValues = statementWithVariables;
-		boolean replaced = false;
 		for (ColumnValue cvInside : listColumnValues) {
 			if (statementReplacedValues.contains(cvInside.getVariableName())) {
 				statementReplacedValues=replaceVariableName (statementReplacedValues, cvInside, listColumnValues);
-				replaced = true;
 			}
 		}
-		if (replaced)
+		if (!statementReplacedValues.equals(statementWithVariables))
 			listStatements.add(statementReplacedValues);
 		return listStatements;
 	}

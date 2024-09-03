@@ -79,8 +79,7 @@ public class Oracle {
 					Class<?> clase = stringValue.getClass();
 					classes.add(clase);
 					toBind.add(stringValue);
-				}
-				else {
+				} else {
 					toBind.add(intValue.toString());
 				}
 			}
@@ -99,16 +98,10 @@ public class Oracle {
 	private void addValueIntString(Map<String, Integer> intValues, Map<String, String> stringValues,
 			Map<String, String> columnTypes, String columnName, ResultSet rs) throws SQLException {
 		if (columnTypes.get(columnName).equalsIgnoreCase("INT")) {
-			int j = rs.getInt(columnName);
-			intValues.put(columnName, j);
+			intValues.put(columnName, rs.getInt(columnName));
 		} else {
 			String obtainedString = rs.getString(columnName);
-			if (obtainedString == null) {
-				stringValues.put(columnName, "");
-			}
-			else {
-				stringValues.put(columnName, obtainedString);
-			}
+			stringValues.put(columnName, obtainedString != null ? obtainedString : "");
 		}	
 	}
 
