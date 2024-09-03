@@ -18,7 +18,7 @@ rule joinTable {
 	to
 		d: DataMigration!MigrationTable(
 			name<- j.tableTarget,
-			migcol <- columnsInOnlySourceTable -> collect (c | thisModule.columnMigColJoin(c, columnsInBothTablesTarget, tableTarget))
+			migcol <- columnsInOnlySourceTable -> collect (c | thisModule.columnMigColJoin(c, columnsInBothTablesTarget, tableTarget, j))
 		)
 }
 
@@ -27,14 +27,15 @@ lazy rule columnMigColJoin {
 	from
 		column: Schema!Column,
 		colPotentialKey: Sequence (Schema!Column),
-		tableTarget: Schema!Table
+		tableTarget: Schema!Table,
+		j: SchemaEvolution!JoinTable 	
 		
 		using {
 			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (colPotentialKey, thisModule.extractEntityByName (column.nameEntity), tableTarget);
 		}
 	to
 		add: DataMigration!MigrationCol ( --for each new column
-			ColTo <-  thisModule.columnToJoinTable (keyColumnToColumn, column),
+			ColTo <-  thisModule.columnToJoinTable (keyColumnToColumn, column, j),
 			ColFrom <- thisModule.columnFrom (keyColumnToColumn, column)
 		)	
 }
@@ -43,11 +44,13 @@ lazy rule columnMigColJoin {
 lazy rule columnToJoinTable {
 from	
 		keysColumnFrom: Sequence (Schema!Column),
-		r: Schema!Column
+		r: Schema!Column,
+		j: SchemaEvolution!JoinTable 	
 	to
 		colFrom: DataMigration!To (
 			Data<- r.name,
 			DataTable <- r.tableColumn.name,
-			Key <- thisModule.getNamesColumn(keysColumnFrom)
+			Key <- thisModule.getNamesColumn(keysColumnFrom),
+			NewTableName <- j.newTableName
 		)
 }

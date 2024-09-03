@@ -66,13 +66,7 @@ public class Oracle {
 		Map<String, String> stringValues = new HashMap<>();
 		for (String columnName : columnNames) {
 			if (columnTypes.containsKey(columnName)) {
-				if (columnTypes.get(columnName).equalsIgnoreCase("INT")) {
-					int j = rs.getInt(columnName);
-					intValues.put(columnName, j);
-				} else {
-					String obtainedString = rs.getString(columnName);
-					stringValues.put(columnName, obtainedString);
-				}
+				addValueIntString (intValues, stringValues, columnTypes, columnName, rs);
 			}
 		}
 		List<Object> toBind = new ArrayList<>();
@@ -96,6 +90,19 @@ public class Oracle {
 			boundStmtBuilder = determineDataType(value, boundStmtBuilder, i);
 		}
 		return boundStmtBuilder;
+	}
+
+	/**
+	 * Depending on the value obtained from the query, it adds to the numeric map or the string map
+	 */
+	private void addValueIntString(Map<String, Integer> intValues, Map<String, String> stringValues,
+			Map<String, String> columnTypes, String columnName, ResultSet rs) throws SQLException {
+		if (columnTypes.get(columnName).equalsIgnoreCase("INT")) {
+			intValues.put(columnName, rs.getInt(columnName));
+		} else {
+			String obtainedString = rs.getString(columnName);
+			stringValues.put(columnName, obtainedString != null ? obtainedString : "");
+		}	
 	}
 
 	/**

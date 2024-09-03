@@ -49,13 +49,73 @@ public class TestCheckConsistency {
 	public void testCustomV1NewColumn() throws IOException {
 		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
 		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
-		projectionAfterEvo.put("table2", "SELECT distinct book.id as idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook order by book.id DESC;");
-		projectionAfterEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
-		projectionBeforeEvo.put("table2", "SELECT book.id as idbook FROM book ORDER BY idbook DESC;");
-		projectionBeforeEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table2", "SELECT distinct book.id AS idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook ORDER BY book.id DESC;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionBeforeEvo.put("table2", "SELECT book.id AS idbook FROM book ORDER BY idbook DESC;");
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
 	}
-	
+	@Test
+	public void testCustomV2TwoNewColumnSourceTwoTables() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionBeforeEvo.put("table2", "SELECT book.id AS idbook FROM book ORDER BY idbook DESC;");
+		projectionAfterEvo.put("table2", "SELECT DISTINCT book.id AS idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.publisher ELSE NULL END AS publisher, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM book LEFT JOIN authorbook ON book.id = authorbook.idbook ORDER BY idbook DESC;");
+		projectionBeforeEvo.put("table3", "SELECT book.id AS idbook,author.id AS idauthor,  book.publisher AS publisher FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table3", "SELECT book.id AS idbook,author.id AS idauthor,   book.publisher AS publisher FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY book.id DESC, author.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+	@Test
+	public void testCustomV3TwoNewColumnsUsingNMRelationship() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionBeforeEvo.put("table2", "SELECT author.id AS idauthor FROM author;");
+		projectionAfterEvo.put("table2New", "SELECT author.id AS idauthor, CASE WHEN authorbook.idbook IS NOT NULL THEN book.id ELSE NULL END AS idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM author LEFT JOIN authorbook ON author.id = authorbook.idauthor LEFT JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+	@Test
+	public void testCustomV4JoinTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionBeforeEvo.put("table2", "SELECT author.id AS idauthor FROM author;");
+		projectionAfterEvo.put("table2New", "SELECT author.id AS idauthor, CASE WHEN authorbook.idbook IS NOT NULL THEN book.id ELSE NULL END AS idbook, CASE WHEN authorbook.idbook IS NOT NULL THEN book.title ELSE NULL END AS title FROM author LEFT JOIN authorbook ON author.id = authorbook.idauthor LEFT JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+	@Test
+	public void testCustomV5JoinTableKeyEntityInTargetTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionBeforeEvo.put("table2", "SELECT author.id AS idauthor, book.id AS idbook FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table2", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+	@Test
+	public void testCustomV6CopyTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionAfterEvo.put("table1copied", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+	@Test
+	public void testCustomV7SplitTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title AS title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title  FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		projectionAfterEvo.put("table1copied1", "SELECT DISTINCT book.id AS idbook, book.title  FROM book INNER JOIN authorbook ON book.id = authorbook.idbook INNER JOIN author ON author.id = authorbook.idauthor ORDER BY book.id DESC;");
+		projectionAfterEvo.put("table1copied2", "SELECT DISTINCT author.id AS idauthor FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
 	/**
 	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
 	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 
@@ -118,9 +178,11 @@ public class TestCheckConsistency {
 		Set<Entry<String, PreparedStatement>> entryTablePreparedStatement =tablePreparedStatement.entrySet();
 		for (Entry<String, PreparedStatement> preparedStatementTable:entryTablePreparedStatement) {
 			String tableName = preparedStatementTable.getKey();
-			PreparedStatement preparedStatement = preparedStatementTable.getValue();
-			String query = tableQuery.get(tableName);
-			new Oracle().sqlQueryMigrate(query, connectionSql, connection, preparedStatement);
+			if (tableQuery.containsKey(tableName)) {
+				PreparedStatement preparedStatement = preparedStatementTable.getValue();
+				String query = tableQuery.get(tableName);
+				new Oracle().sqlQueryMigrate(query, connectionSql, connection, preparedStatement);
+			}
 		}
 		oracleConnection.closeConnection();
 	}
