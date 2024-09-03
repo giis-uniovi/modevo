@@ -106,6 +106,16 @@ public class TestCheckConsistency {
 		projectionAfterEvo.put("table1copied", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
 	}
+	@Test
+	public void testCustomV7SplitTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title as title FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id as idauthor, book.id as idbook, book.title  FROM author Inner join authorbook ON author.id = authorbook.idauthor Inner join book ON book.id = authorbook.idbook order by author.id DESC, book.id DESC;");
+		projectionAfterEvo.put("table1copied1", "SELECT DISTINCT book.id as idbook, book.title  FROM book Inner join authorbook ON book.id = authorbook.idbook Inner join author ON author.id = authorbook.idauthor order by book.id DESC;");
+		projectionAfterEvo.put("table1copied2", "SELECT DISTINCT author.id as idauthor FROM author inner join authorbook ON author.id = authorbook.idauthor inner join book ON book.id = authorbook.idbook order by author.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
 	/**
 	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
 	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 

@@ -94,6 +94,9 @@ public class ScriptExecution {
 			listStatements.add(statementReplacedValues);
 		return listStatements;
 	}
+	/**
+	 * Replaces the variable names of the statement given with the corresponding values from the list of values
+	 */
 	private String replaceVariableName(String insertStatement, ColumnValue cv, List<ColumnValue> cvs) {
 		String variableName = cv.getVariableName();
 		if (variableName == null) {

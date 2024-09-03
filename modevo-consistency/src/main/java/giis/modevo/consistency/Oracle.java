@@ -75,15 +75,11 @@ public class Oracle {
 			if (columnTypes.containsKey(columnName)) {
 				Integer intValue = intValues.get(columnName);
 				if (intValue == null) {
-					try {
 					String stringValue = stringValues.get(columnName);
 					Class<?> clase = stringValue.getClass();
 					classes.add(clase);
-					toBind.add(stringValue);}
-					
-				catch (Exception e) {
-					System.out.print(e);
-				} }
+					toBind.add(stringValue);
+				}
 				else {
 					toBind.add(intValue.toString());
 				}

@@ -105,6 +105,9 @@ public class OracleCsv {
 		if (matrixResultSet.length == 0) {
 			return new String[0][0];
 		}
+		if (columnNumber == numericArray.length) {
+			return matrixResultSet;
+		}
 		// Check if column is numeric or not
 		boolean numeric = numericArray[columnNumber];
 		//If it is the first column of the table, it sorts the rows with a descending value
