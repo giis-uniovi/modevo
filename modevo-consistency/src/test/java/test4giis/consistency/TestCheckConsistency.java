@@ -125,6 +125,16 @@ public class TestCheckConsistency {
 		projectionAfterEvo.put("hidden_hashtags", "SELECT id AS hashtag, iduser AS admin_guid FROM hashtag ORDER BY hashtag DESC;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "minds", projectionBeforeEvo);
 	}
+	
+	@Test
+	public void testMindsV27NewTableMigrationFromOneTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("withholdings", "SELECT address AS wallet_address, iduser AS user_guid FROM onchain;");
+		projectionAfterEvo.put("withholdings", "SELECT DISTINCT iduser AS user_guid, address AS wallet_address FROM onchain ORDER BY user_guid DESC;");
+		projectionAfterEvo.put("wire_support_tiers", "SELECT address, iduser AS user_guid FROM onchain ORDER BY address DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "minds", projectionBeforeEvo);
+	}
 	/**
 	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
 	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 
