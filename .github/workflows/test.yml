@@ -119,6 +119,7 @@ jobs:
            ./setup/wait-container-ready.sh test-mysql 2 "ready for connections. Version:"
           docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/custom.sql
           docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/minds.sql
+          docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/wire.sql
       - name: Initialize Cassandra database
         run: |
           docker run --name test-cassandra -d -p 9042:9042 \
