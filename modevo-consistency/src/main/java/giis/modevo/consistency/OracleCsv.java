@@ -72,6 +72,9 @@ public class OracleCsv {
 		StringBuilder stringRow = new StringBuilder("\"");
 		for (int i = 0; i < columnNumber; i++) {
 			String result = row.getString(i);
+			if (result == null) { //When there is no value stored in the db, skip the iteration
+				continue;
+			}
 			if (i==0) {
 				stringRow.append(row.getString(0).replaceAll("\"", "\\\"") + "\"");
 			}

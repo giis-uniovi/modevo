@@ -272,7 +272,7 @@ CREATE TABLE "testMindsV27NewTableMigrationFromOneTable".wire_support_tiers (
 CREATE TABLE "testMindsV27NewTableMigrationFromOneTable".withholdings (
 	user_guid text,
 	wallet_address text,
-	PRIMARY KEY (user_guid)
+	PRIMARY KEY (user_guid, wallet_address)
 );
 
 CREATE TABLE "testMindsV27NewTableMigrationFromOneTable".user_hashtags (

@@ -116,6 +116,34 @@ public class TestCheckConsistency {
 		projectionAfterEvo.put("table1copied2", "SELECT DISTINCT author.id AS idauthor FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
 	}
+	@Test
+	public void testMindsV10NewTableMigrationFromOneTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("user_hashtags", "SELECT id AS hashtag, iduser AS user_guid FROM hashtag;");
+		projectionAfterEvo.put("user_hashtags", "SELECT iduser AS user_guid, id AS hashtag FROM hashtag ORDER BY user_guid DESC;");
+		projectionAfterEvo.put("hidden_hashtags", "SELECT id AS hashtag, iduser AS admin_guid FROM hashtag ORDER BY hashtag DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "minds", projectionBeforeEvo);
+	}
+	
+	@Test
+	public void testMindsV27NewTableMigrationFromOneTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("withholdings", "SELECT address AS wallet_address, iduser AS user_guid FROM onchain;");
+		projectionAfterEvo.put("withholdings", "SELECT DISTINCT iduser AS user_guid, address AS wallet_address FROM onchain ORDER BY user_guid DESC;");
+		projectionAfterEvo.put("wire_support_tiers", "SELECT address, iduser AS user_guid FROM onchain ORDER BY address DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "minds", projectionBeforeEvo);
+	}
+	@Test
+	public void testMindsV9NewTableMigrationFromOneTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("user", "SELECT id AS 'key' FROM user;");
+		projectionAfterEvo.put("user", "SELECT id AS 'key' FROM user ORDER BY user.id DESC;");
+		projectionAfterEvo.put("sendwyre_accounts", "SELECT id AS user_guid FROM user ORDER BY user.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "minds", projectionBeforeEvo);
+	}
 	/**
 	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
 	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 
