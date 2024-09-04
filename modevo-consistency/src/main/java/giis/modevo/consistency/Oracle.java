@@ -133,7 +133,7 @@ public class Oracle {
 			throws SQLException {
 		String columnName = cd.getName().asCql(true);
 		for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-			if (columnName.contains(rsmd.getColumnName(i))) {
+			if (columnName.contains(rsmd.getColumnLabel(i))) {
 				columnsTypes.put(columnName, rsmd.getColumnTypeName(i));
 			}
 		}
