@@ -144,6 +144,24 @@ public class TestCheckConsistency {
 		projectionAfterEvo.put("sendwyre_accounts", "SELECT id AS user_guid FROM user ORDER BY user.id DESC;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "minds", projectionBeforeEvo);
 	}
+	@Test
+	public void testWireV2NewTableMigrationFromOneTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("user_team", "SELECT user.id AS user, user.teamid AS team FROM user;");
+		projectionAfterEvo.put("user_team", "SELECT user.id AS user, user.teamid AS team FROM user ORDER BY user.id DESC;");
+		projectionAfterEvo.put("billing_team_member", "SELECT user.id AS user, user.teamid AS team FROM user ORDER BY user.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "wire", projectionBeforeEvo);
+	}
+	@Test
+	public void testWireV91NewTableMigrationFromOneTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("user_team", "SELECT user.id AS user, user.teamid AS team FROM user;");
+		projectionAfterEvo.put("user_team", "SELECT user.id AS user, user.teamid AS team FROM user ORDER BY user.id DESC;");
+		projectionAfterEvo.put("users_pending_activation", "SELECT user.id AS user FROM user ORDER BY user.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "wire", projectionBeforeEvo);
+	}
 	/**
 	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
 	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 
