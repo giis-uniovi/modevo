@@ -263,8 +263,9 @@ public class OracleCsv {
 
 	/**
 	 * Returns the names of the tables of a keyspace
+	 * @param tableProjection 
 	 */
-	public Map<String, List<String>> namesTablesColumnsKeyspace(String keyspace, CassandraConnection connection) {
+	public Map<String, List<String>> namesTablesColumnsKeyspace(String keyspace, CassandraConnection connection, Map<String, String> tableProjection) {
 		Map<String, List<String>> tableColumns = new HashMap<>();
 		String cqlNamesTables = "SELECT table_name FROM system_schema.tables WHERE keyspace_name = ?;";
 		PreparedStatement tableNames = connection.getSession().prepare(cqlNamesTables);
@@ -280,13 +281,19 @@ public class OracleCsv {
 		String cqlColumnNames = "SELECT column_name FROM system_schema.columns WHERE keyspace_name = ? and table_name = ?;";
 		PreparedStatement columnNamesPreparedStatement = connection.getSession().prepare(cqlColumnNames);
 		for (String tableName: tableNameList) {
+			String projectionStatementTable = tableProjection.get(tableName);
+			if (projectionStatementTable == null) {
+				continue;
+			}
 			List<String> columnNamesList = new ArrayList<>();
 			BoundStatement bsColumns = columnNamesPreparedStatement.bind(keyspace, tableName);
 			ResultSet resultColumnNames = connection.executeStatement(bsColumns);
 			Row rowColumnNames = resultColumnNames.one(); 
 			while (rowColumnNames != null) {
 				String columnName = rowColumnNames.getString("column_name");
-				columnNamesList.add(columnName);
+				if (projectionStatementTable.matches(".*\\b" + columnName + "\\b.*")) {
+					columnNamesList.add(columnName);
+				}
 				rowColumnNames = resultColumnNames.one();
 			}
 			tableColumns.put(tableName, columnNamesList);
