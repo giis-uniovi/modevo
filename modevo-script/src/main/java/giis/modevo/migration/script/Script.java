@@ -198,7 +198,7 @@ public class Script {
 			log.info("New INSERT for table %s", mt.getNewTableName());
 
 			//All columns from key of the existing table will be queried
-			for (Column keyColumn:targetTable.getKey()) {
+			for (Column keyColumn:targetTable.getColumns()) {
 				if (!existed) {
 					selectTargetKey.getSearch().add(keyColumn);
 				}

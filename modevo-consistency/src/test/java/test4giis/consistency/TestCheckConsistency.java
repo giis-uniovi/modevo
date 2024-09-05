@@ -173,6 +173,36 @@ public class TestCheckConsistency {
 		projectionAfterEvo.put("scim_external", "SELECT user.id AS user, user.external AS external, user.teamid AS team FROM user ORDER BY user.id DESC;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "wire", projectionBeforeEvo);
 	}
+	@Test
+	public void testThingsBoardV11NewColumnNonKey() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id;");
+		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
+		projectionBeforeEvo.put("entity_view", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
+		projectionAfterEvo.put("entity_view", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY entity.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard", projectionBeforeEvo);
+	}
+	@Test
+	public void testThingsBoardV12NewColumnPK() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id;");
+		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
+		projectionBeforeEvo.put("entity_view2_old", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
+		projectionAfterEvo.put("entity_view2", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY entity.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard", projectionBeforeEvo);
+	}
+	@Test
+	public void testThingsBoardV13NewColumnKeyInTable() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id;");
+		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
+		projectionBeforeEvo.put("entity_view_devpk", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.id as device_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
+		projectionAfterEvo.put("entity_view_devpk", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.id as device_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY entity.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard", projectionBeforeEvo);
+	}
 	/**
 	 * Generic method for the verification of the data integrity in the database after performing the migrations determined by MoDEvo.
 	 * First, it initializes the Cassandra database with data obtained from a SQL database that maintains data integrity. 
@@ -190,7 +220,7 @@ public class TestCheckConsistency {
 	 */
 	private void setUpCassandraDatabase(String testName, String keyspace, Map<String, String> tableProjection) {
 		OracleCsv oc = new OracleCsv();
-		Map<String, List<String>> tableColumnsMap = oc.namesTablesColumnsKeyspace(testName, connection); //Map of the names of tables and its columns
+		Map<String, List<String>> tableColumnsMap = oc.namesTablesColumnsKeyspace(testName, connection, tableProjection); //Map of the names of tables and its columns
 		Map <String, PreparedStatement> preparedStatementsTable = new HashMap <>();
 		Set <Entry <String, List <String>>> entries= tableColumnsMap.entrySet();
 		for (Entry<String, List<String>> tableColumns: entries) {

@@ -46,7 +46,8 @@ public class Oracle {
 			List<String> columnNames = new ArrayList<>();
 			Map<String, String> columnNameTypeMap = new HashMap<>();
 			for (ColumnDefinition cd : ps.getVariableDefinitions()) {
-				columnAndTypeNames(cd, columnNameTypeMap, columnNames, rsmd);
+				if (query.contains(cd.getName().toString()))
+					columnAndTypeNames(cd, columnNameTypeMap, columnNames, rsmd);
 			}
 			while (rs.next()) {
 				BoundStatementBuilder boundStmtBuilder = processResultSetRow(columnNames, columnNameTypeMap, rs, ps);
