@@ -198,11 +198,11 @@ public class Script {
 			log.info("New INSERT for table %s", mt.getNewTableName());
 
 			//All columns from key of the existing table will be queried
-			for (Column keyColumn:targetTable.getColumns()) {
+			for (Column column:targetTable.getColumns()) {
 				if (!existed) {
-					selectTargetKey.getSearch().add(keyColumn);
+					selectTargetKey.getSearch().add(column);
 				}
-				insertTarget.addColumnValue(keyColumn, selectTargetKey, null, keyColumn); //same column target and source
+				insertTarget.addColumnValue(column, selectTargetKey, null, column); //same column target and source
 			}
 			List<MigrationColumn> keysTarget = mcsBySourceTable.get(nameTable);
 			Table sourceTable = schema.getTable(nameTable);
