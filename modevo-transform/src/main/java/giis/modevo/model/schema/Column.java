@@ -54,10 +54,7 @@ public class Column {
 	}
 	
 	public boolean equalsValues (Column c) {
-		if (c.getName().equals(this.getName()) && c.getTable().equals(this.getTable()) && c.getNameAttribute().equals(this.getNameAttribute()) && c.getNameEntity().equals(this.getNameEntity())) {
-			return true;
-		}
-		return false;
+		return c.getName().equals(this.getName()) && c.getTable().equals(this.getTable()) && c.getNameAttribute().equals(this.getNameAttribute()) && c.getNameEntity().equals(this.getNameEntity());
 	}
 
 }

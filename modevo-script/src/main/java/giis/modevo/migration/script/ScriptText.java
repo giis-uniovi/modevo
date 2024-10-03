@@ -58,18 +58,13 @@ public class ScriptText {
 					insertPlaceholders.append(", ");
 				}
 				ColumnValue cv = i.getColumnValue().get(j);
-				if (cv.getVariableName()==null) {
-					cv.setVariableName(cv.getColumn().getVariableName());
-				}
-				if (cv.getVariableName()==null) {
-					cv.setVariableName(cv.getColumnSelectOrigin().getVariableName());
-				}
+				initializeVariableName (cv);
+
 				String nameColumn = cv.getColumn().getName();
 				String nameVariable=cv.getSelectOrigin().findNameVariable (cv.getColumn().getNameAttribute(), cv.getColumn().getNameEntity());
 				if (nameVariable == null) {
 					Column columnOrigin = cv.getSelectOrigin().getSplitColumn();
 					nameVariable=columnOrigin.getVariableName();
-
 				}
 				namesColumns.append(nameColumn);
 				insertPlaceholders.append(nameVariable);
@@ -79,6 +74,17 @@ public class ScriptText {
 			i.setInsertStatement(insertSB.toString());
 		}
 		
+	}
+	/**
+	 * Assigns to the object ColumnValue the variable name of the queried data for that column
+	 */
+	private void initializeVariableName(ColumnValue cv) {
+		if (cv.getVariableName()==null) {
+			cv.setVariableName(cv.getColumn().getVariableName());
+		}
+		if (cv.getVariableName()==null) {
+			cv.setVariableName(cv.getColumnSelectOrigin().getVariableName());
+		}
 	}
 	/**
 	 * Writes the syntax for a For loop of the script and the Select statements inside of it
@@ -126,7 +132,7 @@ public class ScriptText {
 				columns.append(" AND ");
 			}
 			Column ce = s.getWhere().get(j);
-			String nameVariable = this.getNameVariableColumn (ce, se);
+			String nameVariable = this.getNameVariableColumn (ce, se.getSelects());
 			ce.setVariableName(nameVariable);
 
 			columns.append(ce.getName()).append("=").append(nameVariable);
@@ -161,14 +167,16 @@ public class ScriptText {
 			case "le":
 				columns.append("<=");
 				break;
+			default:
+				columns.append("=");
 			}
 			columns.append("'"+s.getCriteriaValue()+"'");
 			columns.append(" ALLOW FILTERING");
 	}
-	private String getNameVariableColumn(Column ce, Script s) {
+	private String getNameVariableColumn(Column ce, List<Select> selects) {
 		String nameAttribute = ce.getNameAttribute();
 		String nameEntity = ce.getNameEntity();
-		for (Select select : s.getSelects()) {
+		for (Select select : selects) {
 			for (Column column : select.getSearch()) {
 				String nameAttributeCurrent = column.getNameAttribute();
 				String nameEntityCurrent = column.getNameEntity();
