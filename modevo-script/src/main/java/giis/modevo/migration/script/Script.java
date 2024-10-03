@@ -13,7 +13,10 @@ import giis.modevo.model.datamigration.MigrationTable;
 import giis.modevo.model.schema.Column;
 import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
+import giis.modevo.model.schemaevolution.CriteriaSplit;
+import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
+import giis.modevo.model.schemaevolution.SplitColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +36,13 @@ public class Script {
 	private List<Insert> inserts;
 	private ScriptText scriptText;
 	private boolean executable;
+	private List<For> forsSplit;
 	public Script () {
 		setExecutable(true);//default value
 		selects = new ArrayList<>();
 		fors = new ArrayList<>();
 		inserts = new ArrayList<>();
+		forsSplit = new ArrayList<>();
 		setForsHigherLevel(new ArrayList<>());
 		scriptText = new ScriptText();
 	}	
@@ -62,6 +67,9 @@ public class Script {
 			else if (mt.migrationNewColumn(schema) && !mt.migrationFromRemovePK(se, mt)) {
 				scripts.add(migrationNewColumn (schema, se, mt));
 			}
+			else if (mt.migrationSplitColumn(se)) {
+				scripts.add(migrationSplitColumn (schema, se, mt));
+			}
 			else {
 				return new ArrayList<>(); //Scenarios not implemented
 			}
@@ -70,6 +78,42 @@ public class Script {
 		return scripts;
 	}
 
+	private Script migrationSplitColumn(Schema schema, SchemaEvolution se, MigrationTable mt) {
+		log.info("Split Column Script. Target table: %s", mt.getName());
+		Script script = new Script ();
+		for (SchemaChange sc : se.getChanges()) {
+			if (sc instanceof SplitColumn spc) {
+				List<CriteriaSplit> critSplits = spc.getCs();
+				String oldColumn = spc.getOldColumn();
+				Table t = schema.getTable(mt.getName());
+				Column oldColumnObject = t.getColumn(oldColumn);
+				for (CriteriaSplit critSplit : critSplits) {
+					For forSplit = new For ();
+					Select s = new Select (forSplit);
+					s.setTable(t);
+					Column copyOldColumnObject = new Column (oldColumnObject);
+
+					s.getSearch().add(copyOldColumnObject);
+					s.setSplitColumn(copyOldColumnObject);
+					forSplit.getSelectsFor().add(s);
+					s.setCriteriaOperator(critSplit.getOperator());
+					s.setCriteriaValue(critSplit.getValue());
+					Insert insert = new Insert(schema.getTable(mt.getName()), forSplit);
+					insert.addColumnValue (copyOldColumnObject, s, null, critSplit.getColumn());
+					for (Column c: t.getKey()) {
+						ColumnValue cv=insert.addColumnValue (c, s, null, c);
+						Column copyTarget = new Column (c);
+						cv.getSelectOrigin().getSearch().add(copyTarget);
+						cv.setColumn(copyTarget);
+
+					}
+					script.getForsSplit().add(forSplit);
+					script.addForSelectInsert(forSplit, s, insert);
+				}
+			}
+		}
+		return script;
+	}
 	private void checkIfExecutable(List<Script> scripts) {
 		for (Script s: scripts) {
 			for (Insert i: s.getInserts()) {
@@ -261,7 +305,7 @@ public class Script {
 
 	public boolean inList(Column c, List<ColumnValue> columnValues) {
 		for (ColumnValue cv : columnValues) {
-			if (cv.getColumn().equals(c)) {
+			if (cv.getColumn().equalsValues(c)) {
 				return true;
 			}
 		}

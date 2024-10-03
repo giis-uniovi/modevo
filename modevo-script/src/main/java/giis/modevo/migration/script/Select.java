@@ -18,6 +18,9 @@ public class Select {
 	private List<ColumnValue> whereValue;
 	private List<Column> where;
 	private String selectStatement;
+	private String criteriaOperator;
+	private String criteriaValue;
+	private Column splitColumn;
 	private For insideFor; //when the SELECT is inside a FOR
 	private For loopFor; //when the FOR iterates over the SELECT results
 	

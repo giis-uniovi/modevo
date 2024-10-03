@@ -43,11 +43,21 @@ public class Column {
 		this.ck = c.ck;
 		this.setNameAttribute(c.nameAttribute);
 		this.table = c.table;
+		this.dataType = c.dataType;
+		this.nameEntity = c.nameEntity;
+		this.variableName = c.variableName;
 
 	}
 
 	public Column(String nameTable) {
 		this.name = nameTable;
+	}
+	
+	public boolean equalsValues (Column c) {
+		if (c.getName().equals(this.getName()) && c.getTable().equals(this.getTable()) && c.getNameAttribute().equals(this.getNameAttribute()) && c.getNameEntity().equals(this.getNameEntity())) {
+			return true;
+		}
+		return false;
 	}
 
 }

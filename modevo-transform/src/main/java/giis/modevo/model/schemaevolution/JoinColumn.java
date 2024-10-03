@@ -41,7 +41,7 @@ public class JoinColumn extends SchemaChange {
 		if (elementColumnSource == null) {
 			throw new DocumentException(messageIdMissing(idTargetColumn));
 		}
-		Column c = columnFromModelToObject(elementColumnSource);
+		Column c = columnFromModelToObject(elementColumnSource, source);
 		String criteriaString = elementCopy.getAttribute("criteria");
 		JoinColumn jt = new JoinColumn(c, source, criteriaString);
 		String[] columnsIdArray = idsSourceColumns.split(" ");
@@ -50,7 +50,7 @@ public class JoinColumn extends SchemaChange {
 			if (column == null) {
 				throw new DocumentException(messageIdMissing(id));
 			}
-			Column columnSource = columnFromModelToObject(column);
+			Column columnSource = columnFromModelToObject(column, source);
 			jt.getSourceColumns().add(columnSource);
 		}
 		se.getChanges().add(jt);

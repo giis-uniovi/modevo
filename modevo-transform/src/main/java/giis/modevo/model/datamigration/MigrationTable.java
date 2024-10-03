@@ -9,6 +9,7 @@ import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schemaevolution.RemovePK;
 import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
+import giis.modevo.model.schemaevolution.SplitColumn;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -121,6 +122,17 @@ public class MigrationTable {
 						return true;
 					}
 				}
+			}
+		}
+		return false;
+	}
+	/**
+	 * Checks if the migration script contains a split of a column
+	 */
+	public boolean migrationSplitColumn(SchemaEvolution se) {
+		for (SchemaChange sc : se.getChanges()) {
+			if (sc instanceof SplitColumn) {
+				return true;
 			}
 		}
 		return false;

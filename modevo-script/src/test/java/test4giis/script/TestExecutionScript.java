@@ -61,6 +61,10 @@ public class TestExecutionScript {
 		testScript(name.getMethodName(), connection);	
 	}
 	@Test
+	public void testMindsV3SplitColumn () {
+		testScript(name.getMethodName(), connection);	
+	}
+	@Test
 	public void testMindsV9NewTableMigrationFromOneTable () {
 		testScript(name.getMethodName(), connection);	
 	}

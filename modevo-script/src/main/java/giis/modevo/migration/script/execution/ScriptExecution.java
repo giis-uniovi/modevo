@@ -32,20 +32,28 @@ public class ScriptExecution {
 			return;
 		}
 		List<For> highLevelFors = script.getForsHigherLevel();
+		List<For> splitFors = script.getForsSplit();
 		for (For highFor : highLevelFors) {
-			List<Select> highLevelSelects = highFor.getSelectsFor();
-			Select s = highLevelSelects.get(0); //For now there is only one select at most, change into a list when there will be more.
-			String nameTable = s.getTable().getName();
-			String selectStatementWithKeyspace = s.getSelectStatement().replace(FROM+nameTable,FROM+ "\""+nameKeyspace+"\"."+nameTable);
-			ResultSet rs = c.executeStatement(selectStatementWithKeyspace);
-			Iterator<Row> resultIt = rs.iterator();
-			while (resultIt.hasNext()) {	
-				Row rw = resultIt.next();
-				List<ColumnValue> cvs = getColumnValuesSearchRow(rw, s);
-				List<Select> selectsInside = highFor.getSelectsInsideFor();
-				List<List<ColumnValue>> cvsFromWhere = executeSelects (cvs, selectsInside, c, nameKeyspace);
-				executeInserts (script, cvs, cvsFromWhere, highFor, c, nameKeyspace);			
-			}
+			executionFor (highFor, script, c, nameKeyspace);
+		}
+		for (For splitFor : splitFors) {
+			executionFor (splitFor, script, c, nameKeyspace);
+		}
+		
+	}
+	private void executionFor (For forToExecute, Script script, CassandraConnection c, String nameKeyspace) {
+		List<Select> highLevelSelects = forToExecute.getSelectsFor();
+		Select s = highLevelSelects.get(0); //For now there is only one select at most, change into a list when there will be more.
+		String nameTable = s.getTable().getName();
+		String selectStatementWithKeyspace = s.getSelectStatement().replace(FROM+nameTable,FROM+ "\""+nameKeyspace+"\"."+nameTable);
+		ResultSet rs = c.executeStatement(selectStatementWithKeyspace);
+		Iterator<Row> resultIt = rs.iterator();
+		while (resultIt.hasNext()) {	
+			Row rw = resultIt.next();
+			List<ColumnValue> cvs = getColumnValuesSearchRow(rw, s);
+			List<Select> selectsInside = forToExecute.getSelectsInsideFor();
+			List<List<ColumnValue>> cvsFromWhere = executeSelects (cvs, selectsInside, c, nameKeyspace);
+			executeInserts (script, cvs, cvsFromWhere, forToExecute, c, nameKeyspace);			
 		}
 	}
 	/**

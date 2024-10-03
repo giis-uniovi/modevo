@@ -16,9 +16,11 @@ public class Insert {
 	private String nameNewTable; //Only used when a new table is required when adding a new column
 	public Insert() {
 		columnValue = new ArrayList<>();
+		nameNewTable = "";
 	}
 	public Insert(Table table) {
 		this();
+		
 		this.table = table;
 	}
 	public Insert(Table table, For insideFor) {
@@ -31,13 +33,14 @@ public class Insert {
 	 * @param key If there is no key, value is null
 	 * @param target 
 	 */
-	public void addColumnValue(Column columnSelect, Select s, String[] key, Column target) {
+	public ColumnValue addColumnValue(Column columnSelect, Select s, String[] key, Column target) {
 		ColumnValue cv = new ColumnValue ();
 		cv.setColumn(target);
 		cv.setSelectOrigin(s);
 		cv.setKey(key);
 		cv.setColumnSelectOrigin(columnSelect);
-		this.getColumnValue().add(cv);		
+		this.getColumnValue().add(cv);
+		return cv;
 	}
 	public String getNameNewTable() {
 		return nameNewTable;

@@ -22,15 +22,15 @@
         xmi:id="cs1"
         column="c1"
         value="f"
-        operator="gt"/>
+        operator="g"/>
      <CriteriaScplit
         xmi:id="cs2"
         column="c2"
         value="p"
-        operator="gt"/>     
+        operator="g"/>     
      <CriteriaScplit
         xmi:id="cs3"
         column="c3"
         value="p"
-        operator="lt"/>
+        operator="l"/>
 </xmi:XMI>

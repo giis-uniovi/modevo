@@ -59,7 +59,7 @@ public class SplitColumn extends SchemaChange {
 			if (column == null) {
 				throw new DocumentException(messageIdMissing(c));
 			}
-			Column columnObject = columnFromModelToObject(column);
+			Column columnObject = columnFromModelToObject(column, t);
 			splitChange.getResultColumns().add(columnObject);
 		}
 		for (String c : criteriaArray) {
@@ -72,7 +72,7 @@ public class SplitColumn extends SchemaChange {
 			if (column == null) {
 				throw new DocumentException(messageIdMissing(c));
 			}
-			Column columnObject = columnFromModelToObject(column);
+			Column columnObject = columnFromModelToObject(column, t);
 			CriteriaSplit criteriaObject = criteriaFromModelToObject(criteriaElement, columnObject);
 			splitChange.getCs().add(criteriaObject);
 		}
