@@ -89,13 +89,13 @@ public class Script {
 				Column oldColumnObject = t.getColumn(oldColumn);
 				for (CriteriaSplit critSplit : critSplits) {
 					For forSplit = new For ();
-					Select s = new Select (forSplit);
+					Select s = new Select ();
+					forSplit.getSelectsFor().add(s);
 					s.setTable(t);
 					Column copyOldColumnObject = new Column (oldColumnObject);
 
 					s.getSearch().add(copyOldColumnObject);
 					s.setSplitColumn(copyOldColumnObject);
-					forSplit.getSelectsFor().add(s);
 					s.setCriteriaOperator(critSplit.getOperator());
 					s.setCriteriaValue(critSplit.getValue());
 					Insert insert = new Insert(schema.getTable(mt.getName()), forSplit);
@@ -176,7 +176,7 @@ public class Script {
 		ModelUtilities mu = new ModelUtilities ();
 		//Initilization of first For statement, Select looped by the for and the Insert inside the loop  
 		For firstFor = new For ();
-		Select s = new Select (firstFor);
+		Select s = new Select ();
 		firstFor.getSelectsFor().add(s);
 		Table to = mu.findTable (schema, se, mt.getName());
 		Insert insert = new Insert( to, firstFor);
@@ -227,15 +227,16 @@ public class Script {
 				log.info("New SELECT to table %s", targetTable);
 				existed = false;
 				forSourceKey = new For ();
-				selectTargetKey = new Select (forSourceKey, targetTable);
+				selectTargetKey = new Select (targetTable);
 				forSourceKey.getSelectsFor().add(selectTargetKey);
 				script.getSelects().add(selectTargetKey);
 				script.getForsHigherLevel().add(forSourceKey);
 				script.getFors().add(forSourceKey);
+				fors.add(forSourceKey);
 			}
 			else {
 				log.info("Using existing SELECT to table %s", targetTable);
-				forSourceKey = selectTargetKey.getLoopFor();
+				forSourceKey = findFor(selectTargetKey);
 			}
 			Insert insertTarget = new Insert(targetTable, forSourceKey);
 			insertTarget.setNameNewTable(mt.getNewTableName());
@@ -267,6 +268,16 @@ public class Script {
 		}		
 		return script;
 	}
+	/**
+	 * Finds the For statement where the select statement is executed
+	 */
+	private For findFor(Select select) {
+		for (For forCurrent:fors) {
+			if (forCurrent.getSelect (select))
+				return forCurrent;
+		}
+		return null;
+	}
 	private void addForSelectInsert(For firstFor, Select s, Insert insert) {
 		this.getFors().add(firstFor);
 		this.getSelects().add(s);
@@ -288,14 +299,14 @@ public class Script {
 			s.addWhere (schema, keyColumnFrom);		
 			Select sourceValues = s.getSelectSourceValueWhere(s.getWhere(), selects);
 			if (sourceValues != null) {
-				if (sourceValues.getLoopFor() == null) { 
+				For forSelect = findFor(sourceValues);
+				if (forSelect == null) { 
 					For newFor = new For();
 					newFor.newForSelect(sourceValues);
 					this.getFors().add(newFor);
 				}
 				else {
-					s.setInsideFor(sourceValues.getLoopFor());
-					sourceValues.getLoopFor().getSelectsInsideFor().add(s);
+					forSelect.getSelectsInsideFor().add(s);
 				}
 			}
 			this.getSelects().add(s);
