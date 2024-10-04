@@ -81,7 +81,6 @@ public class DataMigration {
 		if (!elementMigCol.getAttribute("Description").isEmpty()) {
 			return null;
 		}
-		c.setTable(migrationTable);
 		NodeList toFrom = nodeColumn.getChildNodes();
 		// Right now it's only for one from table and one to table
 		ColFrom colfrom = new ColFrom();

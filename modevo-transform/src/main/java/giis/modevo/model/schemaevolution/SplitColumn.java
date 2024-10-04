@@ -53,7 +53,6 @@ public class SplitColumn extends SchemaChange {
 		String criteria = elementSplit.getAttribute ("criteria");
 		String[] columnsArray = idColumns.split(" ");
 		String[] criteriaArray = criteria.split(" ");
-
 		for (String c : columnsArray) {
 			Element column = getElementById(list, c);
 			if (column == null) {
@@ -67,7 +66,6 @@ public class SplitColumn extends SchemaChange {
 			if (criteriaElement == null) {
 				throw new DocumentException(messageIdMissing(c));
 			}
-			
 			Element column = getElementById(list, criteriaElement.getAttribute("column"));
 			if (column == null) {
 				throw new DocumentException(messageIdMissing(c));

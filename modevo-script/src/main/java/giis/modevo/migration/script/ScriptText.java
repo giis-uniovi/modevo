@@ -59,11 +59,11 @@ public class ScriptText {
 				}
 				ColumnValue cv = i.getColumnValue().get(j);
 				initializeVariableName (cv);
-
 				String nameColumn = cv.getColumn().getName();
-				String nameVariable=cv.getSelectOrigin().findNameVariable (cv.getColumn().getNameAttribute(), cv.getColumn().getNameEntity());
+				Select selectOrigin = s.findSelect (cv);
+				String nameVariable=selectOrigin.findNameVariable (cv.getColumn().getNameAttribute(), cv.getColumn().getNameEntity());
 				if (nameVariable == null) {
-					Column columnOrigin = cv.getSelectOrigin().getSplitColumn();
+					Column columnOrigin = selectOrigin.getSplitColumn();
 					nameVariable=columnOrigin.getVariableName();
 				}
 				namesColumns.append(nameColumn);
