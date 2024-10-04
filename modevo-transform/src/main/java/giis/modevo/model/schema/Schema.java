@@ -89,7 +89,7 @@ public class Schema {
 		String nameEntity = element.getAttribute("nameEntity");
 		boolean pk = pkString.equalsIgnoreCase("True");
 		boolean ck = ckString.equalsIgnoreCase("True");
-		return new Column(column, attribute, pk, ck, nameEntity, table);
+		return new Column(column, attribute, pk, ck, nameEntity, table.getName());
 	}
 
 	/**

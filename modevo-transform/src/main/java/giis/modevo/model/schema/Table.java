@@ -28,7 +28,7 @@ public class Table {
 		this.setName(name);
 		this.columns = columns;
 		for (Column c: columns) {
-			c.setTable(this);
+			c.setNameTable(name);
 		}
 	}
 

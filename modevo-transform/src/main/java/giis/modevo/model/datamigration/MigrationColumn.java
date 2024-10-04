@@ -14,7 +14,6 @@ public class MigrationColumn {
 	private String name;
 	private ColTo colTo; // Contains the required information to migrate data to a column
 	private ColFrom colFrom; // Contains the required information to migrate data from a column
-	private MigrationTable table;
 	private String description; //when it is not possible to proceed with the migration
 
 	public MigrationColumn() {

@@ -90,7 +90,7 @@ public class SchemaChange {
 		String nameEntity = column.getAttribute("nameEntity");
 		columnObject.setNameAttribute(nameAttribute);
 		columnObject.setNameEntity(nameEntity);
-		columnObject.setTable(t);
+		columnObject.setNameTable(t.getName());
 		return columnObject;
 	}
 	

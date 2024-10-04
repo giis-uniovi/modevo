@@ -34,7 +34,6 @@ public class Script {
 	private List<For> fors;
 	private List<For> forsHigherLevel; //These are the For loops that are not inside other For loops
 	private List<Insert> inserts;
-	private ScriptText scriptText;
 	private boolean executable;
 	private List<For> forsSplit;
 	public Script () {
@@ -44,7 +43,6 @@ public class Script {
 		inserts = new ArrayList<>();
 		forsSplit = new ArrayList<>();
 		setForsHigherLevel(new ArrayList<>());
-		scriptText = new ScriptText();
 	}	
 	public boolean isExecutable() {
 		return executable;
@@ -103,7 +101,7 @@ public class Script {
 					for (Column c: t.getKey()) {
 						ColumnValue cv=insert.addColumnValue (c, s, null, c);
 						Column copyTarget = new Column (c);
-						cv.getSelectOrigin().getSearch().add(copyTarget);
+						s.getSearch().add(copyTarget);
 						cv.setColumn(copyTarget);
 
 					}
@@ -321,5 +319,13 @@ public class Script {
 			}
 		}
 		return false;
+	}
+	public Select findSelect(ColumnValue cv) {
+		for (Select s: selects) {
+			if (s.getValuesExtracted().contains(cv)) {
+				return s;				
+			}
+		}
+		return null;
 	}
 }

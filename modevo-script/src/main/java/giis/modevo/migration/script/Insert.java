@@ -36,7 +36,7 @@ public class Insert {
 	public ColumnValue addColumnValue(Column columnSelect, Select s, String[] key, Column target) {
 		ColumnValue cv = new ColumnValue ();
 		cv.setColumn(target);
-		cv.setSelectOrigin(s);
+		s.getValuesExtracted().add(cv);
 		cv.setKey(key);
 		cv.setColumnSelectOrigin(columnSelect);
 		this.getColumnValue().add(cv);

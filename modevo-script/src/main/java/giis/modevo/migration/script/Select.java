@@ -21,11 +21,13 @@ public class Select {
 	private String criteriaOperator;
 	private String criteriaValue;
 	private Column splitColumn;
+	private List<ColumnValue> valuesExtracted;
 		
 	public Select () {
 		where = new ArrayList<>();
 		search = new ArrayList<>();
 		whereValue = new ArrayList<>();
+		valuesExtracted = new ArrayList<>();
 	}
 
 	public Select(Table table, Column c) {
