@@ -21,9 +21,18 @@ public class For {
 	 */
 	public void newForSelect (Select s) {
 		this.getSelectsFor().add(s);
-		For oldFor = s.getInsideFor();
-		oldFor.setNestedFor(this); //might change to a list
-		s.setLoopFor(this);
-		s.setInsideFor(null);
+	}
+	public boolean getSelect(Select select) {
+		for (Select s: selectsFor) {
+			if (select.equals(s)) {
+				return true;
+			}
+		}
+		for (Select s: selectsInsideFor) {
+			if (select.equals(s)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

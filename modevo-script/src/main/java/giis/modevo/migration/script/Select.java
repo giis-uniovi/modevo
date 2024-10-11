@@ -18,18 +18,16 @@ public class Select {
 	private List<ColumnValue> whereValue;
 	private List<Column> where;
 	private String selectStatement;
-	private For insideFor; //when the SELECT is inside a FOR
-	private For loopFor; //when the FOR iterates over the SELECT results
-	
+	private String criteriaOperator;
+	private String criteriaValue;
+	private Column splitColumn;
+	private List<ColumnValue> valuesExtracted;
+		
 	public Select () {
 		where = new ArrayList<>();
 		search = new ArrayList<>();
 		whereValue = new ArrayList<>();
-	}
-	
-	public Select(For firstFor) {
-		this();
-		this.setLoopFor(firstFor);
+		valuesExtracted = new ArrayList<>();
 	}
 
 	public Select(Table table, Column c) {
@@ -38,9 +36,8 @@ public class Select {
 		search.add(c);
 	}
 
-	public Select(For loopFor, Table table) {
+	public Select(Table table) {
 		this ();
-		this.loopFor = loopFor;
 		this.table = table;
 	}
 	public boolean includesAllColumns(List<Column> where2) {

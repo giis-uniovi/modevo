@@ -285,6 +285,22 @@ CREATE TABLE "testMindsV27NewTableMigrationFromOneTable".user (
 	key text,
 	PRIMARY KEY (key)
 );
+-- Export of keyspace testMindsV3SplitColumn
+CREATE KEYSPACE "testMindsV3SplitColumn"
+WITH durable_writes = true
+AND replication = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 1
+};
+
+CREATE TABLE "testMindsV3SplitColumn".comments (
+	id text,
+	parent_guid text,
+	parent_guid_c1 text,
+	parent_guid_c2 text,
+	parent_guid_c3 text,
+	PRIMARY KEY (id)
+);
 
 -- Export of keyspace testMindsV9NewColumnsPreviousVersion
 CREATE KEYSPACE "testMindsV9NewColumnsPreviousVersion"

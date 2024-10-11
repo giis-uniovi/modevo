@@ -19,21 +19,21 @@ public class Column {
 	private boolean ck;
 	private String dataType;
 	private String nameEntity;
-	private Table table;
 	private String variableName;
-
+	private String nameTable;
 	public Column() {
 		super();
 	}
 
-	public Column(String name, String nameAttribute, boolean pk, boolean ck, String nameEntity, Table table) {
+	public Column(String name, String nameAttribute, boolean pk, boolean ck, String nameEntity, String nameTable) {
 		super();
 		this.name = name;
 		this.pk = pk;
 		this.ck = ck;
 		this.setNameAttribute(nameAttribute);
 		this.nameEntity = nameEntity;
-		this.table = table;
+		this.nameTable = nameTable;
+
 	}
 
 	public Column(Column c) {
@@ -42,12 +42,18 @@ public class Column {
 		this.pk = c.pk;
 		this.ck = c.ck;
 		this.setNameAttribute(c.nameAttribute);
-		this.table = c.table;
-
+		this.dataType = c.dataType;
+		this.nameEntity = c.nameEntity;
+		this.variableName = c.variableName;
+		this.nameTable = c.nameTable;
 	}
 
-	public Column(String nameTable) {
-		this.name = nameTable;
+	public Column(String name) {
+		this.name = name;
+	}
+	
+	public boolean equalsValues (Column c) {
+		return c.getName().equals(this.getName()) && c.getNameTable().equals(this.getNameTable()) && c.getNameAttribute().equals(this.getNameAttribute()) && c.getNameEntity().equals(this.getNameEntity());
 	}
 
 }

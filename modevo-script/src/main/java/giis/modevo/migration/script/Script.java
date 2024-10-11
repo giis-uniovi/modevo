@@ -13,7 +13,10 @@ import giis.modevo.model.datamigration.MigrationTable;
 import giis.modevo.model.schema.Column;
 import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
+import giis.modevo.model.schemaevolution.CriteriaSplit;
+import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
+import giis.modevo.model.schemaevolution.SplitColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +34,15 @@ public class Script {
 	private List<For> fors;
 	private List<For> forsHigherLevel; //These are the For loops that are not inside other For loops
 	private List<Insert> inserts;
-	private ScriptText scriptText;
 	private boolean executable;
+	private List<For> forsSplit;
 	public Script () {
 		setExecutable(true);//default value
 		selects = new ArrayList<>();
 		fors = new ArrayList<>();
 		inserts = new ArrayList<>();
+		forsSplit = new ArrayList<>();
 		setForsHigherLevel(new ArrayList<>());
-		scriptText = new ScriptText();
 	}	
 	public boolean isExecutable() {
 		return executable;
@@ -62,6 +65,9 @@ public class Script {
 			else if (mt.migrationNewColumn(schema) && !mt.migrationFromRemovePK(se, mt)) {
 				scripts.add(migrationNewColumn (schema, se, mt));
 			}
+			else if (mt.migrationSplitColumn(se)) {
+				scripts.add(migrationSplitColumn (schema, se, mt));
+			}
 			else {
 				return new ArrayList<>(); //Scenarios not implemented
 			}
@@ -70,6 +76,43 @@ public class Script {
 		return scripts;
 	}
 
+	/**
+	 * Creates the script needed when a column is splitted in two or more columns.
+	 */
+	private Script migrationSplitColumn(Schema schema, SchemaEvolution se, MigrationTable mt) {
+		log.info("Split Column Script. Target table: %s", mt.getName());
+		Script script = new Script ();
+		for (SchemaChange sc : se.getChanges()) {
+			if (sc instanceof SplitColumn spc) {
+				List<CriteriaSplit> critSplits = spc.getCs();
+				String oldColumn = spc.getOldColumn();
+				Table t = schema.getTable(mt.getName());
+				Column oldColumnObject = t.getColumn(oldColumn);
+				for (CriteriaSplit critSplit : critSplits) {
+					For forSplit = new For ();
+					Select s = new Select ();
+					forSplit.getSelectsFor().add(s);
+					s.setTable(t);
+					Column copyOldColumnObject = new Column (oldColumnObject);
+					s.getSearch().add(copyOldColumnObject);
+					s.setSplitColumn(copyOldColumnObject);
+					s.setCriteriaOperator(critSplit.getOperator());
+					s.setCriteriaValue(critSplit.getValue());
+					Insert insert = new Insert(schema.getTable(mt.getName()), forSplit);
+					insert.addColumnValue (copyOldColumnObject, s, null, critSplit.getColumn());
+					for (Column c: t.getKey()) {
+						ColumnValue cv=insert.addColumnValue (c, s, null, c);
+						Column copyTarget = new Column (c);
+						s.getSearch().add(copyTarget);
+						cv.setColumn(copyTarget);
+					}
+					script.getForsSplit().add(forSplit);
+					script.addForSelectInsert(forSplit, s, insert);
+				}
+			}
+		}
+		return script;
+	}
 	private void checkIfExecutable(List<Script> scripts) {
 		for (Script s: scripts) {
 			for (Insert i: s.getInserts()) {
@@ -132,7 +175,7 @@ public class Script {
 		ModelUtilities mu = new ModelUtilities ();
 		//Initilization of first For statement, Select looped by the for and the Insert inside the loop  
 		For firstFor = new For ();
-		Select s = new Select (firstFor);
+		Select s = new Select ();
 		firstFor.getSelectsFor().add(s);
 		Table to = mu.findTable (schema, se, mt.getName());
 		Insert insert = new Insert( to, firstFor);
@@ -183,15 +226,16 @@ public class Script {
 				log.info("New SELECT to table %s", targetTable);
 				existed = false;
 				forSourceKey = new For ();
-				selectTargetKey = new Select (forSourceKey, targetTable);
+				selectTargetKey = new Select (targetTable);
 				forSourceKey.getSelectsFor().add(selectTargetKey);
 				script.getSelects().add(selectTargetKey);
 				script.getForsHigherLevel().add(forSourceKey);
 				script.getFors().add(forSourceKey);
+				fors.add(forSourceKey);
 			}
 			else {
 				log.info("Using existing SELECT to table %s", targetTable);
-				forSourceKey = selectTargetKey.getLoopFor();
+				forSourceKey = findFor(selectTargetKey);
 			}
 			Insert insertTarget = new Insert(targetTable, forSourceKey);
 			insertTarget.setNameNewTable(mt.getNewTableName());
@@ -223,6 +267,16 @@ public class Script {
 		}		
 		return script;
 	}
+	/**
+	 * Finds the For statement where the select statement is executed
+	 */
+	private For findFor(Select select) {
+		for (For forCurrent:fors) {
+			if (forCurrent.getSelect (select))
+				return forCurrent;
+		}
+		return null;
+	}
 	private void addForSelectInsert(For firstFor, Select s, Insert insert) {
 		this.getFors().add(firstFor);
 		this.getSelects().add(s);
@@ -244,14 +298,14 @@ public class Script {
 			s.addWhere (schema, keyColumnFrom);		
 			Select sourceValues = s.getSelectSourceValueWhere(s.getWhere(), selects);
 			if (sourceValues != null) {
-				if (sourceValues.getLoopFor() == null) { 
+				For forSelect = findFor(sourceValues);
+				if (forSelect == null) { 
 					For newFor = new For();
 					newFor.newForSelect(sourceValues);
 					this.getFors().add(newFor);
 				}
 				else {
-					s.setInsideFor(sourceValues.getLoopFor());
-					sourceValues.getLoopFor().getSelectsInsideFor().add(s);
+					forSelect.getSelectsInsideFor().add(s);
 				}
 			}
 			this.getSelects().add(s);
@@ -261,10 +315,18 @@ public class Script {
 
 	public boolean inList(Column c, List<ColumnValue> columnValues) {
 		for (ColumnValue cv : columnValues) {
-			if (cv.getColumn().equals(c)) {
+			if (cv.getColumn().equalsValues(c)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	public Select findSelect(ColumnValue cv) {
+		for (Select s: selects) {
+			if (s.getValuesExtracted().contains(cv)) {
+				return s;				
+			}
+		}
+		return null;
 	}
 }

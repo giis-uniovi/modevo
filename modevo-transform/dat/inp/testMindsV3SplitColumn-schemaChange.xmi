@@ -2,7 +2,7 @@
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="SchemaEvolution" xsi:schemaLocation="SchemaEvolution ../../src/main/java/giis/modevo/transformations/atl/Metamodels/SchemaEvolution.ecore">
     <SplitColumn
       xmi:id="a1"
-      table="comments" oldColumn="parent_guid" newColumns="c1 c2 c3"/>
+      table="comments" oldColumn="parent_guid" newColumns="c1 c2 c3" criteria="cs1 cs2 cs3"/>
     <Column
         xmi:id="c1"
         name="parent_guid_c1"
@@ -18,4 +18,19 @@
         name="parent_guid_c3"
         nameAttribute="parent_guid_c3"
         nameEntity="comments"/>
+     <CriteriaScplit
+        xmi:id="cs1"
+        column="c1"
+        value="f"
+        operator="g"/>
+     <CriteriaScplit
+        xmi:id="cs2"
+        column="c2"
+        value="p"
+        operator="g"/>     
+     <CriteriaScplit
+        xmi:id="cs3"
+        column="c3"
+        value="p"
+        operator="l"/>
 </xmi:XMI>

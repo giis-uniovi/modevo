@@ -21,10 +21,18 @@ public class ScriptText {
 			return "Not executable script because there are key columns that cannot be inserted";
 		}
 		StringBuilder sb = new StringBuilder();
-		For forNested = s.getFors().get(0);
-		while (forNested != null) {
-			writeSyntaxFor (sb, forNested, s);
-			forNested = forNested.getNestedFor();
+		if (s.getForsSplit().isEmpty()) {
+			For forNested = s.getFors().get(0);
+			while (forNested != null) {
+				writeSyntaxFor (sb, forNested, s);
+				forNested = forNested.getNestedFor();
+			}
+		}
+		else { //When there is a split
+			List<For> forsSplit = s.getForsSplit();
+			for (For forSplit:forsSplit) {
+				writeSyntaxFor (sb, forSplit, s);
+			}
 		}
 		writeSyntaxInsert (sb, s);
 		log.info("Script screated");
@@ -50,11 +58,14 @@ public class ScriptText {
 					insertPlaceholders.append(", ");
 				}
 				ColumnValue cv = i.getColumnValue().get(j);
-				if (cv.getVariableName()==null) {
-					cv.setVariableName(cv.getColumn().getVariableName());
-				}
+				initializeVariableName (cv);
 				String nameColumn = cv.getColumn().getName();
-				String nameVariable=cv.getSelectOrigin().findNameVariable (cv.getColumn().getNameAttribute(), cv.getColumn().getNameEntity());
+				Select selectOrigin = s.findSelect (cv);
+				String nameVariable=selectOrigin.findNameVariable (cv.getColumn().getNameAttribute(), cv.getColumn().getNameEntity());
+				if (nameVariable == null) {
+					Column columnOrigin = selectOrigin.getSplitColumn();
+					nameVariable=columnOrigin.getVariableName();
+				}
 				namesColumns.append(nameColumn);
 				insertPlaceholders.append(nameVariable);
 			}
@@ -63,6 +74,17 @@ public class ScriptText {
 			i.setInsertStatement(insertSB.toString());
 		}
 		
+	}
+	/**
+	 * Assigns to the object ColumnValue the variable name of the queried data for that column
+	 */
+	private void initializeVariableName(ColumnValue cv) {
+		if (cv.getVariableName()==null) {
+			cv.setVariableName(cv.getColumn().getVariableName());
+		}
+		if (cv.getVariableName()==null) {
+			cv.setVariableName(cv.getColumnSelectOrigin().getVariableName());
+		}
 	}
 	/**
 	 * Writes the syntax for a For loop of the script and the Select statements inside of it
@@ -99,6 +121,9 @@ public class ScriptText {
 			counterVariables++;
 		}
 		columns.append(" FROM ").append(s.getTable().getName());
+		if (!se.getForsSplit().isEmpty()) {
+			textCriteriaSplit (s, columns);
+		}
 		for (int j=0; j<s.getWhere().size();j++) {
 			if (j==0) {
 				columns.append(" WHERE ");
@@ -107,7 +132,7 @@ public class ScriptText {
 				columns.append(" AND ");
 			}
 			Column ce = s.getWhere().get(j);
-			String nameVariable = this.getNameVariableColumn (ce, se);
+			String nameVariable = this.getNameVariableColumn (ce, se.getSelects());
 			ce.setVariableName(nameVariable);
 
 			columns.append(ce.getName()).append("=").append(nameVariable);
@@ -121,10 +146,37 @@ public class ScriptText {
 		
 	}
 
-	private String getNameVariableColumn(Column ce, Script s) {
+	private void textCriteriaSplit(Select s, StringBuilder columns) {
+			columns.append(" WHERE ");
+			String nameColumn = s.getSplitColumn().getName();
+			columns.append(nameColumn);
+			String criteriaOperator = s.getCriteriaOperator();
+			switch (criteriaOperator) {
+			case "eq":
+				columns.append("=");
+				break;
+			case "g":
+				columns.append(">");
+				break;
+			case "l":
+				columns.append("<");
+				break;
+			case "ge":
+				columns.append(">=");
+				break;
+			case "le":
+				columns.append("<=");
+				break;
+			default:
+				columns.append("=");
+			}
+			columns.append("'"+s.getCriteriaValue()+"'");
+			columns.append(" ALLOW FILTERING");
+	}
+	private String getNameVariableColumn(Column ce, List<Select> selects) {
 		String nameAttribute = ce.getNameAttribute();
 		String nameEntity = ce.getNameEntity();
-		for (Select select : s.getSelects()) {
+		for (Select select : selects) {
 			for (Column column : select.getSearch()) {
 				String nameAttributeCurrent = column.getNameAttribute();
 				String nameEntityCurrent = column.getNameEntity();

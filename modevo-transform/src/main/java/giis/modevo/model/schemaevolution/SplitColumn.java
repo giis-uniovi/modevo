@@ -20,19 +20,26 @@ import lombok.Setter;
 public class SplitColumn extends SchemaChange {
 	private List<Column> resultColumns;
 	private String oldColumn;
-
+	private List<CriteriaSplit> cs;
+	
 	public SplitColumn() {
 	}
 
 	public SplitColumn(Table t, String oldColumn) {
 		super(t);
 		resultColumns = new ArrayList<>();
+		cs = new ArrayList<>();
 		this.setOldColumn(oldColumn);
 	}
 
 	public SplitColumn(Column c, Table t, List<Column> rs) {
 		super(c, t);
 		resultColumns = rs;
+	}
+	
+	public SplitColumn(Column c, Table t, List<Column> rs, List<CriteriaSplit> cs) {
+		this(c, t, rs);
+		this.cs = cs;
 	}
 	
 	@Override
@@ -43,16 +50,37 @@ public class SplitColumn extends SchemaChange {
 		Table t = new Table(nameTable);
 		SplitColumn splitChange = new SplitColumn(t, oldColumnModel);
 		String idColumns = elementSplit.getAttribute("newColumns");
+		String criteria = elementSplit.getAttribute ("criteria");
 		String[] columnsArray = idColumns.split(" ");
+		String[] criteriaArray = criteria.split(" ");
 		for (String c : columnsArray) {
 			Element column = getElementById(list, c);
 			if (column == null) {
 				throw new DocumentException(messageIdMissing(c));
 			}
-			Column columnObject = columnFromModelToObject(column);
+			Column columnObject = columnFromModelToObject(column, t);
 			splitChange.getResultColumns().add(columnObject);
 		}
+		for (String c : criteriaArray) {
+			Element criteriaElement = getElementById(list, c);
+			if (criteriaElement == null) {
+				throw new DocumentException(messageIdMissing(c));
+			}
+			Element column = getElementById(list, criteriaElement.getAttribute("column"));
+			if (column == null) {
+				throw new DocumentException(messageIdMissing(c));
+			}
+			Column columnObject = columnFromModelToObject(column, t);
+			CriteriaSplit criteriaObject = criteriaFromModelToObject(criteriaElement, columnObject);
+			splitChange.getCs().add(criteriaObject);
+		}
 		se.getChanges().add(splitChange);
+	}
+
+	private CriteriaSplit criteriaFromModelToObject(Element criteria, Column column) {
+		String value = criteria.getAttribute("value");
+		String operator = criteria.getAttribute("operator");
+		return new CriteriaSplit (column, value, operator);
 	}
 	
 }

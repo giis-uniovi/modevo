@@ -36,7 +36,7 @@ public class AddColumn extends SchemaChange {
 			if (column == null) {
 				throw new DocumentException(messageIdMissing(c));
 			}
-			Column columnObject = super.columnFromModelToObject(column);
+			Column columnObject = super.columnFromModelToObject(column, t);
 			t.getColumns().add(columnObject);
 			AddColumn ac = new AddColumn(columnObject, t);
 			se.getChanges().add(ac);

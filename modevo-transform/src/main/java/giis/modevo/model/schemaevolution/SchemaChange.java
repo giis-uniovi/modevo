@@ -44,7 +44,7 @@ public class SchemaChange {
 			Node nodeToFrom = columnsNode.item(j);
 			if (nodeToFrom.getNodeType() == Node.ELEMENT_NODE) {
 				Element column = (Element) nodeToFrom;
-				Column columnObject = columnFromModelToObject(column);
+				Column columnObject = columnFromModelToObject(column, t);
 				t.getColumns().add(columnObject);
 			}
 		}
@@ -80,7 +80,7 @@ public class SchemaChange {
 		return null;
 	}
 	
-	protected Column columnFromModelToObject(Element column) {
+	protected Column columnFromModelToObject(Element column, Table t) {
 		Column columnObject = new Column(column.getAttribute("name"));
 		String key = column.getAttribute("key");
 		boolean keyBoolean = isKey(key);
@@ -90,6 +90,7 @@ public class SchemaChange {
 		String nameEntity = column.getAttribute("nameEntity");
 		columnObject.setNameAttribute(nameAttribute);
 		columnObject.setNameEntity(nameEntity);
+		columnObject.setNameTable(t.getName());
 		return columnObject;
 	}
 	
