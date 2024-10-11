@@ -1,5 +1,8 @@
 package giis.modevo.model.schemaevolution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -22,7 +25,8 @@ public class AddColumn extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, NodeList list, Element element) {
+	protected List<SchemaChange> storeInfo(NodeList list, Element element) {
+		List<SchemaChange> changes = new ArrayList<>();
 		String idTable = element.getAttribute("tab");
 		Element table = getElementById(list, idTable);
 		if (table == null) {
@@ -39,8 +43,9 @@ public class AddColumn extends SchemaChange {
 			Column columnObject = super.columnFromModelToObject(column, t);
 			t.getColumns().add(columnObject);
 			AddColumn ac = new AddColumn(columnObject, t);
-			se.getChanges().add(ac);
+			changes.add(ac);
 		}
+		return changes;
 	}
 	
 }

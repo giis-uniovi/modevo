@@ -1,5 +1,8 @@
 package giis.modevo.model.schemaevolution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -26,14 +29,16 @@ public class JoinTable extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, Node node) {
+	protected List<SchemaChange> storeInfo(Node node) {
+		List<SchemaChange> changes = new ArrayList<>();
 		Element elementSplit = (Element) node;
 		String source = elementSplit.getAttribute(TABLE_SOURCE);
 		String target = elementSplit.getAttribute("tableTarget");
 		Table tableSource = new Table(source);
 		Table tableTarget = new Table(target);
 		JoinTable jt = new JoinTable(tableSource, tableTarget);
-		se.getChanges().add(jt);
+		changes.add(jt);
+		return changes;
 	}
 	
 }

@@ -31,7 +31,8 @@ public class JoinColumn extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, NodeList list, Node node) {
+	protected List<SchemaChange> storeInfo(NodeList list, Node node) {
+		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String table = elementCopy.getAttribute(TABLE);
 		String idTargetColumn = elementCopy.getAttribute("targetColumn");
@@ -53,7 +54,8 @@ public class JoinColumn extends SchemaChange {
 			Column columnSource = columnFromModelToObject(column, source);
 			jt.getSourceColumns().add(columnSource);
 		}
-		se.getChanges().add(jt);
+		changes.add(jt);
+		return changes;
 	}
 	
 }

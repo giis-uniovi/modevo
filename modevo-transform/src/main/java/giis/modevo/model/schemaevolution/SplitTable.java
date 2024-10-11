@@ -28,7 +28,8 @@ public class SplitTable extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, NodeList list, Node node) {
+	protected List<SchemaChange> storeInfo(NodeList list, Node node) {
+		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String tableSource = elementCopy.getAttribute(TABLE_SOURCE);
 		String idsResultingTables = elementCopy.getAttribute("resultingTables");
@@ -48,7 +49,8 @@ public class SplitTable extends SchemaChange {
 			readColumnsTable(resulting, listColumns);
 			st.getSplittedTables().add(resulting);
 		}
-		se.getChanges().add(st);
+		changes.add(st);
+		return changes;
 	}
 	
 }

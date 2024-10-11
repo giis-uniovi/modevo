@@ -1,6 +1,9 @@
 package giis.modevo.model.schemaevolution;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -26,7 +29,8 @@ public class CopyTable extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, NodeList list, Node node) {
+	protected List<SchemaChange> storeInfo(NodeList list, Node node) {
+		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String tableSource = elementCopy.getAttribute(TABLE_SOURCE);
 		String idCopiedTable = elementCopy.getAttribute("copiedTable");
@@ -41,7 +45,8 @@ public class CopyTable extends SchemaChange {
 		NodeList listColumns = nodeTable.getChildNodes(); // columns of the new table nodes
 		readColumnsTable(t, listColumns);
 		CopyTable ct = new CopyTable(source, t);
-		se.getChanges().add(ct);
+		changes.add(ct);
+		return changes;
 	}
 	
 }
