@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import giis.modevo.model.ModelUtilities;
+import giis.modevo.model.DocumentUtilities;
 import giis.modevo.model.schema.Column;
 import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
@@ -48,8 +48,7 @@ public class DataMigration {
 	 */
 	public DataMigration readDataMigrationModel(String dataMigrationPath, SchemaEvolution schemaEvolution, Schema schema) {
 		DataMigration dataMigration = new DataMigration();
-		ModelUtilities mu = new ModelUtilities();
-		Document doc = mu.readDocumentGeneric(dataMigrationPath);
+		Document doc = new DocumentUtilities().readDocumentGeneric(dataMigrationPath);
 		NodeList list = doc.getElementsByTagName("MigrationTable");
 		for (int temp = 0; temp < list.getLength(); temp++) {
 			Node node = list.item(temp);

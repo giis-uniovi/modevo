@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import giis.modevo.model.ModelUtilities;
+import giis.modevo.model.DocumentUtilities;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,8 +48,7 @@ public class Schema {
 	 */
 	public Schema loadSchemaIntoApp(String fileSchema) {
 		Schema schema = new Schema(new ArrayList<>());
-		ModelUtilities mu = new ModelUtilities();
-		Document doc = mu.readDocumentGeneric(fileSchema);
+		Document doc = new DocumentUtilities().readDocumentGeneric(fileSchema);
 		NodeList list = doc.getElementsByTagName("Table");
 		for (int temp = 0; temp < list.getLength(); temp++) {
 

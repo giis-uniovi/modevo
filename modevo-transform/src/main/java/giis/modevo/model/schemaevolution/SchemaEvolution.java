@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import giis.modevo.model.ModelUtilities;
+import giis.modevo.model.DocumentUtilities;
 import giis.modevo.model.schema.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,8 +60,7 @@ public class SchemaEvolution {
 	 */
 	public SchemaEvolution readSchemaEvolutionModel(String pathSchemaEvolutionModel) {
 		SchemaEvolution se = new SchemaEvolution();
-		ModelUtilities mu = new ModelUtilities();
-		Document doc = mu.readDocumentGeneric(pathSchemaEvolutionModel);
+		Document doc = new DocumentUtilities().readDocumentGeneric(pathSchemaEvolutionModel);
 		NodeList xmi = doc.getElementsByTagName("xmi:XMI");
 		Node xmiNode = xmi.item(0); // There is only just one
 		NodeList list = xmiNode.getChildNodes();
