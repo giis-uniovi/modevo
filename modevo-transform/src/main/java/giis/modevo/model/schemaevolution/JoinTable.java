@@ -29,7 +29,7 @@ public class JoinTable extends SchemaChange {
 	}
 	
 	@Override
-	protected List<SchemaChange> storeInfo(Node node) {
+	protected List<SchemaChange> changesSchemaModel (Node node) {
 		List<SchemaChange> changes = new ArrayList<>();
 		Element elementSplit = (Element) node;
 		String source = elementSplit.getAttribute(TABLE_SOURCE);

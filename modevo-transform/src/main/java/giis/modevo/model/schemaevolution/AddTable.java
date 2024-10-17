@@ -24,7 +24,7 @@ public class AddTable extends SchemaChange {
 	}
 	
 	@Override
-	protected List<SchemaChange> storeInfo(NodeList list, Element element) {
+	protected List<SchemaChange> changesSchemaModel (NodeList list, Element element) {
 		List<SchemaChange> changes = new ArrayList<>();
 		String idTable = element.getAttribute("tab");
 		Element table = getElementById(list, idTable);

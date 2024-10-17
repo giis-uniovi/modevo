@@ -28,7 +28,7 @@ public class SplitTable extends SchemaChange {
 	}
 	
 	@Override
-	protected List<SchemaChange> storeInfo(NodeList list, Node node) {
+	protected List<SchemaChange> changesSchemaModel (NodeList list, Node node) {
 		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String tableSource = elementCopy.getAttribute(TABLE_SOURCE);

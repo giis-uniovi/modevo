@@ -43,7 +43,7 @@ public class SplitColumn extends SchemaChange {
 	}
 	
 	@Override
-	protected List<SchemaChange> storeInfo(NodeList list, Node node) {
+	protected List<SchemaChange> changesSchemaModel (NodeList list, Node node) {
 		List<SchemaChange> changes = new ArrayList<>();
 		Element elementSplit = (Element) node;
 		String nameTable = elementSplit.getAttribute(TABLE);

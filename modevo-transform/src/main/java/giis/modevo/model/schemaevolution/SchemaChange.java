@@ -100,15 +100,14 @@ public class SchemaChange {
 		return key != null && key.equalsIgnoreCase("true");
 	}
 	
-	protected List<SchemaChange> storeInfo (NodeList list, Node node) {
+	protected List<SchemaChange> changesSchemaModel (NodeList list, Node node) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
-	protected List<SchemaChange>  storeInfo(NodeList list, Element element) {
+	protected List<SchemaChange>  changesSchemaModel(NodeList list, Element element) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
-	protected List<SchemaChange>  storeInfo (Node node) {
+	protected List<SchemaChange>  changesSchemaModel (Node node) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
-	
 	
 }

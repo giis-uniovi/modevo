@@ -31,7 +31,7 @@ public class RemovePK extends SchemaChange {
 	}
 	
 	@Override
-	protected List<SchemaChange> storeInfo(Node node) {
+	protected List<SchemaChange> changesSchemaModel (Node node) {
 		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String table = elementCopy.getAttribute(TABLE);
