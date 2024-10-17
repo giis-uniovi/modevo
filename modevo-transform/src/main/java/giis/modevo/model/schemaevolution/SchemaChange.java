@@ -1,5 +1,7 @@
 package giis.modevo.model.schemaevolution;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -98,15 +100,14 @@ public class SchemaChange {
 		return key != null && key.equalsIgnoreCase("true");
 	}
 	
-	protected void storeInfo (SchemaEvolution se, NodeList list, Node node) {
+	protected List<SchemaChange> changesSchemaModel (NodeList list, Node node) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
-	protected void storeInfo(SchemaEvolution se, NodeList list, Element element) {
+	protected List<SchemaChange>  changesSchemaModel(NodeList list, Element element) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
-	protected void storeInfo (SchemaEvolution se, Node node) {
+	protected List<SchemaChange>  changesSchemaModel (Node node) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
-	
 	
 }

@@ -43,7 +43,8 @@ public class SplitColumn extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, NodeList list, Node node) {
+	protected List<SchemaChange> changesSchemaModel (NodeList list, Node node) {
+		List<SchemaChange> changes = new ArrayList<>();
 		Element elementSplit = (Element) node;
 		String nameTable = elementSplit.getAttribute(TABLE);
 		String oldColumnModel = elementSplit.getAttribute("oldColumn");
@@ -74,7 +75,8 @@ public class SplitColumn extends SchemaChange {
 			CriteriaSplit criteriaObject = criteriaFromModelToObject(criteriaElement, columnObject);
 			splitChange.getCs().add(criteriaObject);
 		}
-		se.getChanges().add(splitChange);
+		changes.add(splitChange);
+		return changes;
 	}
 
 	private CriteriaSplit criteriaFromModelToObject(Element criteria, Column column) {

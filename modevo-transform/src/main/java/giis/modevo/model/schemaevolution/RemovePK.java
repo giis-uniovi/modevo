@@ -1,5 +1,8 @@
 package giis.modevo.model.schemaevolution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -28,7 +31,8 @@ public class RemovePK extends SchemaChange {
 	}
 	
 	@Override
-	protected void storeInfo(SchemaEvolution se, Node node) {
+	protected List<SchemaChange> changesSchemaModel (Node node) {
+		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String table = elementCopy.getAttribute(TABLE);
 		String columnRemoved = elementCopy.getAttribute("columnRemoved");
@@ -36,7 +40,8 @@ public class RemovePK extends SchemaChange {
 		Column c = new Column(columnRemoved);
 		Table t = new Table(table);
 		RemovePK rp = new RemovePK(c, t, previousTable);
-		se.getChanges().add(rp);
+		changes.add(rp);
+		return changes;
 	}
 	
 }

@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import giis.modevo.model.ModelUtilities;
+import giis.modevo.model.DocumentReader;
 import giis.modevo.model.schema.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,8 +60,7 @@ public class SchemaEvolution {
 	 */
 	public SchemaEvolution readSchemaEvolutionModel(String pathSchemaEvolutionModel) {
 		SchemaEvolution se = new SchemaEvolution();
-		ModelUtilities mu = new ModelUtilities();
-		Document doc = mu.readDocumentGeneric(pathSchemaEvolutionModel);
+		Document doc = new DocumentReader().readDocumentGeneric(pathSchemaEvolutionModel);
 		NodeList xmi = doc.getElementsByTagName("xmi:XMI");
 		Node xmiNode = xmi.item(0); // There is only just one
 		NodeList list = xmiNode.getChildNodes();
@@ -74,28 +73,28 @@ public class SchemaEvolution {
 			String nameElement = element.getNodeName();
 			if (nameElement.equalsIgnoreCase("Add")) { // Add column
 				log.info ("New Add Columns schema modification");
-				new AddColumn().storeInfo(se, list, element);
+				se.getChanges().addAll(new AddColumn().changesSchemaModel(list, element));
 			} else if (nameElement.equalsIgnoreCase("AddTable")) {
 				log.info ("New Add Table schema modification");
-				new AddTable().storeInfo(se, list, element);
+				se.getChanges().addAll(new AddTable().changesSchemaModel(list, element));
 			} else if (nameElement.equalsIgnoreCase("SplitColumn")) {
 				log.info ("New Split Column schema modification");
-				new SplitColumn().storeInfo(se, list, node);
+				se.getChanges().addAll(new SplitColumn().changesSchemaModel(list, node));
 			} else if (nameElement.equalsIgnoreCase("JoinTable")) {
 				log.info ("New Join Table schema modification");
-				new JoinTable().storeInfo(se, node);
+				se.getChanges().addAll(new JoinTable().changesSchemaModel(node));
 			} else if (nameElement.equalsIgnoreCase("CopyTable")) {
 				log.info ("New Copy Table schema modification");
-				new CopyTable().storeInfo(se, list, node);
+				se.getChanges().addAll(new CopyTable().changesSchemaModel(list, node));
 			} else if (nameElement.equalsIgnoreCase("SplitTable")) {
 				log.info ("New Split Table schema modification");
-				new SplitTable().storeInfo(se, list, node);
+				se.getChanges().addAll(new SplitTable().changesSchemaModel(list, node));
 			} else if (nameElement.equalsIgnoreCase("JoinColumn")) {
 				log.info ("New Join Column schema modification");
-				new JoinColumn().storeInfo(se, list, node);
+				se.getChanges().addAll(new JoinColumn().changesSchemaModel(list, node));
 			} else if (nameElement.equalsIgnoreCase("RemovePK")) {
 				log.info ("New Remove PK schema modification");
-				new RemovePK().storeInfo(se, node);
+				se.getChanges().addAll(new RemovePK().changesSchemaModel(node));
 			}
 		}
 		return se;
