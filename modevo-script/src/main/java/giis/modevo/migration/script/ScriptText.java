@@ -62,11 +62,17 @@ public class ScriptText {
 				String nameColumn = cv.getColumn().getName();
 				Select selectOrigin = s.findSelect (cv);
 				String nameVariable=selectOrigin.findNameVariable (cv.getColumn().getNameAttribute(), cv.getColumn().getNameEntity());
-				if (nameVariable == null) {
+				namesColumns.append(nameColumn);
+				if (cv.getSourceJoin() != null) {
+					Column c1 = cv.getSourceJoin().get(0);
+					Column c2 = cv.getSourceJoin().get(1);
+					insertPlaceholders.append(c1.getVariableName()+ "+" + c2.getVariableName());
+					continue;
+				}
+				else if (nameVariable == null) {
 					Column columnOrigin = selectOrigin.getSplitColumn();
 					nameVariable=columnOrigin.getVariableName();
 				}
-				namesColumns.append(nameColumn);
 				insertPlaceholders.append(nameVariable);
 			}
 			insertSB.append(namesColumns).append(") VALUES (").append(insertPlaceholders).append(");\n");

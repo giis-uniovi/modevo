@@ -14,6 +14,7 @@ import giis.modevo.model.schema.Column;
 import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
 import giis.modevo.model.schemaevolution.CriteriaSplit;
+import giis.modevo.model.schemaevolution.JoinColumn;
 import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
 import giis.modevo.model.schemaevolution.SplitColumn;
@@ -68,6 +69,9 @@ public class Script {
 			else if (mt.migrationSplitColumn(se)) {
 				scripts.add(migrationSplitColumn (schema, se, mt));
 			}
+			else if (mt.migrationJoinColumn(se)) {
+				scripts.add(migrationJoinColumn (schema, se, mt));
+			}
 			else {
 				return new ArrayList<>(); //Scenarios not implemented
 			}
@@ -75,7 +79,35 @@ public class Script {
 		checkIfExecutable(scripts);
 		return scripts;
 	}
-
+	private Script migrationJoinColumn(Schema schema, SchemaEvolution se, MigrationTable mt) {
+		log.info("Join Column Script. Target table: %s", mt.getName());
+		Script script = new Script ();
+		for (SchemaChange sc : se.getChanges()) {
+			if (sc instanceof JoinColumn spc) {
+				List<Column> sourceColumns  = spc.getSourceColumns();
+				Column newColumn = spc.getC();
+				Table t = schema.getTable(mt.getName());
+				t.getKey();
+				For forJoin = new For ();
+				Select s = new Select ();
+				forJoin.getSelectsFor().add(s);
+				s.setTable(t);
+				s.getSearch().addAll(sourceColumns);
+				Insert insert = new Insert(schema.getTable(mt.getName()), forJoin);
+				ColumnValue cv = insert.addColumnValue (newColumn, s, null, newColumn);
+				cv.setSourceJoin(sourceColumns);
+				for (Column c: t.getKey()) {
+					ColumnValue cvSelect=insert.addColumnValue (c, s, null, c);
+					Column copyTarget = new Column (c);
+					s.getSearch().add(copyTarget);
+					cvSelect.setColumn(copyTarget);
+				}
+				script.addForSelectInsert(forJoin, s, insert);
+				script.getForsHigherLevel().add(forJoin);
+			}
+		}
+		return script;
+	}
 	/**
 	 * Creates the script needed when a column is splitted in two or more columns.
 	 */

@@ -170,6 +170,22 @@ CREATE TABLE "testCustomV7SplitTable".table1copied2 (
 	PRIMARY KEY (idauthor)
 );
 
+-- Export of keyspace testCustomV8JoinColumn
+CREATE KEYSPACE "testCustomV8JoinColumn"
+WITH replication = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 1
+};
+CREATE TABLE "testCustomV8JoinColumn".table1 (
+	idauthor text,
+	idbook text,
+	title text,
+	subtitle text,
+	completetitle text,
+	PRIMARY KEY (idauthor, idbook)
+) WITH CLUSTERING ORDER BY ( idbook ASC );
+
+
 -- Export of keyspace testMindsV10NewTableMigrationFromOneTable
 CREATE KEYSPACE "testMindsV10NewTableMigrationFromOneTable"
 WITH durable_writes = true

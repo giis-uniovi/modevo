@@ -17,8 +17,6 @@ lazy rule JoinColumnMigCol {
 	to
 		add: DataMigration!JoinColumn (
 			ColTarget <- j.targetColumn.name,
-			ColSource <- thisModule.getNamesColumn (j.sourceColumns),
-			Criteria <- j.criteria
-		
+			ColSource <- thisModule.getNamesColumn (j.sourceColumns)
 		)			
 }

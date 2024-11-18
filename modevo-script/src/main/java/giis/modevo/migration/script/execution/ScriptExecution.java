@@ -3,6 +3,8 @@ package giis.modevo.migration.script.execution;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.datastax.oss.driver.api.core.cql.ColumnDefinition;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
@@ -67,6 +69,7 @@ public class ScriptExecution {
 				String nameTableInsert = i.getNameTable();
 				String statementInsertWithKeyspace = insertStatement.replace("INSERT INTO "+nameTableInsert, "INSERT INTO "+"\""+nameKeyspace+"\"."+nameTableInsert);
 				List<String> insertsInside = new ArrayList<>();
+				replaceJoinColumnVariables(statementInsertWithKeyspace, cvs); //For Join column schema changes
 				for (ColumnValue cv : cvs) {
 					statementInsertWithKeyspace=replaceVariableName (statementInsertWithKeyspace, cv, cvs);
 				}
@@ -83,6 +86,28 @@ public class ScriptExecution {
 				}
 			}
 		}	
+	}
+	/**
+	 * 	Replaces and concatenates all the insertions that come from a join column operation
+	 */
+	private void replaceJoinColumnVariables(String statementInsertWithKeyspace, List<ColumnValue> cvs) {
+		Pattern pattern = Pattern.compile("\\$(\\d+)(\\+\\$(\\d+))*"); //Obtains all the joins that exist
+		Matcher matcher = pattern.matcher(statementInsertWithKeyspace);
+		while (matcher.find()) {
+			String match = matcher.group();
+			Pattern patternSingleVariable = Pattern.compile("\\$(\\d+)"); //Obtains each source value to be joined
+			Matcher matcherSingleVariable = patternSingleVariable.matcher(match);
+			StringBuilder sb = new StringBuilder();
+			while (matcherSingleVariable.find()) {
+				String variableName = matcherSingleVariable.group();
+				for (ColumnValue cv : cvs) {
+					if (cv.getVariableName().equals(variableName)) {
+						sb.append(cv.getValue());
+					}
+				}
+			}
+			statementInsertWithKeyspace=statementInsertWithKeyspace.replace(match, sb.toString());
+		}
 	}
 	/**
 	 * Creates a list of statements with its values replaced by the values included in the list.
