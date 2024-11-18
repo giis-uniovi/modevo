@@ -91,7 +91,7 @@ public class ScriptExecution {
 	 * 	Replaces and concatenates all the insertions that come from a join column operation
 	 */
 	private void replaceJoinColumnVariables(String statementInsertWithKeyspace, List<ColumnValue> cvs) {
-		Pattern pattern = Pattern.compile("\\$(\\d+)(\\+\\$(\\d+))*"); //Obtains all the joins that exist
+		Pattern pattern = Pattern.compile("\\$(\\d+)(\\+\\$(\\d+))"); //Obtains all the joins that exist
 		Matcher matcher = pattern.matcher(statementInsertWithKeyspace);
 		while (matcher.find()) {
 			String match = matcher.group();
