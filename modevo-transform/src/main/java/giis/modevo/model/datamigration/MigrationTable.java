@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import giis.modevo.model.schema.Schema;
+import giis.modevo.model.schemaevolution.JoinColumn;
 import giis.modevo.model.schemaevolution.RemovePK;
 import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
@@ -132,6 +133,14 @@ public class MigrationTable {
 	public boolean migrationSplitColumn(SchemaEvolution se) {
 		for (SchemaChange sc : se.getChanges()) {
 			if (sc instanceof SplitColumn) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean migrationJoinColumn(SchemaEvolution se) {
+		for (SchemaChange sc : se.getChanges()) {
+			if (sc instanceof JoinColumn) {
 				return true;
 			}
 		}

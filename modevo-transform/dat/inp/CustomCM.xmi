@@ -8,6 +8,7 @@
 <Attribute xmi:id="a2" name = "id"  entity='e2' isUnique="true"/>
 <Attribute xmi:id="a3" name = "title"  entity='e2'/>
 <Attribute xmi:id="a4" name = "publisher"  entity='e2'/>
+<Attribute xmi:id="a5" name = "subtitle"  entity='e2'/>
 
 <Relationship xmi:id="r2" name ="relation1" entity1="e1" entity2="e2" cardinality1="n" cardinality2="m" />
 </xmi:XMI>

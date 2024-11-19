@@ -21,7 +21,7 @@
       nameAttribute="title"
       nameEntity="Book"/>
   <Column xmi:id="c4"
-      name="title"
+      name="subtitle"
       tableColumn="t1"
       nameAttribute="subtitle"
       nameEntity="Book"/>
