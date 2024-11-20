@@ -72,6 +72,9 @@ public class Script {
 			else if (mt.migrationJoinColumn(se)) {
 				scripts.add(migrationJoinColumn (schema, se, mt));
 			}
+			else if (mt.migrationFromRemovePK(se, mt)) {
+				scripts.add(migrationNewTable (schema, se, mt, false));
+			}
 			else {
 				return new ArrayList<>(); //Scenarios not implemented
 			}
@@ -198,7 +201,8 @@ public class Script {
 		return script;
 	}
 	/**
-	 * Creates the script needed for the migration of a new table.
+	 * Creates the script needed for the migration of a new table. This includes the schema modification RemovePK
+	 * as it creates a new table based on the original one but without the removed PK
 	 */
 	private Script migrationNewTableAll(Schema schema, SchemaEvolution se, MigrationTable mt) {
 		log.info("New Table Script from one source table. Target table: %s", mt.getName());

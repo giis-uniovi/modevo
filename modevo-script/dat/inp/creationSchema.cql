@@ -185,6 +185,26 @@ CREATE TABLE "testCustomV8JoinColumn".table1 (
 	PRIMARY KEY (idauthor, idbook)
 ) WITH CLUSTERING ORDER BY ( idbook ASC );
 
+-- Export of keyspace testCustomV9RemovePK
+CREATE KEYSPACE "testCustomV9RemovePK"
+WITH durable_writes = true
+AND replication = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 1
+};
+
+CREATE TABLE "testCustomV9RemovePK".table1beforechange (
+	idauthor text,
+	idbook text,
+	title text,
+	PRIMARY KEY (idauthor, idbook, title)
+) WITH CLUSTERING ORDER BY ( idbook ASC );
+CREATE TABLE "testCustomV9RemovePK".table1 (
+	idauthor text,
+	idbook text,
+	title text,
+	PRIMARY KEY (idauthor, idbook)
+) WITH CLUSTERING ORDER BY ( idbook ASC );
 
 -- Export of keyspace testMindsV10NewTableMigrationFromOneTable
 CREATE KEYSPACE "testMindsV10NewTableMigrationFromOneTable"
