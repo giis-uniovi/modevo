@@ -14,15 +14,15 @@ import lombok.Setter;
  * Subclass of SchemaChange to define two tables to be joined.
  */
 @Getter @Setter
-public class JoinTable extends SchemaChange {
+public class MergeTable extends SchemaChange {
 	
 	private Table originalTable;
 	private Table newTable;
 	
-	public JoinTable() {
+	public MergeTable() {
 	}
 	
-	public JoinTable(Table originalTable, Table newTable) {
+	public MergeTable(Table originalTable, Table newTable) {
 		super(originalTable);
 		this.setOriginalTable(originalTable);
 		this.setNewTable(newTable);
@@ -36,7 +36,7 @@ public class JoinTable extends SchemaChange {
 		String target = elementSplit.getAttribute("tableTarget");
 		Table tableSource = new Table(source);
 		Table tableTarget = new Table(target);
-		JoinTable jt = new JoinTable(tableSource, tableTarget);
+		MergeTable jt = new MergeTable(tableSource, tableTarget);
 		changes.add(jt);
 		return changes;
 	}

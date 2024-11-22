@@ -15,8 +15,8 @@ import giis.modevo.model.schema.Table;
 import giis.modevo.model.schemaevolution.AddColumn;
 import giis.modevo.model.schemaevolution.AddTable;
 import giis.modevo.model.schemaevolution.CopyTable;
-import giis.modevo.model.schemaevolution.JoinColumn;
-import giis.modevo.model.schemaevolution.JoinTable;
+import giis.modevo.model.schemaevolution.MergeColumn;
+import giis.modevo.model.schemaevolution.MergeTable;
 import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
 import giis.modevo.model.schemaevolution.SplitColumn;
@@ -82,67 +82,67 @@ public class DataMigration {
 		}
 		NodeList toFrom = nodeColumn.getChildNodes();
 		// Right now it's only for one from table and one to table
-		ColFrom colfrom = new ColFrom();
-		ColTo colto = new ColTo();
+		MigrateFrom migrateFrom = new MigrateFrom();
+		MigrateTo migrateTo = new MigrateTo();
 		for (int j = 0; j < toFrom.getLength(); j++) {
 			Node nodeToFrom = toFrom.item(j);
 			if (nodeToFrom.getNodeType() == Node.ELEMENT_NODE) {
 				Element element = (Element) nodeToFrom;
-				if (element.getNodeName().equalsIgnoreCase("colfrom")) {
-					colfrom = storeInfoColFrom(element);
-				} else if (element.getNodeName().equalsIgnoreCase("colto")) {
-					colto = storeInfoColTo(element, schemaEvolution, schema);
-					migrationTable.setNewTableName(colto.getNewNameTable());
+				if (element.getNodeName().equalsIgnoreCase("MigrateFrom")) {
+					migrateFrom = storeInfoMigrateFrom(element);
+				} else if (element.getNodeName().equalsIgnoreCase("MigrateTo")) {
+					migrateTo = storeInfoMigrateTo(element, schemaEvolution, schema);
+					migrationTable.setNewTableName(migrateTo.getNewNameTable());
 				}
 			}
 		}
-		c.setColFrom(colfrom);
-		c.setColTo(colto);
+		c.setMigrateFrom(migrateFrom);
+		c.setMigrateTo(migrateTo);
 		return c;
 	}
 
 	/**
-	 * 	Stores in a ColTo object its data and returns it
+	 * 	Stores in a MigrateTo object its data and returns it
 	 */
-	private ColTo storeInfoColTo(Element element, SchemaEvolution se, Schema sc) {
-		String nameColTo = "";
-		ColTo colto = new ColTo();
+	private MigrateTo storeInfoMigrateTo(Element element, SchemaEvolution se, Schema sc) {
+		String nameMigrateTo = "";
+		MigrateTo migrateTo = new MigrateTo();
 		String table = element.getAttribute("DataTable");
-		nameColTo = element.getAttribute("Data");
+		nameMigrateTo = element.getAttribute("Data");
 		String key = element.getAttribute("Key");
-		colto.setTable(table);
-		colto.setData(nameColTo);
-		colto.setDataKey(isColumnKey(table, nameColTo, se, sc));
+		migrateTo.setTable(table);
+		migrateTo.setData(nameMigrateTo);
+		migrateTo.setDataKey(isColumnKey(table, nameMigrateTo, se, sc));
 		String newNameTable = element.getAttribute("NewTableName");
-		colto.setNewNameTable(newNameTable);
+		migrateTo.setNewNameTable(newNameTable);
 		String[] keys = key.split(",");
 		trimmingArray(keys);
 		if (keys.length == 1 && keys[0].equalsIgnoreCase("")) {
-			colto.setKey(new String[0]);
+			migrateTo.setKey(new String[0]);
 		} else {
-			colto.setKey(keys);
+			migrateTo.setKey(keys);
 		}
-		return colto;
+		return migrateTo;
 	}
 	
 	/**
-	 * 	Stores in a ColFrom object its data and returns it
+	 * 	Stores in a MigrateFrom object its data and returns it
 	 */
-	private ColFrom storeInfoColFrom(Element element) {
+	private MigrateFrom storeInfoMigrateFrom(Element element) {
 		String table = element.getAttribute("DataTable");
 		String column = element.getAttribute("Data");
 		String key = element.getAttribute("Key");
-		ColFrom colfrom = new ColFrom();
-		colfrom.setTable(table);
-		colfrom.setData(column);
+		MigrateFrom migrateFrom = new MigrateFrom();
+		migrateFrom.setTable(table);
+		migrateFrom.setData(column);
 		String[] keys = key.split(",");
 		trimmingArray(keys);
 		if (keys.length == 1 && keys[0].equalsIgnoreCase("")) {
-			colfrom.setKey(new String[0]);
+			migrateFrom.setKey(new String[0]);
 		} else {
-			colfrom.setKey(keys);
+			migrateFrom.setKey(keys);
 		}
-		return colfrom;
+		return migrateFrom;
 	}
 
 	private boolean isColumnKey(String nameTable, String nameCol, SchemaEvolution se, Schema sc) {
@@ -168,10 +168,10 @@ public class DataMigration {
 			if (column.getName().equalsIgnoreCase(nameCol)) {
 				return column.isCk() || column.isPk();
 			}
-		} else if (change instanceof AddTable || change instanceof SplitColumn || change instanceof JoinColumn) {
+		} else if (change instanceof AddTable || change instanceof SplitColumn || change instanceof MergeColumn) {
 			column = change.getT().getColumn(nameCol);
 			checkColumnKey(column);
-		} else if (change instanceof JoinTable joinTableChange) {
+		} else if (change instanceof MergeTable joinTableChange) {
 			Table t = joinTableChange.getNewTable();
 			column = t.getColumn(nameCol);
 			checkColumnKey(column);

@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import giis.modevo.model.schema.Column;
+import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -107,6 +108,10 @@ public class SchemaChange {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
 	protected List<SchemaChange>  changesSchemaModel (Node node) {
+		throw new UnsupportedOperationException (ERROR_STOREINFO);
+	}
+
+	protected List<SchemaChange> changesSchemaModel(Node node, Schema sc) {
 		throw new UnsupportedOperationException (ERROR_STOREINFO);
 	}
 	

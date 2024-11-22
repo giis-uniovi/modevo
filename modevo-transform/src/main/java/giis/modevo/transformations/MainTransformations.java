@@ -74,7 +74,7 @@ public class MainTransformations {
 		SchemaEvolution se = new SchemaEvolution();
 		DataMigration dm = new DataMigration ();
 		sc = sc.loadSchemaIntoApp(schemaModelPath);
-		se = se.readSchemaEvolutionModel(schemaEvolutionModelPath);
+		se = se.readSchemaEvolutionModel(schemaEvolutionModelPath, sc);
 		dm = dm.readDataMigrationModel(dataMigrationModelPath, se, sc);
 		return new ModelObjects(sc, se, dm);
 	}
@@ -145,11 +145,11 @@ public class MainTransformations {
 			launcher.addLibrary("f", getLibraryAsStream("SchemaTable"));
 			launcher.addLibrary("g", getLibraryAsStream("NewColumn"));
 			launcher.addLibrary("h", getLibraryAsStream("NewTable"));
-			launcher.addLibrary("i", getLibraryAsStream("JoinTable"));
+			launcher.addLibrary("i", getLibraryAsStream("MergeTable"));
 			launcher.addLibrary("j", getLibraryAsStream("SplitColumn"));
 			launcher.addLibrary("k", getLibraryAsStream("SplitTable"));
 			launcher.addLibrary("l", getLibraryAsStream("CopyTable"));
-			launcher.addLibrary("m", getLibraryAsStream("JoinColumn"));
+			launcher.addLibrary("m", getLibraryAsStream("MergeColumn"));
 			launcher.addLibrary("n", getLibraryAsStream("RemovePK"));
 
 		} catch (IOException e) {

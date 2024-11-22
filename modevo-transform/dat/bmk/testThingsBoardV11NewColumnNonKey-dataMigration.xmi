@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="entity_view">
   <migcol multipleMigration="true">
-    <ColTo Data="dev_type" Key="tenant_id , customer_id" DataTable="entity_view"/>
-    <ColFrom Data="type" Key="tenant_id , customer_id" DataTable="device"/>
+    <MigrateTo Data="dev_type" Key="tenant_id , customer_id" DataTable="entity_view"/>
+    <MigrateFrom Data="type" Key="tenant_id , customer_id" DataTable="device"/>
   </migcol>
 </MigrationTable>

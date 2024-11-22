@@ -6,20 +6,20 @@ import lombok.Setter;
 /**
  * Java class for the MigrationColumn metaclass of the DataMigration metamodel.
  * It contains the required information to migrate data for a specific column
- * specified in the children objects ColTo and ColFrom
+ * specified in the children objects MigrateTo and MigrateFrom
  */
 @Getter @Setter
 public class MigrationColumn {
 
 	private String name;
-	private ColTo colTo; // Contains the required information to migrate data to a column
-	private ColFrom colFrom; // Contains the required information to migrate data from a column
+	private MigrateTo migrateTo; // Contains the required information to migrate data to a column
+	private MigrateFrom migrateFrom; // Contains the required information to migrate data from a column
 	private String description; //when it is not possible to proceed with the migration
 
 	public MigrationColumn() {
 		super();
-		colTo = new ColTo();
-		colFrom = new ColFrom();
+		migrateTo = new MigrateTo();
+		migrateFrom = new MigrateFrom();
 	}
 
 	public MigrationColumn(String name) {

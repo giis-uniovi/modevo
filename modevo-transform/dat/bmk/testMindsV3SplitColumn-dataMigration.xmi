@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="comments">
   <migcol Description="Migration needs to be performed from the old To Column to the From Column according to the deverloper's criteria">
-    <ColFrom Data="parent_guid" DataTable="comments"/>
-    <ColToSplit Data="parent_guid_c1" DataTable="comments"/>
-    <ColToSplit Data="parent_guid_c2" DataTable="comments"/>
-    <ColToSplit Data="parent_guid_c3" DataTable="comments"/>
+    <MigrateFrom Data="parent_guid" DataTable="comments"/>
+    <MigrateToSplit Data="parent_guid_c1" DataTable="comments"/>
+    <MigrateToSplit Data="parent_guid_c2" DataTable="comments"/>
+    <MigrateToSplit Data="parent_guid_c3" DataTable="comments"/>
   </migcol>
 </MigrationTable>

@@ -1,10 +1,10 @@
-module JoinTable;
+module MergeTable;
 create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
 
 ---Rule for joining two tables
-rule joinTable {
+rule mergeTable {
 	from
-		j: SchemaEvolution!JoinTable 	
+		j: SchemaEvolution!MergeTable 	
 		using{
 			tableTarget: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
 			->any (t | t.name = j.tableTarget);
@@ -18,36 +18,36 @@ rule joinTable {
 	to
 		d: DataMigration!MigrationTable(
 			name<- j.tableTarget,
-			migcol <- columnsInOnlySourceTable -> collect (c | thisModule.columnMigColJoin(c, columnsInBothTablesTarget, tableTarget, j))
+			migcol <- columnsInOnlySourceTable -> collect (c | thisModule.columnMigColMerge(c, columnsInBothTablesTarget, tableTarget, j))
 		)
 }
 
 ---Details migration for a single column that has been added to a new table
-lazy rule columnMigColJoin {
+lazy rule columnMigColMerge {
 	from
 		column: Schema!Column,
 		colPotentialKey: Sequence (Schema!Column),
 		tableTarget: Schema!Table,
-		j: SchemaEvolution!JoinTable 	
+		j: SchemaEvolution!MergeTable 	
 		
 		using {
 			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (colPotentialKey, thisModule.extractEntityByName (column.nameEntity), tableTarget);
 		}
 	to
 		add: DataMigration!MigrationCol ( --for each new column
-			ColTo <-  thisModule.columnToJoinTable (keyColumnToColumn, column, j),
-			ColFrom <- thisModule.columnFrom (keyColumnToColumn, column)
+			MigrateTo <-  thisModule.columnToMergeTable (keyColumnToColumn, column, j),
+			MigrateFrom <- thisModule.columnFrom (keyColumnToColumn, column)
 		)	
 }
 
 ---Details the migration to a target column. This is rule is triggered when there is a new column added to an existing table
-lazy rule columnToJoinTable {
+lazy rule columnToMergeTable {
 from	
 		keysColumnFrom: Sequence (Schema!Column),
 		r: Schema!Column,
-		j: SchemaEvolution!JoinTable 	
+		j: SchemaEvolution!MergeTable 	
 	to
-		colFrom: DataMigration!To (
+		MigrateFrom: DataMigration!Target (
 			Data<- r.name,
 			DataTable <- r.tableColumn.name,
 			Key <- thisModule.getNamesColumn(keysColumnFrom),

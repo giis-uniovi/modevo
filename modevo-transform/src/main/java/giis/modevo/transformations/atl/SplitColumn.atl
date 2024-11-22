@@ -18,8 +18,8 @@ lazy rule SplitColumnMigCol {
 		s: SchemaEvolution!SplitColumn
 	to
 		add: DataMigration!MigrationCol (
-			ColToSplit <- s.newColumns -> collect (c | thisModule.colToSplit (s, c)),
-			ColFrom <- thisModule.columnFromSplit (s),
+			MigrateToSplit <- s.newColumns -> collect (c | thisModule.MigrateToSplit (s, c)),
+			MigrateFrom <- thisModule.columnFromSplit (s),
 			Description <- 'Migration needs to be performed from the old To Column to the From Column according to the deverloper\'s criteria'
 		
 		)			
@@ -30,20 +30,20 @@ lazy rule columnFromSplit {
 	from	
 		s: SchemaEvolution!SplitColumn
 	to
-		colFrom: DataMigration!From (
+		MigrateFrom: DataMigration!Source (
 			Data<- s.oldColumn,
 			DataTable <- s.table
 		)	
 }
 
 ---Details the migration required to one of the columns created from a splitted column
-lazy rule colToSplit {
+lazy rule MigrateToSplit {
 
 	from	
 		s: SchemaEvolution!SplitColumn,	
 		sc: SchemaEvolution!Column
 	to
-		colTo: DataMigration!To (
+		MigrateTo: DataMigration!Target (
 			Data<- sc.name,
 			DataTable <- s.table
 		)

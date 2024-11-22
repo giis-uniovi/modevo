@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import giis.modevo.model.schema.Column;
+import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +32,7 @@ public class RemovePK extends SchemaChange {
 	}
 	
 	@Override
-	protected List<SchemaChange> changesSchemaModel (Node node) {
+	protected List<SchemaChange> changesSchemaModel (Node node, Schema sc) {
 		List<SchemaChange> changes = new ArrayList<>();
 		Element elementCopy = (Element) node;
 		String table = elementCopy.getAttribute(TABLE);
@@ -39,6 +40,14 @@ public class RemovePK extends SchemaChange {
 		String previousTable = elementCopy.getAttribute("previous");
 		Column c = new Column(columnRemoved);
 		Table t = new Table(table);
+		Table previousTableObject = sc.getTable(previousTable);
+		for (Column preColumn : previousTableObject.getColumns()) {
+			if (!preColumn.getName().equalsIgnoreCase(columnRemoved)) {
+				Column newColumn = new Column (preColumn);
+				newColumn.setNameTable(table);
+				t.getColumns().add(newColumn);
+			}
+		}
 		RemovePK rp = new RemovePK(c, t, previousTable);
 		changes.add(rp);
 		return changes;

@@ -3,18 +3,18 @@
   <ContainerMigrations migrations="/1"/>
   <MigrationTable name="table1Copied1">
     <migcol>
-      <ColTo Data="idBook" DataTable="table1Copied1"/>
-      <ColFrom Data="idBook" DataTable="table1"/>
+      <MigrateTo Data="idBook" DataTable="table1Copied1"/>
+      <MigrateFrom Data="idBook" DataTable="table1"/>
     </migcol>
     <migcol>
-      <ColTo Data="title" DataTable="table1Copied1"/>
-      <ColFrom Data="title" DataTable="table1"/>
+      <MigrateTo Data="title" DataTable="table1Copied1"/>
+      <MigrateFrom Data="title" DataTable="table1"/>
     </migcol>
   </MigrationTable>
   <MigrationTable name="table1Copied2">
     <migcol>
-      <ColTo Data="idAuthor" DataTable="table1Copied2"/>
-      <ColFrom Data="idAuthor" DataTable="table1"/>
+      <MigrateTo Data="idAuthor" DataTable="table1Copied2"/>
+      <MigrateFrom Data="idAuthor" DataTable="table1"/>
     </migcol>
   </MigrationTable>
 </xmi:XMI>

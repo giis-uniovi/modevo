@@ -17,14 +17,14 @@ import giis.modevo.model.DocumentException;
  * Subclass of SchemaChange to define the join of two or more columns into one.
  */
 @Getter @Setter
-public class JoinColumn extends SchemaChange {
+public class MergeColumn extends SchemaChange {
 	private List<Column> sourceColumns;
 	private String criteria; //criteria to join the column
 	
-	public JoinColumn() {
+	public MergeColumn() {
 	}
 	
-	public JoinColumn(Column c, Table t, String criteria) {
+	public MergeColumn(Column c, Table t, String criteria) {
 		super(c, t);
 		setSourceColumns(new ArrayList<>());
 		this.setCriteria(criteria);
@@ -44,7 +44,7 @@ public class JoinColumn extends SchemaChange {
 		}
 		Column c = columnFromModelToObject(elementColumnSource, source);
 		String criteriaString = elementCopy.getAttribute("criteria");
-		JoinColumn jt = new JoinColumn(c, source, criteriaString);
+		MergeColumn jt = new MergeColumn(c, source, criteriaString);
 		String[] columnsIdArray = idsSourceColumns.split(" ");
 		for (String id : columnsIdArray) {
 			Element column = getElementById(list, id);
