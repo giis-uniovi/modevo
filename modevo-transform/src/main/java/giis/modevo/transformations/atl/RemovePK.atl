@@ -7,11 +7,11 @@ rule removePK {
 		j: SchemaEvolution!RemovePK 	
 		using{
 			tableTarget: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
-			->any (t | t.name = j.table);
+			->any (t | t.name = j.previous);
 		}
 	to
 		d: DataMigration!MigrationTable(
-			name<- tableTarget.name,
+			name<- j.table,
 			migcol <- tableTarget.Column -> collect (c | thisModule.columnMigRemovePK(c, tableTarget, j.previous))
 		)
 }

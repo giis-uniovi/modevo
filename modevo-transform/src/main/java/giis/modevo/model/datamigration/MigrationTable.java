@@ -117,7 +117,6 @@ public class MigrationTable {
 	public boolean migrationFromRemovePK(SchemaEvolution se, MigrationTable mt) {
 		for (SchemaChange sc : se.getChanges()) {
 			if (sc instanceof RemovePK rpk) {
-				rpk.getNamePreviousTable();
 				for (MigrationColumn mc : mt.getMigrationColumns()) {
 					if (mc.getColFrom().getTable().equalsIgnoreCase(rpk.getNamePreviousTable())) {
 						return true;

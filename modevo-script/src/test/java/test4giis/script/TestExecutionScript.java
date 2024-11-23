@@ -132,6 +132,10 @@ public class TestExecutionScript {
 	public void testCustomV8JoinColumn () {
 		testScript(name.getMethodName(), connection);	
 	}
+	@Test
+	public void testCustomV9RemovePK () {
+		testScript(name.getMethodName(), connection);	
+	}
 	public static void executeCQLFile(String path){
 	     try{
             // Open the file that is the first 
