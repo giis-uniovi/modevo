@@ -67,6 +67,12 @@ Given these objects, MoDEvo creates one script for each table that requires data
 - Textual representation in a Cassandra Query Language-like format. It is composed of the three basic opeators FOR, SELECT and INSERT.
 - Optionally, the script can be executed in a Cassandra database, requiring to configure the "MoDEvo.properties" file located in the root with the appropiate values.
 
+## modevo-consistency module
+
+Uses a SQL database to check that MoDEvo maintain data integrity. 
+
+Both the SQL database and the Cassandra database store initially the same data (in a normalized model for SQL and denormalized for Cassandra). Then, the data is migrated accordingly in both databases, in the SQL database with this module and in Cassandra by executing the scripts generated in the script module. Finally, both databases are compared to check if MoDEvo maintained data integrity.
+
 ## Citing this work
 
 TODO
