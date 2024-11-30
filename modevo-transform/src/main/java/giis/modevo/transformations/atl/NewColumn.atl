@@ -23,9 +23,12 @@ lazy rule MigCol {
 			->select (c | c.nameAttribute = r.nameAttribute and c.nameEntity = r.nameEntity and thisModule.keyInTable(c.tableColumn, keyColumnToColumn)).first();
 			--Gets key columns
 			colKeyFromVariable: Sequence (Schema!Column) = colFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTables(keyColumnToColumn));
+		
+			ascendantsUsed : Boolean = thisModule.ascendentsUsed (r.tab.tableFromLM().Column, thisModule.extractEntityByName (r.nameEntity), r.tab.tableFromLM());
 		}
 	to
 		add: DataMigration!MigrationCol ( --for each new column
+			multipleMigration <- ascendantsUsed,
 			ColTo <-  thisModule.columnTo (r, keyColumnToColumn),
 			ColFrom <- thisModule.columnFrom (colKeyFromVariable, colFromVariable)
 		)	
@@ -81,9 +84,30 @@ helper def: typeKey (columns: Sequence (Schema!Column), entity: ConceptualModel!
 		if (not (table.descendentsEntityInTable(entity).isEmpty()))
 			then thisModule.keyEntitiesSequence (columns, table.descendentsEntityInTable(entity))
 		else
-			thisModule.keyEntitiesSequence (columns, table.NMEntities(entity))
+			if (not (table.NMEntities(entity).isEmpty()))
+				then thisModule.keyEntitiesSequence (columns, table.NMEntities(entity))
+			else
+				thisModule.keyEntitiesSequence (columns, table.ascendantsEntityInTable(entity))
+			endif
 		endif
 	endif;
+
+---Copy of typeKey to know if "thisModule.keyEntitiesSequence (columns, table.ascendantsEntityInTable(entity)" was used
+helper def: ascendentsUsed (columns: Sequence (Schema!Column), entity: ConceptualModel!Entity, table: Schema!Table): 	Boolean =
+if (thisModule.isKeyEntityInColumns (columns, entity)) 
+		then  false
+	else	
+		if (not (table.descendentsEntityInTable(entity).isEmpty()))
+			then false
+		else
+			if (not (table.NMEntities(entity).isEmpty()))
+				then false
+			else
+				true
+			endif
+		endif
+	endif;
+
 
 ---Returns true if in given columns there are columns associated to the key attributes of entity
 helper def: isKeyEntityInColumns (columns: Sequence (Schema!Column), entity: ConceptualModel!Entity): Boolean =
