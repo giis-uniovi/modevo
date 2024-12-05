@@ -4,7 +4,7 @@ create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution
 ---Rule for new columns in existing tables
 rule newColumn {
 	from
-		r: SchemaEvolution!Add
+		r: SchemaEvolution!NewColumn
 	to
 		add: DataMigration!MigrationTable ( --for the moment, it creates a MigrationTable to define the data migration. In the future this will change in order to consider migrations for more than column
 			name <- r.tab.first().name, --there will only be one table for the moment
@@ -19,18 +19,18 @@ lazy rule MigCol {
 		using {
 			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (r.tab.tableFromLM().Column, thisModule.extractEntityByName (r.nameEntity), r.tab.tableFromLM());
 			--first table that contains the data to be migrated is obtained by also requiring that the key column from keyColumnToColumn are obtained. Gets data column. Finished code
-			colFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
+			MigrateFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
 			->select (c | c.nameAttribute = r.nameAttribute and c.nameEntity = r.nameEntity and thisModule.keyInTable(c.tableColumn, keyColumnToColumn)).first();
 			--Gets key columns
-			colKeyFromVariable: Sequence (Schema!Column) = colFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTables(keyColumnToColumn));
+			colKeyFromVariable: Sequence (Schema!Column) = MigrateFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTables(keyColumnToColumn));
 		
 			ascendantsUsed : Boolean = thisModule.ascendentsUsed (r.tab.tableFromLM().Column, thisModule.extractEntityByName (r.nameEntity), r.tab.tableFromLM());
 		}
 	to
 		add: DataMigration!MigrationCol ( --for each new column
 			multipleMigration <- ascendantsUsed,
-			ColTo <-  thisModule.columnTo (r, keyColumnToColumn),
-			ColFrom <- thisModule.columnFrom (colKeyFromVariable, colFromVariable)
+			MigrateTo <-  thisModule.columnTo (r, keyColumnToColumn),
+			MigrateFrom <- thisModule.columnFrom (colKeyFromVariable, MigrateFromVariable)
 		)	
 }
 
@@ -40,7 +40,7 @@ lazy rule columnFrom {
 		keysColumnFrom: Sequence (Schema!Column),
 		r: Schema!Column
 	to
-		colFrom: DataMigration!From (
+		MigrateFrom: DataMigration!Source (
 			Data<- r.name,
 			DataTable <- r.tableColumn.name,
 			Key <- thisModule.getNamesColumn(keysColumnFrom)
@@ -54,7 +54,7 @@ lazy rule columnTo {
 		keysColumnTo: Sequence (Schema!Column)
 		
 	to
-		colTo: DataMigration!To (
+		MigrateTo: DataMigration!Target (
 			Data<- r.name,
 			Key <- thisModule.getNamesColumn(keysColumnTo),
 			DataTable <- r.tab.name,

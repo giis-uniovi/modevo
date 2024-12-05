@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SchemaEvolution">
-  <eClassifiers xsi:type="ecore:EClass" name="Add">
+  <eClassifiers xsi:type="ecore:EClass" name="NewColumn">
     <eStructuralFeatures xsi:type="ecore:EReference" name="tab" upperBound="-1" eType="#//Table"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="columns" upperBound="-1"
@@ -11,50 +11,22 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="cols" lowerBound="1" upperBound="-1"
         eType="#//Column" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="added" eType="#//Add"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="AddPk" eType="#//AddPk"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="cql" lowerBound="1" eType="#//CQL"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="NewTableName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isNew" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ClusteringKey">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="col" eType="#//Column"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="PartitionKey">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="col" eType="#//Column"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="pk" eType="#//PartitionKey"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ck" eType="#//ClusteringKey"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="add" eType="#//Add"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="rem" eType="#//Remove"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="tab" lowerBound="1" eType="#//Table"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="remPK"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="cql" lowerBound="1" upperBound="-1"
-        eType="#//CQL"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="nameAttribute" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="customType" eType="#//AddType"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="nameEntity" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Remove">
+  <eClassifiers xsi:type="ecore:EClass" name="RemoveColumn">
     <eStructuralFeatures xsi:type="ecore:EReference" name="col" upperBound="-1" eType="#//Column"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="AddPk">
     <eStructuralFeatures xsi:type="ecore:EReference" name="tab" upperBound="-1" eType="#//Table"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="AddType">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="column" upperBound="-1"
-        eType="#//Column"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="cql" lowerBound="1" eType="#//CQL"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CQL">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="AddTable">
+  <eClassifiers xsi:type="ecore:EClass" name="NewTable">
     <eStructuralFeatures xsi:type="ecore:EReference" name="tab" lowerBound="1" eType="#//Table"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="prevTable" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -64,9 +36,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="newColumns" lowerBound="1"
         upperBound="-1" eType="#//Column"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="criteria" lowerBound="1"
-        upperBound="-1" eType="#//Column"/>
+        upperBound="-1" eType="#//SplitColumn"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="JoinTable">
+  <eClassifiers xsi:type="ecore:EClass" name="MergeTable">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="tableSource" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="tableTarget" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="newTableName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -80,7 +52,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="resultingTables" lowerBound="1"
         upperBound="-1" eType="#//Table"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="JoinColumn">
+  <eClassifiers xsi:type="ecore:EClass" name="MergeColumn">
     <eStructuralFeatures xsi:type="ecore:EReference" name="targetColumn" lowerBound="1"
         eType="#//Column"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="sourceColumns" lowerBound="2"
@@ -92,10 +64,15 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="column" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="previous" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="columnRemoved" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RemoveTable">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="remove" eType="#//Table"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CriteriaSplit">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="column" lowerBound="1"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="operator" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="column" eType="#//Column"/>
   </eClassifiers>
 </ecore:EPackage>

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Java class for the ColFrom metaclass of the DataMigration metamodel. It
+ * Java class for the MigrateFrom metaclass of the DataMigration metamodel. It
  * contains the specifications of how the data is obtained from a source table.
  * It must always contain a value associated to Data, in order to specify the
  * column where the data is obtained. If the migration requires dependencies, it
@@ -12,13 +12,13 @@ import lombok.Setter;
  * the columns used for synchronizing the migration.
  */
 @Getter @Setter
-public class ColFrom {
+public class MigrateFrom {
 
 	private String data; // Column where data is obtained or migrated
 	private String[] key; // Columns used to control the data migration
 	private String table; // Name of the table
 
-	public ColFrom () {
+	public MigrateFrom () {
 		key = new String[0];
 	}
 	/**

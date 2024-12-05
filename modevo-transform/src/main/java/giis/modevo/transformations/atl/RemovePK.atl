@@ -12,7 +12,7 @@ rule removePK {
 	to
 		d: DataMigration!MigrationTable(
 			name<- j.table,
-			migcol <- tableTarget.Column -> collect (c | thisModule.columnMigRemovePK(c, tableTarget, j.previous))
+			migcol <- tableTarget.Column -> select (c |c.name <> j.columnRemoved) -> collect (c | thisModule.columnMigRemovePK(c, tableTarget, j.previous, j.table))
 		)
 }
 ---Details migration for a single column of a copied table
@@ -20,23 +20,25 @@ lazy rule columnMigRemovePK{
 	from
 		column: Schema!Column,
 		tableTarget: Schema!Table,
-		previous: String
+		previous: String,
+		nameCurrent: String
 
 	to
 		add: DataMigration!MigrationCol ( --for each new column
-			ColTo <-  thisModule.columnToRemovePKTable (tableTarget, column),
-			ColFrom <- thisModule.columnCopyTable (previous, column)
+			MigrateTo <-  thisModule.columnToRemovePKTable (tableTarget, column, nameCurrent),
+			MigrateFrom <- thisModule.columnCopyTable (previous, column)
 		)	
 }
 ---Defines migration to a table of the given column
 lazy rule columnToRemovePKTable {
 	from
 		tableTarget: Schema!Table,
-		r: Schema!Column
+		r: Schema!Column,
+		nameCurrent: String
 	to
-		colTo: DataMigration!To (
+		MigrateTo: DataMigration!Target (
 			Data<- r.name,
-			DataTable <- tableTarget.name
+			DataTable <- nameCurrent
 		)
 }
 ---Defines migration from a table of the given column
@@ -45,7 +47,7 @@ lazy rule columnCopyTable {
 				previous: String,
 				col: Schema!Column
 	to
-		colFrom: DataMigration!From (
+		MigrateFrom: DataMigration!Source (
 			Data<- col.name,
 			DataTable <- previous
 		)

@@ -5,31 +5,25 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="migcol" lowerBound="1"
         upperBound="-1" eType="#//MigrationCol" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="joincol" eType="#//JoinColumn"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="joincol" eType="#//MergeColumn"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MigrationCol">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ColTo" lowerBound="1" eType="#//To"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ColFrom" lowerBound="1"
-        eType="#//From" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="prueba" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="migtab" lowerBound="1"
-        eType="#//MigrationTable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="MigrateTo" lowerBound="1"
+        eType="#//Target" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="MigrateFrom" lowerBound="1"
+        eType="#//Source" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ColToSplit" lowerBound="1"
-        upperBound="-1" eType="#//To" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="MigrateToSplit" lowerBound="1"
+        upperBound="-1" eType="#//Target" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="multipleMigration" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Criteria">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Rule" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="To">
+  <eClassifiers xsi:type="ecore:EClass" name="Target">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Data" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Key" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="DataTable" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="NewTableName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="From">
+  <eClassifiers xsi:type="ecore:EClass" name="Source">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Data" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Key" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="DataTable" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -37,7 +31,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="ContainerMigrations">
     <eStructuralFeatures xsi:type="ecore:EReference" name="migrations" eType="#//MigrationTable"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="JoinColumn">
+  <eClassifiers xsi:type="ecore:EClass" name="MergeColumn">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="ColTarget" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="ColSource" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="scim_external">
   <migcol>
-    <ColTo Data="user" DataTable="scim_external"/>
-    <ColFrom Data="user" DataTable="scim_external_ids"/>
+    <MigrateTo Data="user" DataTable="scim_external"/>
+    <MigrateFrom Data="user" DataTable="scim_external_ids"/>
   </migcol>
   <migcol>
-    <ColTo Data="external" DataTable="scim_external"/>
-    <ColFrom Data="external" DataTable="scim_external_ids"/>
+    <MigrateTo Data="external" DataTable="scim_external"/>
+    <MigrateFrom Data="external" DataTable="scim_external_ids"/>
   </migcol>
   <migcol>
-    <ColTo Data="team" Key="user" DataTable="scim_external"/>
-    <ColFrom Data="team" Key="user" DataTable="user_team"/>
+    <MigrateTo Data="team" Key="user" DataTable="scim_external"/>
+    <MigrateFrom Data="team" Key="user" DataTable="user_team"/>
   </migcol>
 </MigrationTable>

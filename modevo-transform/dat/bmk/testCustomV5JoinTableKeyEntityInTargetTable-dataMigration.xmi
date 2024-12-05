@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="table2">
   <migcol>
-    <ColTo Data="title" Key="idBook" DataTable="table1"/>
-    <ColFrom Data="title" Key="idBook" DataTable="table1"/>
+    <MigrateTo Data="title" Key="idBook" DataTable="table1"/>
+    <MigrateFrom Data="title" Key="idBook" DataTable="table1"/>
   </migcol>
 </MigrationTable>

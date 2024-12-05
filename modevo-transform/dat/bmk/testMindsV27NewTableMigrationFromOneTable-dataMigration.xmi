@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="wire_support_tiers">
   <migcol>
-    <ColTo Data="address" DataTable="wire_support_tiers"/>
-    <ColFrom Data="wallet_address" DataTable="withholdings"/>
+    <MigrateTo Data="address" DataTable="wire_support_tiers"/>
+    <MigrateFrom Data="wallet_address" DataTable="withholdings"/>
   </migcol>
   <migcol>
-    <ColTo Data="user_guid" DataTable="wire_support_tiers"/>
-    <ColFrom Data="user_guid" DataTable="withholdings"/>
+    <MigrateTo Data="user_guid" DataTable="wire_support_tiers"/>
+    <MigrateFrom Data="user_guid" DataTable="withholdings"/>
   </migcol>
 </MigrationTable>

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="table1Copied">
   <migcol>
-    <ColTo Data="idAuthor" DataTable="table1Copied"/>
-    <ColFrom Data="idAuthor" DataTable="table1"/>
+    <MigrateTo Data="idAuthor" DataTable="table1Copied"/>
+    <MigrateFrom Data="idAuthor" DataTable="table1"/>
   </migcol>
   <migcol>
-    <ColTo Data="idBook" DataTable="table1Copied"/>
-    <ColFrom Data="idBook" DataTable="table1"/>
+    <MigrateTo Data="idBook" DataTable="table1Copied"/>
+    <MigrateFrom Data="idBook" DataTable="table1"/>
   </migcol>
   <migcol>
-    <ColTo Data="title" DataTable="table1Copied"/>
-    <ColFrom Data="title" DataTable="table1"/>
+    <MigrateTo Data="title" DataTable="table1Copied"/>
+    <MigrateFrom Data="title" DataTable="table1"/>
   </migcol>
 </MigrationTable>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="notifications">
   <migcol>
-    <ColTo Data="to_guid" DataTable="notifications"/>
-    <ColFrom Data="owner_guid" DataTable="notificationsPrev"/>
+    <MigrateTo Data="to_guid" DataTable="notifications"/>
+    <MigrateFrom Data="owner_guid" DataTable="notificationsPrev"/>
   </migcol>
   <migcol>
-    <ColTo Data="from_guid" DataTable="notifications"/>
-    <ColFrom Data="owner_guid" DataTable="notificationsPrev"/>
+    <MigrateTo Data="from_guid" DataTable="notifications"/>
+    <MigrateFrom Data="owner_guid" DataTable="notificationsPrev"/>
   </migcol>
   <migcol Description="It is not possible to migrate data to the column uuid as it is storing new data that is not stored in another table"/>
   <migcol Description="It is not possible to migrate data to the column type_ground as it is storing new data that is not stored in another table"/>

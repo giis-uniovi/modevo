@@ -25,8 +25,8 @@ lazy rule columnMigColCopy{
 
 	to
 		add: DataMigration!MigrationCol ( --for each new column
-			ColTo <-  thisModule.columnToCopyTable (tableTarget, column),
-			ColFrom <- thisModule.columnCopyTable (column, tableSource)
+			MigrateTo <-  thisModule.columnToCopyTable (tableTarget, column),
+			MigrateFrom <- thisModule.columnCopyTable (column, tableSource)
 		)	
 }
 
@@ -36,7 +36,7 @@ lazy rule columnCopyTable {
 		col: SchemaEvolution!Column,
 		tableFit: Schema!Table 
 	to
-		colFrom: DataMigration!From (
+		MigrateFrom: DataMigration!Source (
 			Data<- thisModule.obtainColumnInTableFromNewColumn(col, tableFit).name,
 			DataTable <- tableFit.name
 		)
@@ -48,7 +48,7 @@ lazy rule columnToCopyTable {
 		tableTarget: SchemaEvolution!Table,
 		r: SchemaEvolution!Column
 	to
-		colTo: DataMigration!To (
+		MigrateTo: DataMigration!Target (
 			Data<- r.name,
 			DataTable <- tableTarget.name
 		)

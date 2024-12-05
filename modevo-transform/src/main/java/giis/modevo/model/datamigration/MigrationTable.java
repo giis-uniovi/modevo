@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import giis.modevo.model.schema.Schema;
-import giis.modevo.model.schemaevolution.JoinColumn;
+import giis.modevo.model.schemaevolution.MergeColumn;
 import giis.modevo.model.schemaevolution.RemovePK;
 import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
@@ -17,7 +17,7 @@ import lombok.Setter;
 /**
  * Java class for the MigrationTable metaclass of the DataMigration metamodel.
  * It contains a list of MigrationColumn objects, which each one details the
- * migrations for a column in their children objects ColTo and ColFrom.
+ * migrations for a column in their children objects MigrateTo and MigrateFrom.
  */
 @Getter @Setter
 public class MigrationTable {
@@ -44,7 +44,7 @@ public class MigrationTable {
 	public List<MigrationColumn> getMigrationColumnsWithoutKey() {
 		List<MigrationColumn> mcwithoutkey = new ArrayList<>();
 		for (MigrationColumn mc : migrationColumns) {
-			if (mc.getColFrom().getKey().length == 0) {
+			if (mc.getMigrateFrom().getKey().length == 0) {
 				mcwithoutkey.add(mc);
 			}
 		}
@@ -53,7 +53,7 @@ public class MigrationTable {
 	public List<MigrationColumn> getMigrationColumnsWithKey() {
 		List<MigrationColumn> mcwithkey = new ArrayList<>();
 		for (MigrationColumn mc : migrationColumns) {
-			if (mc.getColFrom().getKey().length > 0) {
+			if (mc.getMigrateFrom().getKey().length > 0) {
 				mcwithkey.add(mc);
 			}
 		}
@@ -76,20 +76,20 @@ public class MigrationTable {
 			return false;
 		}
 		MigrationColumn first=migrationColumns.get(0);
-		ColTo ct = first.getColTo();
-		String nameTableColTo = ct.getTable();
-		return schema.getTable(nameTableColTo) == null;
+		MigrateTo ct = first.getMigrateTo();
+		String nameTableMigrateTo = ct.getTable();
+		return schema.getTable(nameTableMigrateTo) == null;
 	}
 	/**
 	 * Determines if the data migration comes from one table (returns True) or from more (returns False)
 	 */
 	private boolean commonCodeCheckOneTableMigration () {
 		MigrationColumn first=migrationColumns.get(0);
-		ColFrom cf = first.getColFrom();
+		MigrateFrom cf = first.getMigrateFrom();
 		String nameTable = cf.getTable();
 		for (int i = 1; i<migrationColumns.size(); i++) {
 			MigrationColumn current=migrationColumns.get(i);
-			ColFrom cfcurrent = current.getColFrom();
+			MigrateFrom cfcurrent = current.getMigrateFrom();
 			String nameTableCurrent = cfcurrent.getTable();
 			if (!nameTable.equalsIgnoreCase(nameTableCurrent) && nameTableCurrent != null) {
 				return false;
@@ -108,7 +108,7 @@ public class MigrationTable {
 	public Map<String, List<MigrationColumn>> classifyMCsBySourceTable(List<MigrationColumn> migCols) {
 		Map<String, List<MigrationColumn>> mcsBySourceTable = new HashMap<>();
 		for (MigrationColumn mc : migCols) {
-			String nameTable = mc.getColFrom().getTable().toLowerCase();
+			String nameTable = mc.getMigrateFrom().getTable().toLowerCase();
 			mcsBySourceTable.computeIfAbsent(nameTable, k -> new ArrayList<>());
 			mcsBySourceTable.get(nameTable).add(mc);
 		}
@@ -118,7 +118,7 @@ public class MigrationTable {
 		for (SchemaChange sc : se.getChanges()) {
 			if (sc instanceof RemovePK rpk) {
 				for (MigrationColumn mc : mt.getMigrationColumns()) {
-					if (mc.getColFrom().getTable().equalsIgnoreCase(rpk.getNamePreviousTable())) {
+					if (mc.getMigrateFrom().getTable().equalsIgnoreCase(rpk.getNamePreviousTable())) {
 						return true;
 					}
 				}
@@ -139,7 +139,7 @@ public class MigrationTable {
 	}
 	public boolean migrationJoinColumn(SchemaEvolution se) {
 		for (SchemaChange sc : se.getChanges()) {
-			if (sc instanceof JoinColumn) {
+			if (sc instanceof MergeColumn) {
 				return true;
 			}
 		}

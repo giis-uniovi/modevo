@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MigrationTable xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="DataMigration" name="scim_user_times">
   <migcol>
-    <ColTo Data="uid" DataTable="scim_user_times"/>
-    <ColFrom Data="id" DataTable="scim_user"/>
+    <MigrateTo Data="uid" DataTable="scim_user_times"/>
+    <MigrateFrom Data="id" DataTable="scim_user"/>
   </migcol>
   <migcol Description="It is not possible to migrate data to the column created_at as it is storing new data that is not stored in another table"/>
   <migcol Description="It is not possible to migrate data to the column last_updated_at as it is storing new data that is not stored in another table"/>

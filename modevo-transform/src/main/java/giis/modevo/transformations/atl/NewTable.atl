@@ -4,7 +4,7 @@ create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution
 ---Rule for all new tables that are not based on a previovus table. It details the data migrations for each column of the new table
 rule newTable {
 	from 
-		nt : SchemaEvolution!AddTable (nt.prevTable.oclIsUndefined ()) --This rule is only triggered when there is no prev table
+		nt : SchemaEvolution!NewTable (nt.prevTable.oclIsUndefined ()) --This rule is only triggered when there is no prev table
 		using{
 			tableFrom: Schema!Table = Schema!Table.allInstancesFrom('LM')
 			->select (t | t.containsRequiredColumns(nt.tab));
@@ -27,7 +27,7 @@ rule newTable {
 ---Rule for all new tables that are based on a previovus table. It details the data migrations for each column of the new table, including new columns that were not in the previous table
 rule newTableFromPrevTable {
 	from 
-		nt : SchemaEvolution!AddTable (not nt.prevTable.oclIsUndefined ()) --This rule is only triggered when there is a previous version of the table
+		nt : SchemaEvolution!NewTable (not nt.prevTable.oclIsUndefined ()) --This rule is only triggered when there is a previous version of the table
 		using{
 			tableFit: Schema!Table = Schema!Table.allInstancesFrom('LM') --Main table to get the data is the previous version
 			->any (t | t.name = nt.prevTable);
@@ -54,15 +54,15 @@ lazy rule MigColNewTableKeyMigration{
 		using {
 			keyColumnToColumn : Sequence (SchemaEvolution!Column) = thisModule.typeKeySchemaEvolution (colsFitTable, thisModule.extractEntityByName (col.nameEntity), col.tab);
 			--first table that contains the data to be migrated is obtained by also requiring that the key column from keyColumnToColumn are obtained. Gets data column. Finished code
-			colFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
+			MigrateFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
 			->select (c | c.nameAttribute = col.nameAttribute and c.nameEntity = col.nameEntity and thisModule.keyInTableSchemaEvolution(c.tableColumn, keyColumnToColumn)).first();
 			--Gets key columns
-			colKeyFromVariable: Sequence (Schema!Column) = colFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTablesSchemaEvolution(keyColumnToColumn));
+			colKeyFromVariable: Sequence (Schema!Column) = MigrateFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTablesSchemaEvolution(keyColumnToColumn));
 		}
 	to
 		add: DataMigration!MigrationCol ( --for each new column
-			ColTo <-  thisModule.columnTo (col, keyColumnToColumn),
-			ColFrom <- thisModule.columnFrom (colKeyFromVariable, colFromVariable)
+			MigrateTo <-  thisModule.columnTo (col, keyColumnToColumn),
+			MigrateFrom <- thisModule.columnFrom (colKeyFromVariable, MigrateFromVariable)
 		)	
 }
 
@@ -74,8 +74,8 @@ lazy rule MigColNewTable {
 		col: SchemaEvolution!Column 
 	to
 		add: DataMigration!MigrationCol ( --for each new column
-			ColTo <-  thisModule.columnToNewTable (col),
-			ColFrom <- thisModule.columnFromNewTable (col, tableFit)
+			MigrateTo <-  thisModule.columnToNewTable (col),
+			MigrateFrom <- thisModule.columnFromNewTable (col, tableFit)
 		)	
 }
 
@@ -94,7 +94,7 @@ lazy rule columnFromNewTable {
 		col: SchemaEvolution!Column,
 		tableFit: Schema!Table 
 	to
-		colFrom: DataMigration!From (
+		MigrateFrom: DataMigration!Source (
 			Data<- thisModule.obtainColumnInTableFromNewColumn(col, tableFit).name,
 			DataTable <- tableFit.name
 		)
@@ -105,7 +105,7 @@ lazy rule columnToNewTable {
 	from
 		r: SchemaEvolution!Column
 	to
-		colTo: DataMigration!To (
+		MigrateTo: DataMigration!Target (
 			Data<- r.name,
 			DataTable <- r.tab.name
 		)

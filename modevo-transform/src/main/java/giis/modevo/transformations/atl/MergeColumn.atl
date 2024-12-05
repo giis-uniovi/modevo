@@ -1,21 +1,21 @@
-module JoinColumn;
+module MergeColumn;
 create OUT: DataMigration from LM:Schema, CM:ConceptualModel, CH:SchemaEvolution;
 
-rule JoinColumn {
+rule MergeColumn {
 	from
-		j: SchemaEvolution!JoinColumn
+		j: SchemaEvolution!MergeColumn
 	to
 		add: DataMigration!MigrationTable(
 			name<- j.table,
-			joincol <- thisModule.JoinColumnMigCol(j)
+			joincol <- thisModule.MergeColumnMigCol(j)
 		)
 }
 ---Lazy rule that creates a Migration Column class particularly specialized for a Join column schema modification
-lazy rule JoinColumnMigCol {
+lazy rule MergeColumnMigCol {
 	from 
-		j: SchemaEvolution!JoinColumn
+		j: SchemaEvolution!MergeColumn
 	to
-		add: DataMigration!JoinColumn (
+		add: DataMigration!MergeColumn (
 			ColTarget <- j.targetColumn.name,
 			ColSource <- thisModule.getNamesColumn (j.sourceColumns)
 		)			

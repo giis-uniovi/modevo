@@ -14,7 +14,7 @@ import giis.modevo.model.schema.Column;
 import giis.modevo.model.schema.Schema;
 import giis.modevo.model.schema.Table;
 import giis.modevo.model.schemaevolution.CriteriaSplit;
-import giis.modevo.model.schemaevolution.JoinColumn;
+import giis.modevo.model.schemaevolution.MergeColumn;
 import giis.modevo.model.schemaevolution.SchemaChange;
 import giis.modevo.model.schemaevolution.SchemaEvolution;
 import giis.modevo.model.schemaevolution.SplitColumn;
@@ -86,7 +86,7 @@ public class Script {
 		log.info("Join Column Script. Target table: %s", mt.getName());
 		Script script = new Script ();
 		for (SchemaChange sc : se.getChanges()) {
-			if (sc instanceof JoinColumn spc) {
+			if (sc instanceof MergeColumn spc) {
 				List<Column> sourceColumns  = spc.getSourceColumns();
 				Column newColumn = spc.getC();
 				Table t = schema.getTable(mt.getName());
@@ -184,17 +184,17 @@ public class Script {
 		 */
 		for (MigrationColumn mc: migrationColumnsWithKey) {
 			log.info(MIGRATION_FOR_COLUMN, mc.getName());
-			String nameTable = mc.getColFrom().getTable();
+			String nameTable = mc.getMigrateFrom().getTable();
 			if (select.getTable() == null) {
 				select.setTable(mu.findTable(schema, se, nameTable));
 			}
-			String nameColumn =  mc.getColTo().getData(); //nameOfColumn where data will be migrated
-			String[] keyColumnTo = mc.getColTo().getKey();
-			String[] keyColumnFrom = mc.getColFrom().getKey();
+			String nameColumn =  mc.getMigrateTo().getData(); //nameOfColumn where data will be migrated
+			String[] keyColumnTo = mc.getMigrateTo().getKey();
+			String[] keyColumnFrom = mc.getMigrateFrom().getKey();
 			Table from = schema.getTable(nameTable);
 			Column c= mu.findColumn (schema,se,from.getName(),nameColumn);
 			Select selectInside = script.insertSelect(c, from, keyColumnFrom, schema);
-			Column target = mu.findColumn(schema, se, mc.getColTo().getTable(), mc.getColTo().getData());
+			Column target = mu.findColumn(schema, se, mc.getMigrateTo().getTable(), mc.getMigrateTo().getData());
 			//Includes the information required to insert the data queries by 'select' in an iteration into 'target'.
 			insert.addColumnValue (c, selectInside, keyColumnTo, target);
 		}
@@ -222,16 +222,15 @@ public class Script {
 		//Association in the Insert statement and SELECT statement of the columns that will get the data from the SELECT statement this SELECT statement
 		for (MigrationColumn mc: migrationColumnsWithoutKey) {
 			log.info(MIGRATION_FOR_COLUMN, mc.getName());
-			String nameColumn = mc.getColFrom().getData(); 
-			String nameTable = mc.getColFrom().getTable();
+			String nameColumn = mc.getMigrateFrom().getData(); 
+			String nameTable = mc.getMigrateFrom().getTable();
 			Column c= mu.findColumn (schema,se,nameTable,nameColumn);
 			if (s.getTable() == null) {
 				s.setTable(mu.findTable(schema, se, nameTable));
 			}
 			//Includes the information required to obtain data from column 'c'
 			s.addColumnSearch (schema, se, nameTable, c);
-			Column target = mu.findColumn(schema, se, mc.getColTo().getTable(), mc.getColTo().getData());
-
+			Column target = mu.findColumn(schema, se, mc.getMigrateTo().getTable(), mc.getMigrateTo().getData());
 			//Includes the information required to insert the data queries by 's' in an iteration into 'c'
 			insert.addColumnValue (c, s, null, target);
 		}
@@ -288,15 +287,15 @@ public class Script {
 			Table sourceTable = schema.getTable(nameTable);
 			for (MigrationColumn mc : keysTarget) {
 				log.info(MIGRATION_FOR_COLUMN, mc.getName());
-				String nameColumn =  mc.getColFrom().getData(); //nameOfColumn where data will be migrated
-				String[] keyColumnTo = mc.getColTo().getKey();
-				String[] keyColumnFrom = mc.getColFrom().getKey();
+				String nameColumn =  mc.getMigrateFrom().getData(); //nameOfColumn where data will be migrated
+				String[] keyColumnTo = mc.getMigrateTo().getKey();
+				String[] keyColumnFrom = mc.getMigrateFrom().getKey();
 				Column c= mu.findColumn (schema,se,sourceTable.getName(),nameColumn);
 				Select select = script.insertSelect(c, sourceTable, keyColumnFrom, schema);
 				if (!forSourceKey.getSelectsInsideFor().contains(select)) {
 					forSourceKey.getSelectsInsideFor().add(select);
 				}
-				Column target = mu.findColumn(schema, se, mc.getColTo().getTable(), mc.getColTo().getData());
+				Column target = mu.findColumn(schema, se, mc.getMigrateTo().getTable(), mc.getMigrateTo().getData());
 				insertTarget.addColumnValue(c, select, keyColumnTo, target);
 			}
 			script.getInserts().add(insertTarget);

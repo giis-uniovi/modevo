@@ -18,17 +18,17 @@
         name="parent_guid_c3"
         nameAttribute="parent_guid_c3"
         nameEntity="comments"/>
-     <CriteriaScplit
+     <CriteriaSplit
         xmi:id="cs1"
         column="c1"
         value="f"
         operator="g"/>
-     <CriteriaScplit
+     <CriteriaSplit
         xmi:id="cs2"
         column="c2"
         value="p"
         operator="g"/>     
-     <CriteriaScplit
+     <CriteriaSplit
         xmi:id="cs3"
         column="c3"
         value="p"
