@@ -3,7 +3,6 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SchemaEvolution">
   <eClassifiers xsi:type="ecore:EClass" name="NewColumn">
     <eStructuralFeatures xsi:type="ecore:EReference" name="tab" upperBound="-1" eType="#//Table"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="columns" upperBound="-1"
         eType="#//Column"/>
   </eClassifiers>
@@ -36,7 +35,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="newColumns" lowerBound="1"
         upperBound="-1" eType="#//Column"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="criteria" lowerBound="1"
-        upperBound="-1" eType="#//SplitColumn"/>
+        upperBound="-1" eType="#//CriteriaSplit"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MergeTable">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="tableSource" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -61,8 +60,6 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RemovePK">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="table" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="column" lowerBound="1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="previous" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="columnRemoved" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
