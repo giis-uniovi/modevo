@@ -27,13 +27,9 @@ public class AddColumn extends SchemaChange {
 	@Override
 	protected List<SchemaChange> changesSchemaModel (NodeList list, Element element) {
 		List<SchemaChange> changes = new ArrayList<>();
-		String idTable = element.getAttribute("tab");
-		Element table = getElementById(list, idTable);
-		if (table == null) {
-			throw new DocumentException(messageIdMissing(idTable));
-		}
-		Table t = new Table(table.getAttribute("name"));
-		String idColumns = table.getAttribute("cols");
+		String nameTable = element.getAttribute("table");
+		Table t = new Table(nameTable);
+		String idColumns = element.getAttribute("columns");
 		String[] columnsArray = idColumns.split(" ");
 		for (String c : columnsArray) {
 			Element column = getElementById(list, c);
