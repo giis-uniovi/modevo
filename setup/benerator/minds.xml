@@ -1,0 +1,38 @@
+<setup>
+<import platforms="db" domains="person,organization"/>
+<database id="db" url="jdbc:mysql://localhost:3306/minds" driver="com.mysql.cj.jdbc.Driver" user="root" password="123456"/>
+    <generate type="comments" count="100" threads="1" consumer="db">
+	      <attribute name="parent_guid" type="string" maxLength = "25"/>
+	</generate>
+	    <generate type="wire" count="100" threads="1" consumer="db">
+	      <attribute name="timestamp" type="string" maxLength = "25"/>
+	      <attribute name="method" type="string" maxLength = "25"/>
+		  <attribute name="amount" type="string" maxLength = "25"/>
+	      <attribute name="recurring" type="string" maxLength = "25"/>
+		  <attribute name="status" type="string" maxLength = "25"/>
+	      <attribute name="wei" type="string" maxLength = "25"/>
+		  <attribute name="wei_amount" type="string" maxLength = "25"/>
+	      <attribute name="description" type="string" maxLength = "25"/>
+	</generate>
+	<generate type="user" count="100" threads="1" consumer="db"/>
+	    <generate type="entity" count="200" threads="1" consumer="db">
+				<id name="id" type="int"/>
+		        <reference name="idwire" targetType="wire" source="db" distribution="random"/>
+		</generate>
+    <generate type="hashtag" count="100" threads="1" consumer="db">
+      <attribute name="hidden_since" type="string" maxLength = "25"/>
+        <reference name="iduser" targetType="user" source="db" distribution="random"/>
+	</generate>
+    <generate type="onchain" count="100" threads="1" consumer="db">
+	      <attribute name="address" type="string" unique="true" maxLength = "25"/>
+        <reference name="iduser" targetType="user" source="db" distribution="random"/>
+	</generate>
+	<generate type="sendwyre" count="100" threads="1" consumer="db">
+        <reference name="iduser" targetType="user" source="db" distribution="random"/>
+	</generate>
+	<generate type="snapshot" count="100" threads="1" consumer="db">
+	      <attribute name="type" type="string" maxLength = "25"/>
+      <attribute name="json_data" type="string" maxLength = "25"/>
+	</generate>
+
+  </setup>
