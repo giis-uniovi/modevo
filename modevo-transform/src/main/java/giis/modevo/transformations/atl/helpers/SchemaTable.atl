@@ -37,4 +37,3 @@ helper context Schema!Table def: ascendantsEntityInTable (e: ConceptualModel!Ent
 ---Obtains the key columns of a given table.
 helper def: keyColumnsNewTable (table : SchemaEvolution!Table): Sequence (SchemaEvolution!Column) =
 	table.cols -> select (c | c.key and c.existsInOtherTable());--The second condition is to not count new columns that are also new attributes. In these cases the datamigration model will warn the user about this issue.
-

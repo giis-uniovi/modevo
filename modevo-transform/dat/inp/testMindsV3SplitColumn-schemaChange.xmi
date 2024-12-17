@@ -21,16 +21,16 @@
      <CriteriaSplit
         xmi:id="cs1"
         column="c1"
-        value="f"
-        operator="g"/>
+        value="F"
+        operator="l"/>
      <CriteriaSplit
         xmi:id="cs2"
         column="c2"
-        value="p"
-        operator="g"/>     
+        value="P"
+        operator="l"/>     
      <CriteriaSplit
         xmi:id="cs3"
         column="c3"
-        value="p"
-        operator="l"/>
+        value="P"
+        operator="g"/>
 </xmi:XMI>

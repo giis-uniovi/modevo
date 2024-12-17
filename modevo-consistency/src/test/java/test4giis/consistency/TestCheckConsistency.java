@@ -117,6 +117,23 @@ public class TestCheckConsistency {
 		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
 	}
 	@Test
+	public void testCustomV8JoinColumn() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, book.title as title, book.subtitle AS subtitle FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook, CONCAT(book.title, book.subtitle) AS completetitle, book.subtitle AS subtitle, book.title as title FROM  author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+	@Test
+	public void testCustomV9RemovePK() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("table1beforechange", "SELECT author.id AS idauthor, book.id AS idbook, book.title as title FROM author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook;");
+		projectionAfterEvo.put("table1", "SELECT author.id AS idauthor, book.id AS idbook FROM  author INNER JOIN authorbook ON author.id = authorbook.idauthor INNER JOIN book ON book.id = authorbook.idbook ORDER BY author.id DESC, book.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "custom", projectionBeforeEvo);
+	}
+
+	@Test
 	public void testMindsV10NewTableMigrationFromOneTable() throws IOException {
 		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
 		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
@@ -154,6 +171,15 @@ public class TestCheckConsistency {
 		testConsistency(name.getMethodName(), projectionAfterEvo, "wire", projectionBeforeEvo);
 	}
 	@Test
+	public void testWireV8NewTableMigrationFromPreviousVersion() throws IOException {
+		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
+		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
+		projectionBeforeEvo.put("scim_user", "SELECT scim.id AS id FROM scim;");
+		projectionAfterEvo.put("scim_user", "SELECT scim.id AS id FROM scim ORDER BY scim.id DESC;");
+		projectionAfterEvo.put("scim_user_times", "SELECT scim.id AS id FROM scim ORDER BY scim.id DESC;");
+		testConsistency(name.getMethodName(), projectionAfterEvo, "wire", projectionBeforeEvo);
+	}
+	@Test
 	public void testWireV91NewTableMigrationFromOneTable() throws IOException {
 		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
 		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
@@ -181,26 +207,27 @@ public class TestCheckConsistency {
 		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
 		projectionBeforeEvo.put("entity_view", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
 		projectionAfterEvo.put("entity_view", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY entity.id DESC;");
-		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard", projectionBeforeEvo);
+		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard2", projectionBeforeEvo);
 	}
 	@Test
 	public void testThingsBoardV12NewColumnPK() throws IOException {
 		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
 		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
-		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id;");
-		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
-		projectionBeforeEvo.put("entity_view2_old", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
-		projectionAfterEvo.put("entity_view2", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY entity.id DESC;");
+		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant;");
+		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
+		projectionBeforeEvo.put("entity_view2_old", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
+		projectionAfterEvo.put("entity_view2", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY id DESC, tenant_id DESC, customer_id DESC, dev_type DESC;");
 		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard", projectionBeforeEvo);
 	}
 	@Test
 	public void testThingsBoardV13NewColumnKeyInTable() throws IOException {
 		Map<String, String> projectionAfterEvo = new HashMap<String, String>();
 		Map<String, String> projectionBeforeEvo = new HashMap<String, String>();
-		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id;");
-		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
-		projectionBeforeEvo.put("entity_view_devpk", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.id as device_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
-		projectionAfterEvo.put("entity_view_devpk", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.id as device_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.iddevice = device.id INNER JOIN tenant ON tenant.iddevice = device.id INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY entity.id DESC;");
+		projectionBeforeEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant;");
+		projectionAfterEvo.put("device", "SELECT device.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.dev_name as name, device.dev_type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant ORDER BY device.id DESC, tenant_id DESC, customer_ID DESC;");
+		projectionBeforeEvo.put("entity_view_devpk", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.id as device_id, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id);");
+		projectionAfterEvo.put("entity_view_devpk", "SELECT entity.id as id, tenant.ten_id as tenant_id, customer.cus_id as customer_id, device.id as device_id, device.dev_type as dev_type, entity.name as name, entity.type as type FROM device INNER JOIN customer ON customer.cus_id = device.idcustomer INNER JOIN tenant ON tenant.ten_id = device.idtenant INNER JOIN entity ON (customer.identity = entity.id AND tenant.identity = entity.id) ORDER BY id DESC, tenant_id DESC, customer_id DESC, device_id DESC, dev_type DESC;");
+	
 		testConsistency(name.getMethodName(), projectionAfterEvo, "thingsboard", projectionBeforeEvo);
 	}
 	/**
@@ -219,6 +246,7 @@ public class TestCheckConsistency {
 	 * Sets up the Cassandra by populating it with all the data required from the SQL database using the queries specified in tableProjection
 	 */
 	private void setUpCassandraDatabase(String testName, String keyspace, Map<String, String> tableProjection) {
+		resetDatabaseCassandraUnitTesting (testName);
 		OracleCsv oc = new OracleCsv();
 		Map<String, List<String>> tableColumnsMap = oc.namesTablesColumnsKeyspace(testName, connection, tableProjection); //Map of the names of tables and its columns
 		Map <String, PreparedStatement> preparedStatementsTable = new HashMap <>();
@@ -230,6 +258,19 @@ public class TestCheckConsistency {
 			preparedStatementsTable.put(tableName, ps);
 		}	
 		migrateSqlToCassandra (preparedStatementsTable, keyspace, tableProjection); //Migrates data from the SQL database to each Cassandra table
+	}
+	/**
+	 * Empties the database of data
+	 */
+	private void resetDatabaseCassandraUnitTesting(String keyspace) {
+		String cql = "SELECT table_name FROM system_schema.tables WHERE keyspace_name = '"+keyspace+"';";
+		com.datastax.oss.driver.api.core.cql.ResultSet results = connection.executeStatement(cql);
+		for (com.datastax.oss.driver.api.core.cql.Row row : results) {
+			String nameTable = row.getString(0);
+			String delete = "";
+			delete = "TRUNCATE \""+keyspace+"\"."+nameTable+";";
+			connection.executeStatement(delete);	
+		}		
 	}
 	
 	/**

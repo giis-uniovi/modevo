@@ -9,18 +9,19 @@
         name="uid"
         tab="t1"
         nameAttribute="id"
+        key="true"
         nameEntity="scim"/>
     <cols xmi:id="c2"
         name="created_at"
         tab="t1"
         nameAttribute="created_at"
-		key="true"
+		key="false"
         nameEntity="scim"/>
     <cols xmi:id="c3"
         name="last_updated_at"
         tab="t1"
         nameAttribute="last_updated_at"
-		key="true"
+		key="false"
         nameEntity="scim"/>
   </Table>
 </xmi:XMI>

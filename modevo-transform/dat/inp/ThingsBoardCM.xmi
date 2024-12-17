@@ -5,21 +5,15 @@
 <Attribute xmi:id="a1" name = "id"  entity='e1' isUnique="true"/>
 <Attribute xmi:id="a2" name = "name"  entity='e1' isUnique="false"/>
 <Attribute xmi:id="a3" name = "type"  entity='e1' isUnique="false"/>
-
 <Entity xmi:id="e2" name="device"/>
 <Attribute xmi:id="a4" name = "dev_id"  entity='e2' isUnique="true"/>
 <Attribute xmi:id="a5" name = "dev_name"  entity='e2' isUnique="false"/>
 <Attribute xmi:id="a6" name = "dev_type"  entity='e2' isUnique="false"/>
-
 <Entity xmi:id="e3" name="tenant"/>
 <Attribute xmi:id="a7" name = "ten_id"  entity='e3' isUnique="true"/>
-
 <Entity xmi:id="e4" name="customer"/>
 <Attribute xmi:id="a8" name = "cus_id"  entity='e4' isUnique="true"/>
-
-
 <Relationship xmi:id="r2" name ="relation1" entity1="e1" entity2="e3" cardinality1="1" cardinality2="n" />
 <Relationship xmi:id="r3" name ="relation2" entity1="e1" entity2="e4" cardinality1="1" cardinality2="n"/>
 <Relationship xmi:id="r4" name ="relation3" entity1="e2" entity2="e3" entity3="e4" cardinality1="n" cardinality2="1" cardinality3="1"/>
-
 </xmi:XMI>

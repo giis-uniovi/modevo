@@ -121,6 +121,7 @@ jobs:
           docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/minds.sql
           docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/wire.sql
           docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/thingsboard.sql
+          docker exec -i test-mysql sh -c "exec mysql -uroot -prootpassword" < ./setup/thingsboard2.sql
       - name: Initialize Cassandra database
         run: |
           docker run --name test-cassandra -d -p 9042:9042 \

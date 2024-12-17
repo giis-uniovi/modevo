@@ -1,0 +1,26 @@
+<setup>
+<database id="db" url="jdbc:mysql://localhost:3306/thingsboard" driver="com.mysql.cj.jdbc.Driver" user="root" password="123456"/>
+    <generate type="entity" count="1000" threads="1" consumer="db">
+					<id name="id" type="int"/>
+
+	      <attribute name="name" type="string" maxLength = "25"/>
+		  <attribute name="type" type="string" maxLength = "25"/>
+	</generate>
+		<generate type="tenant" count="1000" threads="1" consumer="db">
+				<id name="ten_id" type="int"/>
+		        <reference name="identity" targetType="entity" source="db" distribution="random"/>
+	</generate>
+	<generate type="customer" count="1000" threads="1" consumer="db">
+				<id name="cus_id" type="int"/>
+		        <reference name="identity" targetType="entity" source="db" distribution="random"/>
+	</generate>
+	<generate type="device" count="1000" threads="1" consumer="db">
+						<id name="id" type="int"/>
+
+	      <attribute name="dev_name" type="string" maxLength = "25"/>
+		  <attribute name="dev_type" type="string" maxLength = "25"/>
+		  <reference name="idcustomer" targetType="customer" source="db" distribution="random"/>
+		<reference name="idtenant" targetType="tenant" source="db" distribution="random"/>
+	</generate>
+
+</setup>

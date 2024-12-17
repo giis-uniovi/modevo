@@ -507,8 +507,8 @@ CREATE TABLE "testWireV8NewTableMigrationFromPreviousVersion".scim_user_times (
 	created_at text,
 	last_updated_at text,
 	uid text,
-	PRIMARY KEY (created_at, last_updated_at)
-) WITH CLUSTERING ORDER BY ( last_updated_at ASC );
+	PRIMARY KEY (uid)
+);
 
 -- Export of keyspace testWireV91NewTableMigrationFromOneTable
 CREATE KEYSPACE "testWireV91NewTableMigrationFromOneTable"

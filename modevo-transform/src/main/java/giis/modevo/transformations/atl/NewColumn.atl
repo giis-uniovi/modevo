@@ -7,24 +7,25 @@ rule newColumn {
 		r: SchemaEvolution!NewColumn
 	to
 		add: DataMigration!MigrationTable ( --for the moment, it creates a MigrationTable to define the data migration. In the future this will change in order to consider migrations for more than column
-			name <- r.tab.first().name, --there will only be one table for the moment
-			migcol <- r.tab.first().cols -> collect (c | thisModule.MigCol(c)) --call the lazy rule to define the table to create
+			name <- r.table, --there will only be one table for the moment
+			migcol <- r.columns -> collect (c | thisModule.MigCol(c, r.table)) --call the lazy rule to define the table to create
 		)
 }
 
 ---Details migration for a single column that has been added to a new table
 lazy rule MigCol {
 	from
-		r: SchemaEvolution!Column
+		r: SchemaEvolution!Column,
+		nameTable: String
 		using {
-			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (r.tab.tableFromLM().Column, thisModule.extractEntityByName (r.nameEntity), r.tab.tableFromLM());
+			keyColumnToColumn : Sequence (Schema!Column) = thisModule.typeKey (thisModule.findTable(nameTable).Column, thisModule.extractEntityByName (r.nameEntity), thisModule.findTable(nameTable));
 			--first table that contains the data to be migrated is obtained by also requiring that the key column from keyColumnToColumn are obtained. Gets data column. Finished code
 			MigrateFromVariable : Schema!Column = Schema!Column.allInstancesFrom('LM')
 			->select (c | c.nameAttribute = r.nameAttribute and c.nameEntity = r.nameEntity and thisModule.keyInTable(c.tableColumn, keyColumnToColumn)).first();
 			--Gets key columns
 			colKeyFromVariable: Sequence (Schema!Column) = MigrateFromVariable.tableColumn.Column -> select (c | c.equivalentColumnInSequenceTables(keyColumnToColumn));
 		
-			ascendantsUsed : Boolean = thisModule.ascendentsUsed (r.tab.tableFromLM().Column, thisModule.extractEntityByName (r.nameEntity), r.tab.tableFromLM());
+			ascendantsUsed : Boolean = thisModule.ascendentsUsed (thisModule.findTable(nameTable).Column, thisModule.extractEntityByName (r.nameEntity), thisModule.findTable(nameTable));
 		}
 	to
 		add: DataMigration!MigrationCol ( --for each new column
@@ -141,4 +142,8 @@ helper def: keyAttributesFunction (entities: Sequence (ConceptualModel!Entity)):
 ---Returns the attributes that are key in an entity
 helper def: keyAttributesFunctionOneEntity (entity: ConceptualModel!Entity): Sequence (ConceptualModel!Attribute) =
 	ConceptualModel!Attribute.allInstancesFrom('CM') -> select (a | entity = a.entity and a.isUnique);
+
+---Obtains equivalent Table in the Schema model
+helper def: findTable (name : String): Schema!Table =
+	Schema!Table.allInstancesFrom('LM') -> any (t | t.name = name);
 
