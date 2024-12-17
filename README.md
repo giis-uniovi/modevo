@@ -73,6 +73,10 @@ Uses a SQL database to check that MoDEvo maintain data integrity.
 
 Both the SQL database and the Cassandra database store initially the same data (in a normalized model for SQL and denormalized for Cassandra). Then, the data is migrated accordingly in both databases, in the SQL database with this module and in Cassandra by executing the scripts generated in the script module. Finally, both databases are compared to check if MoDEvo maintained data integrity.
 
+## Replication package
+
+The replication package instructions for this project is located at the following repository: https://doi.org/10.5281/zenodo.14509607
+
 ## Citing this work
 
 TODO
