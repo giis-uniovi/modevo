@@ -207,7 +207,7 @@ jobs:
             **/target/*.log
             **/reports/*.html
             **/reports/*.log    
-      - uses: javiertuya/sonarqube-action@v1.4.0
+      - uses: javiertuya/sonarqube-action@v1.4.1
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
