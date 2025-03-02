@@ -169,15 +169,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4.1.8
+      - uses: actions/download-artifact@v4.1.9
         if: always()
         with:
           name: "test-report-files-transform"
-      - uses: actions/download-artifact@v4.1.8
+      - uses: actions/download-artifact@v4.1.9
         if: always()
         with:
           name: "test-report-files-script"
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4.1.9
         if: always()
         with:
           name: "verify-report-files-consistency"
