@@ -18,7 +18,7 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<surefire.version>3.5.2</surefire.version>
+		<surefire.version>3.5.3</surefire.version>
 	</properties>
 
 	<modules>
@@ -50,7 +50,7 @@
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
-				<version>1.18.36</version>
+				<version>1.18.38</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>
@@ -90,7 +90,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.12</version>
+					<version>0.8.13</version>
 					<executions>
 						<execution>
 							<id>pre-unit-test</id>
