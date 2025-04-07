@@ -140,7 +140,6 @@ public class ScriptText {
 			Column ce = s.getWhere().get(j);
 			String nameVariable = this.getNameVariableColumn (ce, se.getSelects());
 			ce.setVariableName(nameVariable);
-
 			columns.append(ce.getName()).append("=").append(nameVariable);
 		}
 		if (!s.getWhere().isEmpty()) {
