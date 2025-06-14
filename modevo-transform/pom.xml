@@ -16,7 +16,7 @@
 	</organization>
 	
 	<properties>
-		<atl.version>4.10.0</atl.version>
+		<atl.version>4.12.0</atl.version>
 	</properties>
 	
 	<repositories>
