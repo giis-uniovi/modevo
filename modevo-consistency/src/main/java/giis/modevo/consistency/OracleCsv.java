@@ -233,17 +233,17 @@ public class OracleCsv {
 			while (rs.next()) {
 				StringBuilder row = new StringBuilder();
 				if (rs.getString(1) == null) {
-					row.append("\"" + "" + "\"");
+					row.append("\"").append("\"");
 				} else {
-					row.append("\"" + rs.getString(1).replace("\"", "\\\"") + "\"");
+					row.append("\"").append(rs.getString(1).replace("\"", "\\\"")).append("\"");
 				}
 				for (int i = 2; i < numberOfColumns + 1; i++) {
 					if (rs.getMetaData().getColumnTypeName(i).equalsIgnoreCase("DECIMAL")) {
-						row.append(",\"" + rs.getLong(i) + "\"");
+						row.append(",\"").append(rs.getLong(i)).append("\"");
 					} else if (rs.getString(i) != null) {
-						row.append(",\"" + rs.getString(i).replace("\"", "\\\"") + "\"");
+						row.append(",\"").append(rs.getString(i).replace("\"", "\\\"")).append("\"");
 					} else {
-						row.append(",\"" + "" + "\"");
+						row.append(",\"").append("\"");
 					}
 				}
 				row.append("\n");
