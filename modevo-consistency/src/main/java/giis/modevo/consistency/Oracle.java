@@ -71,14 +71,11 @@ public class Oracle {
 			}
 		}
 		List<Object> toBind = new ArrayList<>();
-		List<Class<?>> classes = new ArrayList<>();
 		for (String columnName : columnNames) {
 			if (columnTypes.containsKey(columnName)) {
 				Integer intValue = intValues.get(columnName);
 				if (intValue == null) {
 					String stringValue = stringValues.get(columnName);
-					Class<?> clase = stringValue.getClass();
-					classes.add(clase);
 					toBind.add(stringValue);
 				} else {
 					toBind.add(intValue.toString());
