@@ -79,7 +79,7 @@ The replication package instructions for this project is located at the followin
 
 ## Citing this work
 
-Suárez-Otero, P., Mior, M. J., Suárez-Cabal, M. J., & Tuya, J. (2023). Data migration for column family database evolution. Information and Software Technology, 187, 107834. https://doi.org/10.1016/j.infsof.2025.107834
+Suárez-Otero, P., Mior, M. J., Suárez-Cabal, M. J., & Tuya, J. (2025). Data migration for column family database evolution. Information and Software Technology, 187, 107834. https://doi.org/10.1016/j.infsof.2025.107834
 
 ## Related work
 
