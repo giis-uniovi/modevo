@@ -38,7 +38,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           check_name: "test-result-transform"
           report_paths: "**/surefire-reports/TEST-*.xml"
@@ -85,7 +85,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           check_name: "test-result-script"
           report_paths: "**/surefire-reports/TEST-*.xml"
@@ -143,7 +143,7 @@ jobs:
 
       - name: Generate report checks
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           check_name: "verify-result-consistency"
           report_paths: "**/surefire-reports/TEST-*.xml"
