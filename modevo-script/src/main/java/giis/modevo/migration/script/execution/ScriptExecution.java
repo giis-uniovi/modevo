@@ -93,9 +93,9 @@ public class ScriptExecution {
 	private void replaceJoinColumnVariables(String statementInsertWithKeyspace, List<ColumnValue> cvs) {
 		Pattern pattern = Pattern.compile("\\$(\\d+)(\\+\\$(\\d+))"); //Obtains all the joins that exist
 		Matcher matcher = pattern.matcher(statementInsertWithKeyspace);
+		Pattern patternSingleVariable = Pattern.compile("\\$(\\d+)"); //Obtains each source value to be joined
 		while (matcher.find()) {
 			String match = matcher.group();
-			Pattern patternSingleVariable = Pattern.compile("\\$(\\d+)"); //Obtains each source value to be joined
 			Matcher matcherSingleVariable = patternSingleVariable.matcher(match);
 			StringBuilder sb = new StringBuilder();
 			while (matcherSingleVariable.find()) {
