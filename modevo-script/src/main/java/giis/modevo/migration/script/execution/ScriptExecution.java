@@ -63,6 +63,7 @@ public class ScriptExecution {
 	 * @param cvsFromWhere 
 	 */
 	private void executeInserts(Script script, List<ColumnValue> cvs, List<List<ColumnValue>> cvsFromWhere, For highFor, CassandraConnection c, String nameKeyspace) {
+		Pattern pattern = Pattern.compile("\\$\\d+");
 		for (Insert i: script.getInserts()) {
 			if (i.getInsideFor().equals(highFor)){
 				String insertStatement = i.getInsertStatement();
@@ -78,7 +79,7 @@ public class ScriptExecution {
 					insertsInside.addAll(replacedVariableNamesList);
 				}
 				if (cvsFromWhere.isEmpty()) {
-					String statementWithEmptyValues = statementInsertWithKeyspace.replaceAll("\\$\\d+", "''");
+					String statementWithEmptyValues = pattern.matcher(statementInsertWithKeyspace).replaceAll("''");
 					insertsInside.add(statementWithEmptyValues);	
 				}
 				for (String statementToExecute : insertsInside) {
