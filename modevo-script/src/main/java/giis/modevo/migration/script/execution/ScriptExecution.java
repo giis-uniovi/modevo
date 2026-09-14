@@ -63,6 +63,7 @@ public class ScriptExecution {
 	 * @param cvsFromWhere 
 	 */
 	private void executeInserts(Script script, List<ColumnValue> cvs, List<List<ColumnValue>> cvsFromWhere, For highFor, CassandraConnection c, String nameKeyspace) {
+		Pattern pattern = Pattern.compile("\\$\\d+");
 		for (Insert i: script.getInserts()) {
 			if (i.getInsideFor().equals(highFor)){
 				String insertStatement = i.getInsertStatement();
@@ -78,7 +79,7 @@ public class ScriptExecution {
 					insertsInside.addAll(replacedVariableNamesList);
 				}
 				if (cvsFromWhere.isEmpty()) {
-					String statementWithEmptyValues = statementInsertWithKeyspace.replaceAll("\\$\\d+", "''");
+					String statementWithEmptyValues = pattern.matcher(statementInsertWithKeyspace).replaceAll("''");
 					insertsInside.add(statementWithEmptyValues);	
 				}
 				for (String statementToExecute : insertsInside) {
@@ -93,9 +94,9 @@ public class ScriptExecution {
 	private void replaceJoinColumnVariables(String statementInsertWithKeyspace, List<ColumnValue> cvs) {
 		Pattern pattern = Pattern.compile("\\$(\\d+)(\\+\\$(\\d+))"); //Obtains all the joins that exist
 		Matcher matcher = pattern.matcher(statementInsertWithKeyspace);
+		Pattern patternSingleVariable = Pattern.compile("\\$(\\d+)"); //Obtains each source value to be joined
 		while (matcher.find()) {
 			String match = matcher.group();
-			Pattern patternSingleVariable = Pattern.compile("\\$(\\d+)"); //Obtains each source value to be joined
 			Matcher matcherSingleVariable = patternSingleVariable.matcher(match);
 			StringBuilder sb = new StringBuilder();
 			while (matcherSingleVariable.find()) {
