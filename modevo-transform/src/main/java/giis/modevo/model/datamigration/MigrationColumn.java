@@ -31,6 +31,8 @@ public class MigrationColumn {
 		super();
 		this.name = c.name;
 		this.description = "";
+		migrateTo = new MigrateTo();
+		migrateFrom = new MigrateFrom();
 	}
 	
 }
