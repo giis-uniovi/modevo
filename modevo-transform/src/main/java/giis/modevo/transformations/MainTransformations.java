@@ -197,10 +197,11 @@ public class MainTransformations {
 	 */
 	protected Map<String, Object> getOptions() {
 		Map<String, Object> options = new HashMap<>();
+		String prefix = "MoDEvo.options.";
 		for (Entry<Object, Object> entry : propertiesATL.entrySet()) {
-			if (entry.getKey().toString().startsWith("MoDEvo.options.")) {
-				options.put(entry.getKey().toString().replaceFirst("MoDEvo.options.", ""), 
-				entry.getValue().toString());
+			String key = entry.getKey().toString();
+			if (key.startsWith(prefix)) {
+				options.put(key.substring(prefix.length()), entry.getValue().toString());
 			}
 		}
 		return options;

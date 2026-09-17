@@ -30,6 +30,7 @@ public class MigrationColumn {
 	public MigrationColumn(MigrationColumn c) {
 		super();
 		this.name = c.name;
+		this.description = "";
 	}
 	
 }
